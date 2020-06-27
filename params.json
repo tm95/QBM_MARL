@@ -11,16 +11,6 @@
   "epsilon_decay": 0.000008,
   "epsilon_decay_contract": 0.00003,
   "epsilon_min": 0.01,
-  "field_width": 6,
-  "field_height": 6,
-  "nb_machines": 3,
-  "nb_machine_types": 2,
-  "machine_types": [0, 1, 0],
-  "nb_steps_machine_inactive": [10],
-  "nb_tasks": 3,
-  "rewards": [1.0, 1.0],
-  "step_penalties": [0.1, 0.1],
-  "nb_actions": 4,
   "nb_max_episode_steps": 1000,
   "logging": 1
 }

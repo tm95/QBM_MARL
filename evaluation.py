@@ -16,14 +16,17 @@ def evaluate(env, agents, nb_episodes, nb_steps, logger):
         # classic reinforcement learning loop
         while not all_done and steps < nb_steps:
             steps += 1
-            actions = []
+            actions = np.zeros((env.n, 10), dtype=int)
+            action_list = []
 
-            for i in range(env.nb_agents):
-                actions.append(agents[i].policy(states[i]))
+            for i in range(env.n):
+                action = agents[i].policy(states[i])
+                action_list.append(action)
+                actions[i, action] = 1
 
                 next_state, reward, done, info = env.step(actions)
 
-            for agent_index in range(env.nb_agents):
+            for agent_index in range(env.n):
                 agents[agent_index].save(states[agent_index],
                                          actions[agent_index],
                                          next_state[agent_index],
@@ -38,7 +41,7 @@ def evaluate(env, agents, nb_episodes, nb_steps, logger):
             logger.log_metric('episode_return', evaluation_episode, np.sum(episode_rewards))
             logger.log_metric('episode_steps', evaluation_episode, steps)
 
-        for i in range(env.nb_agents):
+        for i in range(env.n):
             logger.log_metric('episode_return_agent-{}'.format(i), evaluation_episode, episode_rewards[i])
 
         print("evaluation {} finished at step {} with reward: {} at timestamp {}".format(

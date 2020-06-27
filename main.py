@@ -6,7 +6,7 @@ import json
 from dotmap import DotMap
 from datetime import datetime
 import os
-#import neptune
+import neptune
 import sys
 
 
@@ -41,10 +41,9 @@ def train(seed):
 def run_experiment(logger, params, log_dir, training_mode, seed):
 
     agents = []
-    env = make_env('simple_adversary')
+    env = make_env('simple')
     observation_shape = list(env.observation_space)
     number_of_actions = env.action_space
-    print (observation_shape)
 
     weights_dir = os.path.join(log_dir, 'weights')
 
@@ -54,7 +53,6 @@ def run_experiment(logger, params, log_dir, training_mode, seed):
     # make agents and load weights
     for i in range(env.n):
         agent = make_dqn_agent(params, observation_shape[i].shape, number_of_actions[i].n, seed)
-        print (observation_shape[i].shape)
         agents.append(agent)
 
     # train agent and save weights
