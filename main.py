@@ -41,7 +41,7 @@ def train(seed):
 def run_experiment(logger, params, log_dir, training_mode, seed):
 
     agents = []
-    env = make_env('simple')
+    env = make_env('simple_tag')
     observation_shape = list(env.observation_space)
     number_of_actions = env.action_space
 
