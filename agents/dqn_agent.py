@@ -78,7 +78,7 @@ class DqnAgent:
                                     number_of_actions).to(self.device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
-        self.optimizer = torch.optim.Adam(self.policy_net.parameters(), lr=0.0005)
+        self.optimizer = torch.optim.Adam(self.policy_net.parameters(), lr=0.0008)
         self.training_count = 0
 
     def save(self, state, action, next_state, reward, done):

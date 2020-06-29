@@ -1,15 +1,13 @@
 {
-  "nb_agents": 4,
   "mini_batch_size": 128,
   "nb_episodes": 40,
   "nb_evaluation_episodes": 100,
-  "nb_steps": 9000,
+  "nb_steps": 1000,
   "warm_up_duration": 1000,
   "buffer_capacity": 20000,
   "target_update_period": 500,
   "gamma": 0.98,
-  "epsilon_decay": 0.000008,
-  "epsilon_decay_contract": 0.00003,
+  "epsilon_decay": 0.00008,
   "epsilon_min": 0.01,
   "nb_max_episode_steps": 1000,
   "logging": 1

@@ -26,7 +26,6 @@ def train(env, agents, nb_episodes, nb_steps, logger):
                 actions[i, action] = 1
 
             next_state, reward, done, info = env.step(actions)
-            print (reward)
 
             for agent_index in range(env.n):
                 agents[agent_index].save(states[agent_index],
