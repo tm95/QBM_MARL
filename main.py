@@ -21,27 +21,27 @@ def train(seed):
     params = DotMap(params_json)
 
     # Training or Evaluation
-    for training_mode in [0, 1]:  # 0=Training, 1=No_Training
+    for training_mode in [0]:  # 0=Training, 1=No_Training
         log_dir = os.path.join(os.getcwd(), 'experiments', 'exp-{}'.format(exp_time))
 
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
 
-        #neptune.init('tobiasmueller/test',
-        #             api_token='eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vdWkubmVwdHVuZS5tbCIsImFwa'
-        #                       'V91cmwiOiJodHRwczovL3VpLm5lcHR1bmUuYWkiLCJhcGlfa2V5IjoiNz'
-        #                       'E4NDgxMmQtYTMzMC00ZTUzLTlkNDAtYWNkZTUzODExZmM4In0=')
-        #logger = neptune
-        logger = None
-        #with neptune.create_experiment(name='test', params=params_json):
-        #    neptune.append_tag('evaluation-{}'.format(training_mode))
-        run_experiment(logger, params, log_dir, training_mode, seed)
+        neptune.init('tobiasmueller/sandbox',
+                     api_token='eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vdWkubmVwdHVuZS5tbCIsImFwa'
+                               'V91cmwiOiJodHRwczovL3VpLm5lcHR1bmUuYWkiLCJhcGlfa2V5IjoiNz'
+                               'E4NDgxMmQtYTMzMC00ZTUzLTlkNDAtYWNkZTUzODExZmM4In0=')
+        logger = neptune
+        #logger = None
+        with neptune.create_experiment(name='sandbox', params=params_json):
+            neptune.append_tag('evaluation-{}'.format(training_mode))
+            run_experiment(logger, params, log_dir, training_mode, seed)
 
 
 def run_experiment(logger, params, log_dir, training_mode, seed):
 
     agents = []
-    env = make_env('simple_tag')
+    env = make_env('simple_adversary')
     observation_shape = list(env.observation_space)
     number_of_actions = env.action_space
 

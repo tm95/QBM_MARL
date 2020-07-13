@@ -11,7 +11,7 @@ def evaluate(env, agents, nb_episodes, nb_steps, logger):
         steps = 0
         states = env.reset()
         all_done = False
-        episode_rewards = np.zeros(env.nb_agents, dtype=np.float32)
+        episode_rewards = np.zeros(env.n, dtype=np.float32)
 
         # classic reinforcement learning loop
         while not all_done and steps < nb_steps:
