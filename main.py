@@ -1,6 +1,6 @@
 import training
 import evaluation
-from agents.dqn_agent import make_dqn_agent
+from agents.rbm_agent import make_rbm_agent
 from envs.make_env import make_env
 import json
 from dotmap import DotMap
@@ -41,7 +41,7 @@ def train(seed):
 def run_experiment(logger, params, log_dir, training_mode, seed):
 
     agents = []
-    env = make_env('simple_adversary')
+    env = make_env('simple')
     observation_shape = list(env.observation_space)
     number_of_actions = env.action_space
 
@@ -52,15 +52,15 @@ def run_experiment(logger, params, log_dir, training_mode, seed):
 
     # make agents and load weights
     for i in range(env.n):
-        agent = make_dqn_agent(params, observation_shape[i].shape, number_of_actions[i].n, seed)
+        agent = make_rbm_agent(4, 5)
         agents.append(agent)
 
     # train agent and save weights
     if training_mode == 0:
         training.train(env, agents, params.nb_episodes, params.nb_steps, logger)
 
-        for i in range(env.n):
-            agents[i].save_weights(os.path.join(weights_dir, "weights-{}.pth".format(i)))
+    #    for i in range(env.n):
+    #        agents[i].save_weights(os.path.join(weights_dir, "weights-{}.pth".format(i)))
 
     # evaluate agents and load weights
     if training_mode == 1:

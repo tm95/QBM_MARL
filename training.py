@@ -27,18 +27,18 @@ def train(env, agents, nb_episodes, nb_steps, logger):
 
             next_state, reward, done, info = env.step(actions)
 
-            for agent_index in range(env.n):
-                agents[agent_index].save(states[agent_index],
-                                         action_list[agent_index],
-                                         next_state[agent_index],
-                                         reward[agent_index],
-                                         done[agent_index])
-                episode_rewards[agent_index] += reward[agent_index]
+            #for agent_index in range(env.n):
+            #    agents[agent_index].save(states[agent_index],
+            #                             action_list[agent_index],
+            #                             next_state[agent_index],
+            #                             reward[agent_index],
+            #                             done[agent_index])
+            #    episode_rewards[agent_index] += reward[agent_index]
 
             # train the agent
-            for i in range(env.n):
-                if not done[i] and steps != nb_steps:
-                    agents[i].train()
+            #for i in range(env.n):
+            #    if not done[i] and steps != nb_steps:
+             #       agents[i].train()
 
             states = next_state
             all_done = all(done is True for done in done)
