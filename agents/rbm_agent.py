@@ -63,6 +63,7 @@ class RBM_Agent(torch.nn.Module):
         self.a += self.learning_rate*(r + self.gamma*q1[:, a1] - q0[:, a0])*self.a[:, a0]
 
     def policy(self, state):
+        #TODO: policy
         with torch.no_grad():
             state = torch.tensor([state], device=self.device, dtype=torch.float32)
             ph0, _ = self.sample_h(state)
