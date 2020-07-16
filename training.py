@@ -31,6 +31,7 @@ def train(env, agents, nb_episodes, nb_steps, logger, grid):
                 actions[i, action] = 1
 
             next_state, reward, done, info = env.step(actions)
+            #TODO: Actions are now only for single agent case
 
             for agent_index in range(env.n):
                 episode_rewards[agent_index] += reward[agent_index]
@@ -42,6 +43,7 @@ def train(env, agents, nb_episodes, nb_steps, logger, grid):
                     q1 = (agents[i].policy(obs_n[i]))
                     agents[i].train(reward[i], q_val, q1, obs[i],
                                     np.argmax(actions[i]), np.argmax(q1))
+                    #TODO: Action for multi-agent
 
             states = next_state
             all_done = all(done is True for done in done)

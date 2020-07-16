@@ -73,7 +73,7 @@ class RBM_Agent(torch.nn.Module):
                 vk[state<0] = state[state<0]
             o, _ = self.sample_h(vk)
             return -o
- # TODO: Free energy calculation
+ # TODO: Free energy calculation & Q-function
 
 def make_rbm_agent(ni, nh):
 
