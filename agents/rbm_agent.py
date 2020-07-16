@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from collections import namedtuple
+import numpy as np
 
 
 class SimpleDQN(torch.nn.Module):
@@ -33,9 +34,10 @@ class RBM_Agent(torch.nn.Module):
         self.b = torch.randn(1, ni) # Init bias visible input nodes, 1 is batch size
         self.epsilon_decay = 0.0008
         self.epsilon_min = 0.1
-        self.epsilon = 1
         self.number_of_actions = 5
         self.device = torch.device("cpu")
+        self.learning_rate = 0.001
+        self.gamma = 0.99
 
     def sample_h(self, x): # x represents visible neuron
         wx = torch.mm(x, self.W.t())
@@ -55,16 +57,12 @@ class RBM_Agent(torch.nn.Module):
         p_v_given_h = torch.sigmoid(activation)
         return p_v_given_h, torch.bernoulli(p_v_given_h)
 
-    def train(self, state, vk, ph0, phk): # Change to modified quantum training algorithm
-        v0 = torch.tensor([state], device=self.device, dtype=torch.float32)
-        self.W += torch.mm(v0.t(), ph0) - torch.mm(vk.t(), phk)
-        self.b += torch.sum((v0 - vk), 0)
-        self.a += torch.sum((ph0 - phk), 0)
+    def train(self, r, q0, q1, state, a0, a1):
+        # Change to modified quantum training algorithm
+        self.b += self.learning_rate*(r + self.gamma*q1[:, a1] - q0[:, a0])*self.b[:, state]
+        self.a += self.learning_rate*(r + self.gamma*q1[:, a1] - q0[:, a0])*self.a[:, a0]
 
     def policy(self, state):
-        if torch.rand(1) < self.epsilon:
-            self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
-            return torch.randint(self.number_of_actions, (1,)).item()
         with torch.no_grad():
             state = torch.tensor([state], device=self.device, dtype=torch.float32)
             ph0, _ = self.sample_h(state)
@@ -73,8 +71,8 @@ class RBM_Agent(torch.nn.Module):
                 _, vk = self.sample_vo(hk)
                 vk[state<0] = state[state<0]
             o, _ = self.sample_h(vk)
-            return o.max(1)[1]
-
+            return -o
+ # TODO: Free energy calculation
 
 def make_rbm_agent(ni, nh):
 

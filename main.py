@@ -8,6 +8,7 @@ from datetime import datetime
 import os
 import neptune
 import sys
+import numpy as np
 
 
 def train(seed):
@@ -44,6 +45,11 @@ def run_experiment(logger, params, log_dir, training_mode, seed):
     env = make_env('simple')
     observation_shape = list(env.observation_space)
     number_of_actions = env.action_space
+    print (number_of_actions)
+
+    grid = [np.array(np.linspace(-15, 15, 241)),
+            np.array(np.linspace(-15, 15, 241))]
+    #TODO: Hardcoding!
 
     weights_dir = os.path.join(log_dir, 'weights')
 
@@ -52,12 +58,13 @@ def run_experiment(logger, params, log_dir, training_mode, seed):
 
     # make agents and load weights
     for i in range(env.n):
-        agent = make_rbm_agent(4, 5)
+        agent = make_rbm_agent(58081, 5)
+        # TODO: Hardcoding!
         agents.append(agent)
 
     # train agent and save weights
     if training_mode == 0:
-        training.train(env, agents, params.nb_episodes, params.nb_steps, logger)
+        training.train(env, agents, params.nb_episodes, params.nb_steps, logger, grid)
 
     #    for i in range(env.n):
     #        agents[i].save_weights(os.path.join(weights_dir, "weights-{}.pth".format(i)))
