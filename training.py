@@ -38,7 +38,7 @@ def train(env, agents, nb_episodes, nb_steps, logger):
             # train the agent
             #for i in range(env.n):
             #    if not done[i] and steps != nb_steps:
-             #       agents[i].train()
+            #        agents[i].train_regular(states[i], vk, ph0, o)
 
             states = next_state
             all_done = all(done is True for done in done)

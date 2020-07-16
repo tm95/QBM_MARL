@@ -55,7 +55,8 @@ class RBM_Agent(torch.nn.Module):
         p_v_given_h = torch.sigmoid(activation)
         return p_v_given_h, torch.bernoulli(p_v_given_h)
 
-    def train(self, v0, vk, ph0, phk): # Change to modified quantum training algorithm
+    def train(self, state, vk, ph0, phk): # Change to modified quantum training algorithm
+        v0 = torch.tensor([state], device=self.device, dtype=torch.float32)
         self.W += torch.mm(v0.t(), ph0) - torch.mm(vk.t(), phk)
         self.b += torch.sum((v0 - vk), 0)
         self.a += torch.sum((ph0 - phk), 0)
