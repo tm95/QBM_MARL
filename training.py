@@ -1,63 +1,67 @@
 from datetime import datetime
 import numpy as np
+import time
 
-
-def train(env, agents, nb_episodes, nb_steps, logger, grid):
+def train(env, agent, nb_episodes, nb_steps, logger):
     exp_time = datetime.now().strftime('%Y%m%d-%H-%M-%S')
 
     print("training started at {}".format(exp_time))
 
     for training_episode in range(nb_episodes):
         steps = 0
-        states = env.reset()
+        state = env.reset()
+        a1 = np.random.randint(7, size=1)
         all_done = False
-        episode_rewards = np.zeros(len(agents), dtype=np.float32)
+        rewards = []
 
         # reinforcement learning loop
         while not all_done and steps < nb_steps:
-            env.render()
+            env.render(mode='human', highlight=True)
+            time.sleep(0.1)
+
             steps += 1
-            actions = np.zeros((env.n, 10), dtype=int)
-            obs = np.zeros((env.n, 58081), dtype=int)
-            obs_n = np.zeros((env.n, 58081), dtype=int)
+            actions = np.zeros(10, dtype=int)
+            obs = np.zeros(70, dtype=int)
+            obs_n = np.zeros(70, dtype=int)
             action_list = []
-            # TODO: Hardcoding
 
-            for i in range(env.n):
-                obs[i, np.prod(discretize(states[0], grid))] = 1
-                q_val = agents[i].policy(obs[i])
-                action = np.argmax(q_val)
-                action_list.append(action)
-                actions[i, action] = 1
+            obs[state] = 1
 
-            next_state, reward, done, info = env.step(actions)
-            #TODO: Actions are now only for single agent case
+            print (a1)
 
-            for agent_index in range(env.n):
-                episode_rewards[agent_index] += reward[agent_index]
+            #q_val = agent.policy(obs)
+            #action = np.argmax(q_val).item()
+            #actions[action] = 1
+            action_list.append(a1)
 
-            # train the agent
-            for i in range(env.n):
-                if not done[i] and steps != nb_steps:
-                    obs_n[i, np.prod(discretize(next_state[0], grid))] = 1
-                    q1 = (agents[i].policy(obs_n[i]))
-                    agents[i].train(reward[i], q_val, q1, obs[i],
-                                    np.argmax(actions[i]), np.argmax(q1))
-                    #TODO: Action for multi-agent
+            next_state, reward, done, info = env.step(action_list)
 
-            states = next_state
-            all_done = all(done is True for done in done)
+            obs_n[next_state] = 1
+            a2 = agent.policy(obs_n)
+            q2 = agent.calculate_free_energy(obs_n)
+            #actions[action] = 1
+            #action_list.append(action)
+
+            rewards.append(reward)
+
+            q1 = agent.calculate_free_energy(obs)
+
+            agent.train(reward[0], q1, q2, obs, a1, a2)
+
+            state = next_state
+            a1 = a2
+            all_done = done
 
         if logger is not None:
-            logger.log_metric('episode_return', training_episode, np.sum(episode_rewards))
+            logger.log_metric('episode_return', training_episode, np.sum(rewards))
             logger.log_metric('episode_steps', training_episode, steps)
 
-        for i in range(env.n):
+        for i in range(len(env.agents)):
             if logger is not None:
-                logger.log_metric('episode_return_agent-{}'.format(i), training_episode, episode_rewards[i])
+                logger.log_metric('episode_return_agent-{}'.format(i), training_episode, np.sum(rewards))
 
         print("episode {} finished at step {} with reward: {} at timestamp {}".format(
-            training_episode, steps, episode_rewards, datetime.now().strftime('%Y%m%d-%H-%M-%S')))
+            training_episode, steps, np.sum(rewards), datetime.now().strftime('%Y%m%d-%H-%M-%S')))
 
 def discretize(state, grid):
     return tuple(int(np.digitize(l, g)) for l, g in zip(state, grid))

@@ -9,9 +9,11 @@ import os
 import neptune
 import sys
 import numpy as np
+import gym
+from gym.envs.registration import register
 
 
-def train(seed):
+def train(seed, env_name):
 
     exp_time = datetime.now().strftime('%Y%m%d-%H-%M-%S')
 
@@ -36,35 +38,44 @@ def train(seed):
         #logger = None
         with neptune.create_experiment(name='sandbox', params=params_json):
             neptune.append_tag('evaluation-{}'.format(training_mode))
-            run_experiment(logger, params, log_dir, training_mode, seed)
+            run_experiment(logger, params, log_dir, training_mode, seed, env_name)
 
 
-def run_experiment(logger, params, log_dir, training_mode, seed):
+def run_experiment(logger, params, log_dir, training_mode, seed, env_name):
 
     agents = []
-    env = make_env('simple')
-    observation_shape = list(env.observation_space)
-    number_of_actions = env.action_space
-    print (number_of_actions)
+    #env = make_env('simple')
+    if env_name == 'soccer':
+        register(
+            id='multigrid-soccer-v0',
+            entry_point='gym_multigrid.envs:SoccerGame4HEnv10x15N2',
+        )
+        env = gym.make('multigrid-soccer-v0')
 
-    grid = [np.array(np.linspace(-15, 15, 241)),
-            np.array(np.linspace(-15, 15, 241))]
-    #TODO: Hardcoding!
+    else:
+        register(
+            id='multigrid-collect-v0',
+            entry_point='gym_multigrid.envs:CollectGame4HEnv10x10N2',
+        )
+        env = gym.make('multigrid-collect-v0')
 
     weights_dir = os.path.join(log_dir, 'weights')
 
     if not os.path.exists(weights_dir):
         os.makedirs(weights_dir)
 
+    action_space = env.action_space.n
+
     # make agents and load weights
-    for i in range(env.n):
-        agent = make_rbm_agent(58081, 5)
-        # TODO: Hardcoding!
-        agents.append(agent)
+    #for i in range(len(env.agents)):
+    #    agent = make_rbm_agent(70, action_space)
+    #    agents.append(agent)
+
+    agents = make_rbm_agent(70, action_space)
 
     # train agent and save weights
     if training_mode == 0:
-        training.train(env, agents, params.nb_episodes, params.nb_steps, logger, grid)
+        training.train(env, agents, params.nb_episodes, params.nb_steps, logger)
 
     #    for i in range(env.n):
     #        agents[i].save_weights(os.path.join(weights_dir, "weights-{}.pth".format(i)))
@@ -81,4 +92,4 @@ if __name__ == '__main__':
     args = sys.argv
     seed = 1589174148213878
     for run in range(10):
-        train(seed)
+        train(seed, 'collect')

@@ -32,9 +32,10 @@ class RBM_Agent(torch.nn.Module):
         self.W = torch.randn(nh, ni) # Init nodes
         self.a = torch.randn(1, nh) # Init bias hidden nodes, 1 is batch size
         self.b = torch.randn(1, ni) # Init bias visible input nodes, 1 is batch size
-        self.epsilon_decay = 0.0008
+        self.epsilon = 1
+        self.epsilon_decay = 0.00008
         self.epsilon_min = 0.1
-        self.number_of_actions = 5
+        self.number_of_actions = 8
         self.device = torch.device("cpu")
         self.learning_rate = 0.001
         self.gamma = 0.99
@@ -59,20 +60,28 @@ class RBM_Agent(torch.nn.Module):
 
     def train(self, r, q0, q1, state, a0, a1):
         # Change to modified quantum training algorithm
+        self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
+
         self.b += self.learning_rate*(r + self.gamma*q1[:, a1] - q0[:, a0])*self.b[:, state]
         self.a += self.learning_rate*(r + self.gamma*q1[:, a1] - q0[:, a0])*self.a[:, a0]
 
     def policy(self, state):
-        #TODO: policy
+        print (self.epsilon)
+        if torch.rand(1) < self.epsilon:
+            return torch.randint(self.number_of_actions, (1,)).item()
         with torch.no_grad():
-            state = torch.tensor([state], device=self.device, dtype=torch.float32)
-            ph0, _ = self.sample_h(state)
-            for i in range(10):
-                _, hk = self.sample_h(state)
-                _, vk = self.sample_vo(hk)
-                vk[state<0] = state[state<0]
-            o, _ = self.sample_h(vk)
-            return -o
+            o = self.calculate_free_energy(state)
+            return np.argmax(o).item()
+
+    def calculate_free_energy(self, state):
+        state = torch.tensor([state], device=self.device, dtype=torch.float32)
+        ph0, _ = self.sample_h(state)
+        for i in range(1):
+            _, hk = self.sample_h(state)
+            _, vk = self.sample_vo(hk)
+            vk[state < 0] = state[state < 0]
+        o, _ = self.sample_h(vk)
+        return -o
  # TODO: Free energy calculation & Q-function
 
 def make_rbm_agent(ni, nh):
