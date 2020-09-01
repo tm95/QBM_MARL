@@ -20,14 +20,12 @@ def train(env, agent, nb_episodes, nb_steps, logger):
             time.sleep(0.1)
 
             steps += 1
-            actions = np.zeros(10, dtype=int)
-            obs = np.zeros(70, dtype=int)
-            obs_n = np.zeros(70, dtype=int)
+            actions = np.zeros(7, dtype=int)
             action_list = []
 
-            obs[state] = 1
+            #print (len(state))
 
-            print (a1)
+            #print (a1)
 
             #q_val = agent.policy(obs)
             #action = np.argmax(q_val).item()
@@ -35,18 +33,18 @@ def train(env, agent, nb_episodes, nb_steps, logger):
             action_list.append(a1)
 
             next_state, reward, done, info = env.step(action_list)
+            print (reward)
 
-            obs_n[next_state] = 1
-            a2 = agent.policy(obs_n)
-            q2 = agent.calculate_free_energy(obs_n)
+            a2 = agent.policy(next_state)
+            q2 = agent.calculate_free_energy(next_state)
             #actions[action] = 1
             #action_list.append(action)
 
             rewards.append(reward)
 
-            q1 = agent.calculate_free_energy(obs)
+            q1 = agent.calculate_free_energy(state)
 
-            agent.train(reward[0], q1, q2, obs, a1, a2)
+            #agent.train(reward[0], q1, q2, state, a1, a2)
 
             state = next_state
             a1 = a2

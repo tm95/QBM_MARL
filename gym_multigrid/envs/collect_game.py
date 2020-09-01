@@ -60,7 +60,7 @@ class CollectGameEnv(MultiGridEnv):
             self.place_agent(a)
 
 
-    def _reward(self, i, rewards, reward=1):
+    def _reward(self, i, rewards, reward=300):
         """
         Compute the reward to be given upon success
         """
@@ -69,7 +69,7 @@ class CollectGameEnv(MultiGridEnv):
                 rewards[j]+=reward
             if self.zero_sum:
                 if a.index!=i or a.index==0:
-                    rewards[j] -= reward
+                    rewards[j] = reward
 
     def _handle_pickup(self, i, rewards, fwd_pos, fwd_cell):
         if fwd_cell:
@@ -93,6 +93,6 @@ class CollectGame4HEnv10x10N2(CollectGameEnv):
         num_balls=[9],
         agents_index = [1],
         balls_index=[1],
-        balls_reward=[1],
+        balls_reward=[200],
         zero_sum=True)
 

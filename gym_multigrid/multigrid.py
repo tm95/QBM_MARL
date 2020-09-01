@@ -160,7 +160,7 @@ class WorldObj:
 
 
 class ObjectGoal(WorldObj):
-    def __init__(self, world, index, target_type='ball', reward=1, color=None):
+    def __init__(self, world, index, target_type='ball', reward=300, color=None):
         if color is None:
             super().__init__(world, 'objgoal', world.IDX_TO_COLOR[index])
         else:
@@ -177,7 +177,7 @@ class ObjectGoal(WorldObj):
 
 
 class Goal(WorldObj):
-    def __init__(self, world, index, reward=1, color=None):
+    def __init__(self, world, index, reward=300, color=None):
         if color is None:
             super().__init__(world, 'goal', world.IDX_TO_COLOR[index])
         else:
@@ -346,7 +346,7 @@ class Key(WorldObj):
 
 
 class Ball(WorldObj):
-    def __init__(self, world, index=0, reward=1):
+    def __init__(self, world, index=0, reward=300):
         super(Ball, self).__init__(world, 'ball', world.IDX_TO_COLOR[index])
         self.index = index
         self.reward = reward
@@ -890,7 +890,7 @@ class MultiGridEnv(gym.Env):
             see_through_walls=False,
             seed=2,
             agents=None,
-            partial_obs=True,
+            partial_obs=False,
             agent_view_size=7,
             actions_set=Actions,
             objects_set = World
@@ -974,9 +974,9 @@ class MultiGridEnv(gym.Env):
         if self.partial_obs:
             obs = self.gen_obs()
         else:
-            obs = [self.grid.encode_for_agents(self.agents[i].pos) for i in range(len(self.agents))]
+            obs = [self.grid.encode_for_agents(World, self.agents[i].pos) for i in range(len(self.agents))]
         obs=[self.objects.normalize_obs*ob for ob in obs]
-        return obs
+        return np.array(obs).flatten()
 
     def seed(self, seed=1337):
         # Seed the random number generator
@@ -1249,6 +1249,9 @@ class MultiGridEnv(gym.Env):
         order = np.random.permutation(len(actions))
 
         rewards = np.zeros(len(actions))
+        for i in range(len(rewards)):
+            rewards[i] = -100
+
         done = False
 
         for i in order:
@@ -1283,7 +1286,7 @@ class MultiGridEnv(gym.Env):
                 if fwd_cell is not None:
                     if fwd_cell.type == 'goal':
                         done = True
-                        self._reward(i, rewards, 1)
+                        self._reward(i, rewards, 300)
                     elif fwd_cell.type == 'switch':
                         self._handle_switch(i, rewards, fwd_pos, fwd_cell)
                 elif fwd_cell is None or fwd_cell.can_overlap():
@@ -1292,7 +1295,7 @@ class MultiGridEnv(gym.Env):
                     self.agents[i].pos = fwd_pos
                 self._handle_special_moves(i, rewards, fwd_pos, fwd_cell)
 
-            elif 'build' in self.actions.available and actions[i]==self.actions.build:
+            elif 'build' in self.actions.available and actions[i] == self.actions.build:
                 self._handle_build(i, rewards, fwd_pos, fwd_cell)
 
             # Pick up an object
@@ -1321,11 +1324,11 @@ class MultiGridEnv(gym.Env):
         if self.partial_obs:
             obs = self.gen_obs()
         else:
-            obs = [self.grid.encode_for_agents(self.agents[i].pos) for i in range(len(actions))]
+            obs = [self.grid.encode_for_agents(World, self.agents[i].pos) for i in range(len(actions))]
 
-        obs=[self.objects.normalize_obs*ob for ob in obs]
+        obs = [self.objects.normalize_obs*ob for ob in obs]
 
-        return obs, rewards, done, {}
+        return np.array(obs).flatten(), rewards, done, {}
 
     def gen_obs_grid(self):
         """
@@ -1342,6 +1345,7 @@ class MultiGridEnv(gym.Env):
             topX, topY, botX, botY = a.get_view_exts()
 
             grid = self.grid.slice(self.objects, topX, topY, a.view_size, a.view_size)
+
 
             for i in range(a.dir + 1):
                 grid = grid.rotate_left()

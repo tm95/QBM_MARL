@@ -1,7 +1,6 @@
 import training
 import evaluation
 from agents.rbm_agent import make_rbm_agent
-from envs.make_env import make_env
 import json
 from dotmap import DotMap
 from datetime import datetime
@@ -65,13 +64,15 @@ def run_experiment(logger, params, log_dir, training_mode, seed, env_name):
         os.makedirs(weights_dir)
 
     action_space = env.action_space.n
+    observation_space = env.observation_space
+    print (observation_space)
 
     # make agents and load weights
     #for i in range(len(env.agents)):
     #    agent = make_rbm_agent(70, action_space)
     #    agents.append(agent)
 
-    agents = make_rbm_agent(70, action_space)
+    agents = make_rbm_agent(600, action_space)
 
     # train agent and save weights
     if training_mode == 0:

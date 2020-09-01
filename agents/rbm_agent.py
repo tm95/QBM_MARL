@@ -66,7 +66,6 @@ class RBM_Agent(torch.nn.Module):
         self.a += self.learning_rate*(r + self.gamma*q1[:, a1] - q0[:, a0])*self.a[:, a0]
 
     def policy(self, state):
-        print (self.epsilon)
         if torch.rand(1) < self.epsilon:
             return torch.randint(self.number_of_actions, (1,)).item()
         with torch.no_grad():
