@@ -10,7 +10,7 @@ def train(env, agent, nb_episodes, nb_steps, logger):
     for training_episode in range(nb_episodes):
         steps = 0
         state = env.reset()
-        a1 = np.random.randint(7, size=1)
+        #a1 = np.random.randint(7, size=1)
         all_done = False
         rewards = []
 
@@ -20,34 +20,20 @@ def train(env, agent, nb_episodes, nb_steps, logger):
             time.sleep(0.1)
 
             steps += 1
-            actions = np.zeros(7, dtype=int)
             action_list = []
-
-            #print (len(state))
-
-            #print (a1)
-
-            #q_val = agent.policy(obs)
-            #action = np.argmax(q_val).item()
-            #actions[action] = 1
-            action_list.append(a1)
+            action = agent.policy(state, 150, 1)
+            action_list.append(action)
 
             next_state, reward, done, info = env.step(action_list)
-            print (reward)
 
-            a2 = agent.policy(next_state)
-            q2 = agent.calculate_free_energy(next_state)
-            #actions[action] = 1
-            #action_list.append(action)
+            next_action = agent.policy(next_state, 150, 1)
+
+            #agent.qlearn(state, action, reward, 0.01)
+            agent.qlearn(state, action, next_state, next_action, reward, 0.01)
 
             rewards.append(reward)
 
-            q1 = agent.calculate_free_energy(state)
-
-            #agent.train(reward[0], q1, q2, state, a1, a2)
-
             state = next_state
-            a1 = a2
             all_done = done
 
         if logger is not None:
@@ -60,6 +46,3 @@ def train(env, agent, nb_episodes, nb_steps, logger):
 
         print("episode {} finished at step {} with reward: {} at timestamp {}".format(
             training_episode, steps, np.sum(rewards), datetime.now().strftime('%Y%m%d-%H-%M-%S')))
-
-def discretize(state, grid):
-    return tuple(int(np.digitize(l, g)) for l, g in zip(state, grid))

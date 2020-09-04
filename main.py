@@ -72,7 +72,7 @@ def run_experiment(logger, params, log_dir, training_mode, seed, env_name):
     #    agent = make_rbm_agent(70, action_space)
     #    agents.append(agent)
 
-    agents = make_rbm_agent(600, action_space)
+    agents = make_rbm_agent(384, action_space)
 
     # train agent and save weights
     if training_mode == 0:

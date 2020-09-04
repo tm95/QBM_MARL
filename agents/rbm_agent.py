@@ -1,90 +1,128 @@
-import torch
-import torch.nn as nn
-from collections import namedtuple
+from __future__ import division
+from math import exp, log
+from random import random
 import numpy as np
+import torch
+
+def sig(x):
+        return 1 / (1 + np.exp(-x))
 
 
-class SimpleDQN(torch.nn.Module):
-    def __init__(self, height, outputs):
-        super(SimpleDQN, self).__init__()
-        self.pre_head_dim = 32  # 32
-        self.fc_net = nn.Sequential(
-            nn.Linear(height, 32),  # 64
-            nn.ELU(),
-            nn.Linear(32, self.pre_head_dim),  # 64
-            nn.ELU()
-        )
-
-        self.action_head = nn.Linear(self.pre_head_dim, outputs)
-
-    def forward(self, x):
-        x = x.view(x.size(0), -1)
-        x = self.fc_net(x)
-        return self.action_head(x)
+sig_vec = np.vectorize(sig)
 
 
-Transition = namedtuple('Transition',
-                        ('state', 'action', 'next_state', 'reward'))
+def samp(p):
+    if random() < p:
+        return 1
+    else:
+        return 0
+samp_vec = np.vectorize(samp)
 
-class RBM_Agent(torch.nn.Module):
-    def __init__(self, ni, nh):
-        super(RBM_Agent, self).__init__()
-        self.W = torch.randn(nh, ni) # Init nodes
-        self.a = torch.randn(1, nh) # Init bias hidden nodes, 1 is batch size
-        self.b = torch.randn(1, ni) # Init bias visible input nodes, 1 is batch size
+
+def logexp(x):
+    if x > 700:
+        return x
+    else:
+        return log(1 + exp(x))
+
+
+logexp_vec = np.vectorize(logexp)
+
+
+def safe_log(x):
+    if x < 1e-32:
+        x = 1e-32
+    return log(x)
+
+
+log_vec = np.vectorize(safe_log)
+
+
+def similarity(m, y):
+    """
+    Input
+    -------
+    m: binary matrix, shape = (data_len, n_feature)
+    y: binary matrix, shape = (n_feature)
+
+    Output
+    ---------
+    similarity between each row and y, the number of same entries over each row and y
+    """
+    return np.sum((m + y + 1) % 2, axis=1)
+
+class RBM_agent:
+
+    def __init__(self, n_hidden, dim_state, dim_action, scale=None):
+        self.n_hidden = n_hidden
+        self.dim_state = dim_state
+        self.dim_action = dim_action
+        self.n_visible = dim_state + dim_action
+        self.scale = scale
+        self.w = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_state))
+        self.u = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_action))
         self.epsilon = 1
-        self.epsilon_decay = 0.00008
+        self.epsilon_decay = 0.0001
         self.epsilon_min = 0.1
-        self.number_of_actions = 8
-        self.device = torch.device("cpu")
-        self.learning_rate = 0.001
-        self.gamma = 0.99
+        self.beta = 0.99
 
-    def sample_h(self, x): # x represents visible neuron
-        wx = torch.mm(x, self.W.t())
-        activation = wx + self.a.expand_as(wx)
-        p_h_given_v = torch.sigmoid(activation) # activation function
-        return p_h_given_v, torch.bernoulli(p_h_given_v)
+    def tau(self, s, a):
+        return np.dot(self.w, s) + np.dot(self.u, a)
 
-    def sample_vi(self, y):
-        wy = torch.mm(y, self.W)
-        activation = wy + self.b.expand_as(wy)
-        p_v_given_h = torch.sigmoid(activation)
-        return p_v_given_h, torch.bernoulli(p_v_given_h)
+    def lam(self, s, a):
+        return -logexp_vec(self.tau(s, a))
 
-    def sample_vo(self, y):
-        wy = torch.mm(y, self.W)
-        activation = wy + self.b.expand_as(wy)
-        p_v_given_h = torch.sigmoid(activation)
-        return p_v_given_h, torch.bernoulli(p_v_given_h)
+    def q(self, s, a):
+        ph = sig(self.tau(s, a))
+        ac = np.sum(self.w * s * ph)
 
-    def train(self, r, q0, q1, state, a0, a1):
-        # Change to modified quantum training algorithm
+        #TODO: Stimmt hier ac?!
+        b = np.sum(self.w * ac * ph)
+        c = np.nansum(ph*np.log(ph) + (1-ph)*np.log(1-ph))
+        q = ac + b - (1/self.beta)*c
+        #print (q)
+        #q = -np.sum(self.lam(s, a))
+        #print (q)
+        return q
+
+    def play(self, s, n_sample, beta):
+        # First deterministic initialization
+        h = (sig_vec(beta * np.dot(self.w, s)))
+        a = (sig_vec(beta * np.dot(self.u.T, h)))
+
+        # Gibbs sampling
+        for i in range(n_sample):
+            h = (sig_vec(beta * self.tau(s, a)))
+            a = (sig_vec(beta * np.dot(self.u.T, h)))
+
+        return np.argmax(a)
+
+    def qlearn(self, s1, a1, s2, a2, r, lr):
         self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
 
-        self.b += self.learning_rate*(r + self.gamma*q1[:, a1] - q0[:, a0])*self.b[:, state]
-        self.a += self.learning_rate*(r + self.gamma*q1[:, a1] - q0[:, a0])*self.a[:, a0]
+        b = np.zeros(8)
+        b[a1] = 1
+        a1 = b
 
-    def policy(self, state):
+        b = np.zeros(8)
+        b[a2] = 1
+        a2 = b
+
+        # q learning with gamma = 0
+        ph = sig_vec(self.tau(s1, a1))
+        self.w = lr * (r + self.q(s2, a2) - self.q(s1, a1)) * np.outer(ph, s1)
+        self.u = lr * (r + self.q(s2, a2) - self.q(s1, a1)) * np.outer(ph, a1)
+
+    def policy(self, state, n_sample, beta):
         if torch.rand(1) < self.epsilon:
-            return torch.randint(self.number_of_actions, (1,)).item()
+            return torch.randint(8, (1,)).item()
         with torch.no_grad():
-            o = self.calculate_free_energy(state)
-            return np.argmax(o).item()
+            a = self.play(state, n_sample, beta)
+            return a
 
-    def calculate_free_energy(self, state):
-        state = torch.tensor([state], device=self.device, dtype=torch.float32)
-        ph0, _ = self.sample_h(state)
-        for i in range(1):
-            _, hk = self.sample_h(state)
-            _, vk = self.sample_vo(hk)
-            vk[state < 0] = state[state < 0]
-        o, _ = self.sample_h(vk)
-        return -o
- # TODO: Free energy calculation & Q-function
 
 def make_rbm_agent(ni, nh):
 
-    agent = RBM_Agent(ni, nh)
+    agent = RBM_agent(1, ni, 8, 0.7)
 
     return agent
