@@ -40,8 +40,6 @@ class CollectGameEnv(MultiGridEnv):
             agent_view_size=view_size
         )
 
-
-
     def _gen_grid(self, width, height):
         self.grid = Grid(width, height)
 
@@ -58,7 +56,6 @@ class CollectGameEnv(MultiGridEnv):
         # Randomize the player start position and orientation
         for a in self.agents:
             self.place_agent(a)
-
 
     def _reward(self, i, rewards, reward=300):
         """
@@ -79,9 +76,6 @@ class CollectGameEnv(MultiGridEnv):
                     self.grid.set(*fwd_pos, None)
                     self._reward(i, rewards, fwd_cell.reward)
 
-    def _handle_drop(self, i, rewards, fwd_pos, fwd_cell):
-        pass
-
     def step(self, actions):
         obs, rewards, done, info = MultiGridEnv.step(self, actions)
         return obs, rewards, done, info
@@ -89,8 +83,8 @@ class CollectGameEnv(MultiGridEnv):
 
 class CollectGame4HEnv10x10N2(CollectGameEnv):
     def __init__(self):
-        super().__init__(size=8,
-        num_balls=[15],
+        super().__init__(size=6,
+        num_balls=[8],
         agents_index = [1],
         balls_index=[1],
         balls_reward=[200],

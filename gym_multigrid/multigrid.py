@@ -833,7 +833,7 @@ class Grid:
         return mask
 
 class Actions:
-    available=['still', 'left', 'right', 'forward', 'pickup', 'drop', 'toggle', 'done']
+    available=['still', 'left', 'right', 'forward', 'pickup']
 
     still = 0
     # Turn left, turn right, move forward
@@ -843,13 +843,6 @@ class Actions:
 
     # Pick up an object
     pickup = 4
-    # Drop an object
-    drop = 5
-    # Toggle/activate an object
-    toggle = 6
-
-    # Done completing task
-    done = 7
 
 class SmallActions:
     available=['still', 'left', 'right', 'forward']
@@ -1244,13 +1237,14 @@ class MultiGridEnv(gym.Env):
         return obs_cell is not None and obs_cell.type == world_cell.type
 
     def step(self, actions):
+
         self.step_count += 1
 
         order = np.random.permutation(len(actions))
 
         rewards = np.zeros(len(actions))
         for i in range(len(rewards)):
-            rewards[i] = -100
+            rewards[i] = 0
 
         done = False
 
@@ -1301,19 +1295,6 @@ class MultiGridEnv(gym.Env):
             # Pick up an object
             elif actions[i] == self.actions.pickup:
                 self._handle_pickup(i, rewards, fwd_pos, fwd_cell)
-
-            # Drop an object
-            elif actions[i] == self.actions.drop:
-                self._handle_drop(i, rewards, fwd_pos, fwd_cell)
-
-            # Toggle/activate an object
-            elif actions[i] == self.actions.toggle:
-                if fwd_cell:
-                    fwd_cell.toggle(self, fwd_pos)
-
-            # Done action (not used by default)
-            elif actions[i] == self.actions.done:
-                pass
 
             else:
                 assert False, "unknown action"

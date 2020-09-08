@@ -25,19 +25,13 @@ class DBM_agent(nn.Module):
         self.dim_action = dim_action
         self.n_visible = dim_state + dim_action
         self.scale = scale
-        self.w = np.random.uniform(low=-self.scale, high=self.scale, size=(1, dim_state))
-        self.u = np.random.uniform(low=-self.scale, high=self.scale, size=(1, dim_action))
-        self.hh = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_action))
+        self.w = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_state))
+        self.u = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_action))
+        self.hh = np.random.uniform(low=-self.scale, high=self.scale, size=(n_layers, n_hidden, n_hidden))
         self.epsilon = 1
         self.epsilon_decay = 0.0001
         self.epsilon_min = 0.1
         self.beta = 0.99
-
-        for i in range(self.n_layers):
-            input_size = n_hidden[i - 1]
-            rbm = RBM_agent(n_visible=input_size, n_hidden=n_hidden[i])
-            self.rbm_layers.append(rbm)
-
 
     def q(self, s, a):
         h, hh, ph = self.anneal(s, a)
