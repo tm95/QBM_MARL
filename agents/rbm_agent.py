@@ -73,13 +73,13 @@ class RBM_agent:
 
     def q(self, s, a):
         h = self.activation(s, a)
-        test = []
+        e = []
         for k in range(self.n_hidden):
             s_energy = np.nansum(np.dot(self.w[k], s) * h[k])
             a_energy = np.nansum(np.dot(self.u[k], a) * h[k])
-            test.append(s_energy + a_energy)
+            e.append(s_energy + a_energy)
         h_energy = np.nansum([(h[i]*np.log2(h[i]) + (1-h[i])*np.log2(1-h[i])) for i in range(self.n_hidden)])
-        q = np.nansum(test) - h_energy
+        q = np.nansum(e) - (1/self.beta)*h_energy
         return q
 
     def tau(self, s, a):

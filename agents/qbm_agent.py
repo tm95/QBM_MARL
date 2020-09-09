@@ -1,7 +1,8 @@
 import torch.nn as nn
+import torch.nn.functional as F
+from agents.rbm_agent import RBM_agent
 import torch
 import numpy as np
-import neal
 
 
 def sig(x):
@@ -11,18 +12,18 @@ def sig(x):
 sig_vec = np.vectorize(sig)
 
 
-class DBM_agent(nn.Module):
+class QBM_agent(nn.Module):
     def __init__(self,  n_hidden, dim_state, dim_action, n_layers, scale=None):
-        super(DBM_agent, self).__init__()
+        super(QBM_agent, self).__init__()
 
-        self.n_layers = n_layers
+        self.n_layers = len(n_hidden)
+        self.rbm_layers = []
         self.hidden_layers = int(self.n_layers)
 
-        self.n_hidden = n_hidden
+        self.n_hidden = [n_layers, dim_state]
         self.dim_state = dim_state
         self.dim_action = dim_action
-        self.state_layer = dim_state
-        self.action_layer = dim_action
+        self.n_visible = dim_state + dim_action
         self.scale = scale
         self.w = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_state))
         self.u = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_action))
@@ -31,15 +32,6 @@ class DBM_agent(nn.Module):
         self.epsilon_decay = 0.0001
         self.epsilon_min = 0.1
         self.beta = 0.99
-        self.samples = 150
-
-        self.sampler = neal.SimulatedAnnealingSampler()
-
-        self.dbm = []
-        self.dbm.append(self.state_layer)
-        for i in range(self.n_layers):
-            self.dbm.append(self.n_hidden)
-        self.dbm.append(self.dim_action)
 
     def q(self, s, a):
         h, hh, ph = self.anneal(s, a)
@@ -74,9 +66,7 @@ class DBM_agent(nn.Module):
         for i in range(self.n_layers-1):
             self.hh[i] += lr * (r + self.q(s2, a2) - self.q(s1, a1)) * np.outer(hh[i], hh[i+1])
 
-
     def anneal(self, s, a):
-        sampleset = self.sampler.sample_qubo(a, s, num_reads=self.samples, seed = 1234)
         # TODO
         h, hh, ph = 0
         return h, hh, ph
@@ -92,6 +82,6 @@ class DBM_agent(nn.Module):
 
 def make_dbm_agent(ni, nh):
 
-    agent = DBM_agent(ni, nh)
+    agent = QBM_agent(ni, nh)
 
     return agent
