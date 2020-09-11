@@ -43,19 +43,12 @@ class World:
 
     # Map of object type to integers
     OBJECT_TO_IDX = {
-        'unseen': 0,
-        'empty': 1,
-        'wall': 2,
-        'floor': 3,
-        'door': 4,
-        'key': 5,
-        'ball': 6,
-        'box': 7,
-        'goal': 8,
-        'lava': 9,
-        'agent': 10,
-        'objgoal': 11,
-        'switch': 12
+        'empty': 0,
+        'wall': 1,
+        'ball': 2,
+        'box': 3,
+        'goal': 4,
+        'agent': 5,
     }
     IDX_TO_OBJECT = dict(zip(OBJECT_TO_IDX.values(), OBJECT_TO_IDX.keys()))
 
@@ -770,28 +763,37 @@ class Grid:
                     else:
                         array[i, j, :] = v.encode(world, current_agent=np.array_equal(agent_pos, (i, j)))
 
+        self.one_hot_encode(array)
         return array
 
-    # @staticmethod
-    # def decode(array):
-    #     """
-    #     Decode an array grid encoding back into a grid
-    #     """
-    #
-    #     width, height, channels = array.shape
-    #     assert channels == 3
-    #
-    #     vis_mask = np.ones(shape=(width, height), dtype=np.bool)
-    #
-    #     grid = Grid(width, height)
-    #     for i in range(width):
-    #         for j in range(height):
-    #             type_idx, color_idx, state = array[i, j]
-    #             v = WorldObj.decode(type_idx, color_idx, state)
-    #             grid.set(i, j, v)
-    #             vis_mask[i, j] = (type_idx != OBJECT_TO_IDX['unseen'])
-    #
-    #     return grid, vis_mask
+    def one_hot_encode(self, array):
+        #TODO: Multi-Agent Case
+        observation = np.zeros((5, self.width, self.height))
+
+        pos_self = 0
+        self_goals = 1
+        pos_others = 2
+        others_goals = 3
+        obstacles = 4
+
+        for i in range(self.width):
+            for j in range(self.height):
+                if array[i, j, 0] == 5:
+                    if array[i, j, 1] == 1:
+                        observation[pos_self][i][j] = 1
+                    else:
+                        observation[pos_others][i][j] = 1
+                if array[i, j, 0] == 2:
+                    if array[i, j, 1] == 1:
+                        observation[self_goals][i][j] = 1
+                    else:
+                        observation[others_goals][i][j] = 1
+                if array[i, j, 0] == 1 or array[i, j, 0] == 3:
+                    observation[obstacles][i][j] = 1
+
+        print (observation)
+
+        return array
 
     def process_vis(grid, agent_pos):
         mask = np.zeros(shape=(grid.width, grid.height), dtype=np.bool)

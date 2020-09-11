@@ -9,6 +9,7 @@ def train(env, agent, nb_episodes, nb_steps, logger):
 
     for training_episode in range(nb_episodes):
         steps = 0
+        env.seed(seed=1234) #Uncomment to randomize grid
         state = env.reset()
         all_done = False
         rewards = []
@@ -22,13 +23,13 @@ def train(env, agent, nb_episodes, nb_steps, logger):
 
             steps += 1
             action_list = []
-            action = agent.policy(state, 150, 1)
+            action = agent.policy(state, 10, 1)
             action_list.append(action)
 
             next_state, reward, done, info = env.step(action_list)
             reward = np.round((reward * (1-(discount_factor*steps))), decimals=2)
 
-            next_action = agent.policy(next_state, 150, 1)
+            next_action = agent.policy(next_state, 10, 1)
 
             agent.qlearn(state, action, next_state, next_action, reward, 0.01)
 

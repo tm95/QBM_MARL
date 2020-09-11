@@ -62,7 +62,7 @@ class RBM_agent:
         self.w = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_state))
         self.u = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_action))
         self.epsilon = 1
-        self.epsilon_decay = 0.00007
+        self.epsilon_decay = 0.0003
         self.epsilon_min = 0.1
         self.beta = 0.99
 
@@ -85,15 +85,18 @@ class RBM_agent:
     def tau(self, s, a):
         return np.dot(self.w, s) + np.dot(self.u, a)
 
+    #TODO: Samp_vec, damit nodes 1 oder 0 sind?!
+    # TODO: Gibbs Sampling überarbeiten
     def play(self, s, n_sample, beta):
         # First deterministic initialization
-        h = sig_vec(beta * np.dot(self.w, s))
-        a = sig_vec(beta * np.dot(self.u.T, h))
+        h = samp_vec(sig_vec(beta * np.dot(self.w, s)))
+        a = samp_vec(sig_vec(beta * np.dot(self.u.T, h)))
 
         # Gibbs sampling
         for i in range(n_sample):
-            h = sig_vec(beta * self.tau(s, a))
-            a = sig_vec(beta * np.dot(self.u.T, h))
+            h = samp_vec(sig_vec(beta * self.tau(s, a)))
+            a += samp_vec(sig_vec(beta * np.dot(self.u.T, h)))
+
         return np.argmax(a)
 
     def qlearn(self, s1, a1, s2, a2, r, lr):
