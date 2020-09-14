@@ -1,6 +1,7 @@
 import training
 import evaluation
 from agents.rbm_agent import make_rbm_agent
+from agents.dbm_agent import make_dbm_agent
 import json
 from dotmap import DotMap
 from datetime import datetime
@@ -72,7 +73,8 @@ def run_experiment(logger, params, log_dir, training_mode, seed, env_name):
     #    agent = make_rbm_agent(70, action_space)
     #    agents.append(agent)
 
-    agents = make_rbm_agent(184, action_space)
+    #agents = make_rbm_agent(184, action_space)
+    agents = make_dbm_agent(184, action_space)
 
     # train agent and save weights
     if training_mode == 0:

@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch
 import numpy as np
 import neal
-
+import pyqubo
 
 def sig(x):
     return 1 / (1 + np.exp(-x))
@@ -17,6 +17,7 @@ class DBM_agent(nn.Module):
 
         self.n_layers = n_layers
         self.hidden_layers = int(self.n_layers)
+        self.scale = scale
 
         self.n_hidden = n_hidden
         self.dim_state = dim_state
@@ -56,6 +57,21 @@ class DBM_agent(nn.Module):
         q = np.nansum(e) - hh_energy + (1/self.beta) * h_energy
         return q
 
+    def dbm_to_qubo(self):
+        Q = {}
+
+        for i in range(self.n_layers):
+            for j in range(self.n_hidden):
+                for k in range(self.n_hidden):
+                    s1 = str(i) + str(j)
+                    s2 = str(i+1) + str(k)
+                    Q[(s1, s2)] = self.hh[i][j][k]
+
+        print (Q)
+        sample = self.sampler.sample_qubo(Q)
+        print (sample)
+        return Q
+
     def qlearn(self, s1, a1, s2, a2, r, lr):
         self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
 
@@ -74,24 +90,25 @@ class DBM_agent(nn.Module):
         for i in range(self.n_layers-1):
             self.hh[i] += lr * (r + self.q(s2, a2) - self.q(s1, a1)) * np.outer(hh[i], hh[i+1])
 
-
     def anneal(self, s, a):
-        sampleset = self.sampler.sample_qubo(a, s, num_reads=self.samples, seed = 1234)
+        Q = self.dbm_to_qubo(a, s)
+        sampleset = self.sampler.sample_qubo(Q, num_reads=self.samples, seed = 1234)
+        print (sampleset)
         # TODO
         h, hh, ph = 0
         return h, hh, ph
 
     def policy(self, state):
+        self.dbm_to_qubo()
         state = torch.Tensor(state)
         if torch.rand(1) == self.epsilon:
             return torch.randint(self.number_of_actions, (1,)).item()
         with torch.no_grad():
-            o = self.calculate_free_energy(state)
+            o = self.q(state)
             return np.argmax(o).item()
-
 
 def make_dbm_agent(ni, nh):
 
-    agent = DBM_agent(ni, nh)
+    agent = DBM_agent(25, ni, nh, 4, 0.7)
 
     return agent

@@ -6,6 +6,8 @@ H = -(s1 - s2 + s3*s4 - s4*s5)
 model = H.compile()
 qubo, offset = model.to_qubo()
 
+print (qubo)
+
 sampler = neal.SimulatedAnnealingSampler()
 response = sampler.sample_qubo(qubo)
 print (response)

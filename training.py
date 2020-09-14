@@ -23,7 +23,8 @@ def train(env, agent, nb_episodes, nb_steps, logger):
 
             steps += 1
             action_list = []
-            action = agent.policy(state, 10, 1)
+            #action = agent.policy(state, 10, 1)
+            action = agent.policy(state)
             action_list.append(action)
 
             next_state, reward, done, info = env.step(action_list)

@@ -120,10 +120,8 @@ class RBM_agent:
 
     def policy(self, state, n_sample, beta):
         if torch.rand(1) < self.epsilon:
-            print ("here")
             return torch.randint(self.dim_action, (1,)).item()
         with torch.no_grad():
-            print ("here2")
             a = self.play(state, n_sample, beta)
             return a
 
