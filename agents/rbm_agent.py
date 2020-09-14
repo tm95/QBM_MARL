@@ -62,9 +62,10 @@ class RBM_agent:
         self.w = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_state))
         self.u = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_action))
         self.epsilon = 1
-        self.epsilon_decay = 0.0003
-        self.epsilon_min = 0.1
+        self.epsilon_decay = 0.0008
+        self.epsilon_min = 0.0005
         self.beta = 0.99
+        self.lr = 0.001
 
     def activation(self, s, a):
         x = np.dot(self.w, s) + np.dot(self.u, a)
@@ -78,15 +79,13 @@ class RBM_agent:
             s_energy = np.nansum(np.dot(self.w[k], s) * h[k])
             a_energy = np.nansum(np.dot(self.u[k], a) * h[k])
             e.append(s_energy + a_energy)
-        h_energy = np.nansum([(h[i]*np.log2(h[i]) + (1-h[i])*np.log2(1-h[i])) for i in range(self.n_hidden)])
+        h_energy = np.nansum([(h[i]*np.log(h[i]) + (1-h[i])*np.log(1-h[i])) for i in range(self.n_hidden)])
         q = np.nansum(e) - (1/self.beta)*h_energy
         return q
 
     def tau(self, s, a):
         return np.dot(self.w, s) + np.dot(self.u, a)
 
-    #TODO: Samp_vec, damit nodes 1 oder 0 sind?!
-    # TODO: Gibbs Sampling überarbeiten
     def play(self, s, n_sample, beta):
         # First deterministic initialization
         h = samp_vec(sig_vec(beta * np.dot(self.w, s)))
@@ -95,11 +94,14 @@ class RBM_agent:
         # Gibbs sampling
         for i in range(n_sample):
             h = samp_vec(sig_vec(beta * self.tau(s, a)))
-            a += samp_vec(sig_vec(beta * np.dot(self.u.T, h)))
+            a = samp_vec(sig_vec(beta * np.dot(self.u.T, h)))
 
-        return np.argmax(a)
+        h = samp_vec(sig_vec(beta * self.tau(s, a)))
+        a = (sig_vec(beta * np.dot(self.u.T, h)))
 
-    def qlearn(self, s1, a1, s2, a2, r, lr):
+        return np.argmin(a)
+
+    def qlearn(self, s1, a1, s2, a2, r):
         self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
 
         b = np.zeros(self.dim_action)
@@ -110,20 +112,24 @@ class RBM_agent:
         b[a2] = 1
         a2 = b
 
-        ph = sig_vec(self.tau(s1, a1))
-        self.w += lr * (r + self.q(s2, a2) - self.q(s1, a1)) * np.outer(ph, s1)
-        self.u += lr * (r + self.q(s2, a2) - self.q(s1, a1)) * np.outer(ph, a1)
+        ph = samp_vec(sig_vec(self.tau(s1, a1)))
+        self.w += self.lr * (r - self.q(s1, a1)) * np.outer(ph, s1)
+        self.u += self.lr * (r - self.q(s1, a1)) * np.outer(ph, a1)
+        #self.w = self.lr * (r + self.q(s2, a2) - self.q(s1, a1)) * np.outer(ph, s1)
+        #self.u = self.lr * (r + self.q(s2, a2) - self.q(s1, a1)) * np.outer(ph, a1)
 
     def policy(self, state, n_sample, beta):
         if torch.rand(1) < self.epsilon:
+            print ("here")
             return torch.randint(self.dim_action, (1,)).item()
         with torch.no_grad():
+            print ("here2")
             a = self.play(state, n_sample, beta)
             return a
 
 
 def make_rbm_agent(ni, nh):
 
-    agent = RBM_agent(ni, ni, nh, 0.7)
+    agent = RBM_agent(500, ni, nh, 0.7)
 
     return agent

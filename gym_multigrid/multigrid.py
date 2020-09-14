@@ -763,36 +763,6 @@ class Grid:
                     else:
                         array[i, j, :] = v.encode(world, current_agent=np.array_equal(agent_pos, (i, j)))
 
-        self.one_hot_encode(array)
-        return array
-
-    def one_hot_encode(self, array):
-        #TODO: Multi-Agent Case
-        observation = np.zeros((5, self.width, self.height))
-
-        pos_self = 0
-        self_goals = 1
-        pos_others = 2
-        others_goals = 3
-        obstacles = 4
-
-        for i in range(self.width):
-            for j in range(self.height):
-                if array[i, j, 0] == 5:
-                    if array[i, j, 1] == 1:
-                        observation[pos_self][i][j] = 1
-                    else:
-                        observation[pos_others][i][j] = 1
-                if array[i, j, 0] == 2:
-                    if array[i, j, 1] == 1:
-                        observation[self_goals][i][j] = 1
-                    else:
-                        observation[others_goals][i][j] = 1
-                if array[i, j, 0] == 1 or array[i, j, 0] == 3:
-                    observation[obstacles][i][j] = 1
-
-        print (observation)
-
         return array
 
     def process_vis(grid, agent_pos):
@@ -970,7 +940,8 @@ class MultiGridEnv(gym.Env):
             obs = self.gen_obs()
         else:
             obs = [self.grid.encode_for_agents(World, self.agents[i].pos) for i in range(len(self.agents))]
-        obs=[self.objects.normalize_obs*ob for ob in obs]
+        obs=[self.one_hot_encode(obs[i], i) for i in range(len(self.agents))]
+
         return np.array(obs).flatten()
 
     def seed(self, seed=1337):
@@ -1238,6 +1209,39 @@ class MultiGridEnv(gym.Env):
 
         return obs_cell is not None and obs_cell.type == world_cell.type
 
+    def one_hot_encode(self, array, i):
+        #TODO: Multi-Agent Case
+        observation = np.zeros((5, self.width, self.height))
+
+        pos_self = 0
+        self_goals = 1
+        pos_others = 2
+        others_goals = 3
+        obstacles = 4
+
+
+        for i in range(self.width):
+            for j in range(self.height):
+                if array[i, j, 0] == 5:
+                    if array[i, j, 1] == 1:
+                        observation[pos_self][j][i] = 1
+                    else:
+                        observation[pos_others][j][i] = 1
+                if array[i, j, 0] == 2:
+                    if array[i, j, 1] == 1:
+                        observation[self_goals][j][i] = 1
+                    else:
+                        observation[others_goals][j][i] = 1
+                if array[i, j, 0] == 1 or array[i, j, 0] == 3:
+                    observation[obstacles][j][i] = 1
+
+        direction = np.zeros(4)
+        direction[self.agents[0].dir] = 1
+
+        observation = np.append(observation, direction)
+
+        return observation
+
     def step(self, actions):
 
         self.step_count += 1
@@ -1311,7 +1315,9 @@ class MultiGridEnv(gym.Env):
 
         obs = [self.objects.normalize_obs*ob for ob in obs]
 
-        return np.array(obs).flatten(), rewards, done, {}
+        observation=[self.one_hot_encode(obs[i], i) for i in range(len(self.agents))]
+
+        return np.array(observation).flatten(), rewards, done, {}
 
     def gen_obs_grid(self):
         """

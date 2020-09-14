@@ -27,11 +27,11 @@ def train(env, agent, nb_episodes, nb_steps, logger):
             action_list.append(action)
 
             next_state, reward, done, info = env.step(action_list)
-            reward = np.round((reward * (1-(discount_factor*steps))), decimals=2)
+            reward = np.round(( reward * (1-(discount_factor*steps))), decimals=2)
 
             next_action = agent.policy(next_state, 10, 1)
 
-            agent.qlearn(state, action, next_state, next_action, reward, 0.01)
+            agent.qlearn(state, action, next_state, next_action, reward)
 
             rewards.append(reward)
 
