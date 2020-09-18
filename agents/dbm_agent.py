@@ -70,12 +70,15 @@ class DBM_agent(nn.Module):
 
         # Energy Hidden to Hidden
         for l in range(self.n_layers):
-            hidden.append([(np.dot(self.hh[l][k], hh[l][k]) for k in range(self.n_hidden))])
+            for k in range(self.n_hidden):
+                hidden.append(np.nansum((np.dot(self.hh[l][k], hh[l][k]))))
         hh_energy = np.nansum(hidden)
 
         # Energy Probability
         h_energy = np.nansum([(h[i]*np.log2(h[i])) for i in range(self.n_hidden)])
         q = np.nansum(e) - hh_energy + (1/self.beta) * h_energy
+
+        print (q)
 
         return q
 
@@ -144,8 +147,8 @@ class DBM_agent(nn.Module):
 
         # q learning with gamma = 0
         h, hh, ph = self.anneal(s1)
-        self.w += self.lr * (r + self.q(s2, a2) - self.q(s1, a1)) * np.outer(h, s1)
-        self.u += self.lr * (r + self.q(s2, a2) - self.q(s1, a1)) * np.outer(h, a1)
+        self.w += self.lr * (r + self.q(s2, a2) - self.q(s1, a1)) * np.outer(hh[0], s1)
+        self.u += self.lr * (r + self.q(s2, a2) - self.q(s1, a1)) * np.outer(hh[-1], a1)
         for i in range(self.n_layers-1):
             self.hh[i] += self.lr * (r + self.q(s2, a2) - self.q(s1, a1)) * np.outer(hh[i], hh[i+1])
 
@@ -160,8 +163,9 @@ class DBM_agent(nn.Module):
         return h, hh, ph
 
     def policy(self, state, n_sample, beta):
-        if torch.rand(1) == self.epsilon:
-            return torch.randint(self.number_of_actions, (1,)).item()
+        if torch.rand(1) < self.epsilon:
+            print ("here")
+            return torch.randint(self.dim_action, (1,)).item()
         with torch.no_grad():
             h, hh, ph = self.anneal(state)
             print (ph)
