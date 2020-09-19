@@ -28,12 +28,14 @@ class DBM_agent(nn.Module):
         self.w = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_state))
         self.u = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_action))
         self.hh = np.random.uniform(low=-self.scale, high=self.scale, size=(n_layers, n_hidden, n_hidden))
+        self.num_reads = 100
         self.epsilon = 1
-        self.epsilon_decay = 0.0001
+        self.epsilon_decay = 0.0005
         self.epsilon_min = 0.1
         self.beta = 0.99
         self.samples = 150
-        self.lr = 0.001
+        self.lr = 0.01
+        self.discount_factor = 0.8
 
         self.sampler = neal.SimulatedAnnealingSampler()
 
@@ -43,29 +45,18 @@ class DBM_agent(nn.Module):
             self.dbm.append(self.n_hidden)
         self.dbm.append(self.dim_action)
 
-    def q(self, s, a):
-        h = self.activation(s, a)
-        e = []
-        for k in range(self.n_hidden):
-            s_energy = np.nansum(np.dot(self.w[k], s) * h[k])
-            a_energy = np.nansum(np.dot(self.u[k], a) * h[k])
-            e.append(s_energy + a_energy)
-        h_energy = np.nansum([(h[i]*np.log(h[i]) + (1-h[i])*np.log(1-h[i])) for i in range(self.n_hidden)])
-        q = np.nansum(e) - (1/self.beta)*h_energy
-        return q
-
 
     def q(self, s, a):
-        h, hh, ph = self.anneal(s)
+        h, hh, ph = self.anneal(s, a)
         e = []
         hidden = []
 
-        #TODO: Überprüfen
-
         # Energy action and state
         for k in range(self.n_hidden):
-            s_energy = np.nansum(np.dot(self.w[k], s) * h[k])
-            a_energy = np.nansum(np.dot(self.u[k], a) * h[k])
+            #s_energy = np.nansum(np.dot(self.w[k], s) * h[k])
+            #a_energy = np.nansum(np.dot(self.u[k], a) * h[k])
+            s_energy = np.nansum(np.dot(self.w[k], s) * hh[0][k])
+            a_energy = np.nansum(np.dot(self.u[k], a) * hh[-1][k])
             e.append(-s_energy - a_energy)
 
         # Energy Hidden to Hidden
@@ -75,14 +66,12 @@ class DBM_agent(nn.Module):
         hh_energy = np.nansum(hidden)
 
         # Energy Probability
-        h_energy = np.nansum([(h[i]*np.log2(h[i])) for i in range(self.n_hidden)])
+        h_energy = self.num_reads * ((1/self.num_reads)*np.log2((1/self.num_reads)))
         q = np.nansum(e) - hh_energy + (1/self.beta) * h_energy
-
-        print (q)
 
         return q
 
-    def dbm_to_qubo(self, s):
+    def dbm_to_qubo(self, s, a):
         Q = {}
 
         # Dim State to Hidden
@@ -105,11 +94,12 @@ class DBM_agent(nn.Module):
             for j in range(self.n_hidden):
                 s1 = str(self.n_layers+1) + str(j)
                 s2 = str(self.n_layers+2) + str(i)
-                Q[(s1, s2)] = self.u[j][i]
+                Q[(s1, s2)] = self.u[j][i] * a[i]
 
         return Q
 
     def qubo_to_dbm(self, Q):
+        # TODO: h ungleich s ?!
         h = []
         hh = []
         a = []
@@ -146,34 +136,47 @@ class DBM_agent(nn.Module):
         a2 = b
 
         # q learning with gamma = 0
-        h, hh, ph = self.anneal(s1)
-        self.w += self.lr * (r + self.q(s2, a2) - self.q(s1, a1)) * np.outer(hh[0], s1)
-        self.u += self.lr * (r + self.q(s2, a2) - self.q(s1, a1)) * np.outer(hh[-1], a1)
+        h, hh, ph = self.anneal(s1, a1)
+        self.w += self.lr * (r + self.discount_factor * self.q(s2, a2) - self.q(s1, a1)) * np.outer(hh[0], s1)
+        self.u += self.lr * (r + self.discount_factor * self.q(s2, a2) - self.q(s1, a1)) * np.outer(hh[-1], a1)
         for i in range(self.n_layers-1):
-            self.hh[i] += self.lr * (r + self.q(s2, a2) - self.q(s1, a1)) * np.outer(hh[i], hh[i+1])
+            self.hh[i] += self.lr * (r + self.discount_factor * self.q(s2, a2) - self.q(s1, a1)) * np.outer(hh[i], hh[i+1])
 
-    def anneal(self, s):
-        Q = self.dbm_to_qubo(s)
-        #TODO: num_reads
-        sampleset = self.sampler.sample_qubo(Q, num_reads=125, seed=1234)
+    def anneal(self, s, a):
+        Q = self.dbm_to_qubo(s, a)
+        hidden = []
+
+        sampleset = self.sampler.sample_qubo(Q, num_reads=self.num_reads, seed=1234, vartype=0)
 
         for sample in sampleset:
             h, hh, ph = self.qubo_to_dbm(sample)
+            hidden.append(hh)
 
-        return h, hh, ph
+        # Average over reads
+        hidden = np.average(np.array(hidden), axis=0)
+        for j in range(self.n_layers):
+            for i in range(self.n_hidden):
+                if hidden[j][i] > 0.5:
+                    hidden[j][i] = 1
+                else:
+                    hidden[j][i] = 0
+
+        return h, hidden, ph
 
     def policy(self, state, n_sample, beta):
         if torch.rand(1) < self.epsilon:
-            print ("here")
             return torch.randint(self.dim_action, (1,)).item()
         with torch.no_grad():
-            h, hh, ph = self.anneal(state)
-            print (ph)
-            #return np.argmax(ph).item()
-            return 2
+            q = []
+            q.append(self.q(state, [1, 0, 0, 0, 0]))
+            q.append(self.q(state, [0, 1, 0, 0, 0]))
+            q.append(self.q(state, [0, 0, 1, 0, 0]))
+            q.append(self.q(state, [0, 0, 0, 1, 0]))
+            q.append(self.q(state, [0, 0, 0, 0, 1]))
+
+            return np.argmin(q).item()
 
 def make_dbm_agent(ni, nh):
 
-    agent = DBM_agent(25, ni, nh, 4, 0.7)
-
+    agent = DBM_agent(10, ni, nh, 4, 0.7)
     return agent
