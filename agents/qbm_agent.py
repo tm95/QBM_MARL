@@ -33,7 +33,7 @@ class QBM_agent(nn.Module):
         self.epsilon_decay = 0.0005
         self.epsilon_min = 0.1
         self.beta = 0.99
-        self.samples = 150
+        self.samples = 10
         self.lr = 0.01
         self.discount_factor = 0.8
 
@@ -50,8 +50,8 @@ class QBM_agent(nn.Module):
         h, hh, ph, energy = self.anneal(s, a)
 
         # Energy Probability
-        h_energy = self.num_reads * (0.01*np.log2(0.01))
-        q = energy + (1/self.beta) * h_energy
+        h_energy = self.num_reads * ((1/self.num_reads)*np.log((1/self.num_reads)))
+        q = - energy - (1/self.beta) * h_energy
 
         return q
 
@@ -131,7 +131,7 @@ class QBM_agent(nn.Module):
 
         sampleset = self.sampler.sample_qubo(Q, num_reads=self.num_reads, seed=1234, vartype=1)
 
-        energy =  np.average(sampleset.record.energy)
+        energy = np.average(sampleset.record.energy)
 
 
         for sample in sampleset:

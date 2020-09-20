@@ -66,7 +66,7 @@ class DBM_agent(nn.Module):
         hh_energy = np.nansum(hidden)
 
         # Energy Probability
-        h_energy = self.num_reads * ((1/self.num_reads)*np.log2((1/self.num_reads)))
+        h_energy = self.num_reads * ((1/self.num_reads)*np.log((1/self.num_reads)))
         q = np.nansum(e) - hh_energy + (1/self.beta) * h_energy
 
         return q
