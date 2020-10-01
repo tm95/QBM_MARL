@@ -11,7 +11,8 @@ def train(env, agent, nb_episodes, nb_steps, logger):
         steps = 0
         env.seed(seed=1234) #Uncomment to randomize grid
         state = env.reset()
-        action = np.random.randint(5, size=1)
+        #action = np.random.randint(3, size=1)
+        action = agent.policy(state, 10, 1)
         all_done = False
         rewards = []
         discount_factor = 0.001
@@ -19,13 +20,13 @@ def train(env, agent, nb_episodes, nb_steps, logger):
 
         # reinforcement learning loop
         while not all_done and steps < nb_steps:
-            #env.render(mode='human', highlight=True)
+            env.render(mode='human', highlight=True)
             time.sleep(0.1)
 
             steps += 1
             action_list = []
-            next_action = agent.policy(state, 10, 1)
-            action_list.append(next_action)
+            #action = agent.policy(state, 10, 1)
+            action_list.append(action)
 
             next_state, reward, done, info = env.step(action_list)
             reward = np.round((reward * (1-(discount_factor*steps))), decimals=2)
@@ -38,7 +39,7 @@ def train(env, agent, nb_episodes, nb_steps, logger):
 
             action = next_action
             state = next_state
-            all_done = done
+            #all_done = done
 
         if logger is not None:
             logger.log_metric('episode_return', training_episode, np.sum(rewards))

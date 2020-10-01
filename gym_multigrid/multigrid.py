@@ -805,16 +805,13 @@ class Grid:
         return mask
 
 class Actions:
-    available=['still', 'left', 'right', 'forward', 'pickup']
+    available=['still', 'left', 'right', 'forward']
 
-    still = 0
     # Turn left, turn right, move forward
-    left = 1
-    right = 2
-    forward = 3
-
-    # Pick up an object
-    pickup = 4
+    left = 0
+    right = 1
+    forward = 2
+    still = 3
 
 class SmallActions:
     available=['still', 'left', 'right', 'forward']
@@ -1211,13 +1208,13 @@ class MultiGridEnv(gym.Env):
 
     def one_hot_encode(self, array, i):
         #TODO: Multi-Agent Case
-        observation = np.zeros((5, self.width, self.height))
+        observation = np.zeros((2, self.width, self.height))
 
         pos_self = 0
         self_goals = 1
-        pos_others = 2
-        others_goals = 3
-        obstacles = 4
+        #obstacles = 2
+        #pos_others = 3
+        #others_goals = 4
 
 
         for i in range(self.width):
@@ -1225,15 +1222,15 @@ class MultiGridEnv(gym.Env):
                 if array[i, j, 0] == 5:
                     if array[i, j, 1] == 1:
                         observation[pos_self][j][i] = 1
-                    else:
-                        observation[pos_others][j][i] = 1
+                    #else:
+                    #    observation[pos_others][j][i] = 1
                 if array[i, j, 0] == 2:
                     if array[i, j, 1] == 1:
                         observation[self_goals][j][i] = 1
-                    else:
-                        observation[others_goals][j][i] = 1
-                if array[i, j, 0] == 1 or array[i, j, 0] == 3:
-                    observation[obstacles][j][i] = 1
+                    #else:
+                    #    observation[others_goals][j][i] = 1
+                #if array[i, j, 0] == 1 or array[i, j, 0] == 3:
+                #    observation[obstacles][j][i] = 1
 
         direction = np.zeros(4)
         direction[self.agents[0].dir] = 1
@@ -1256,13 +1253,15 @@ class MultiGridEnv(gym.Env):
 
         for i in order:
 
+            action = int("".join(str(x) for x in actions[i]), 2)
+
             if self.agents[i].terminated:
                 continue
             elif self.agents[i].paused:
                 continue
             elif not self.agents[i].started:
                 continue
-            elif actions[i] == self.actions.still:
+            elif action == self.actions.still:
                 continue
 
             # Get the position in front of the agent
@@ -1272,35 +1271,33 @@ class MultiGridEnv(gym.Env):
             fwd_cell = self.grid.get(*fwd_pos)
 
             # Rotate left
-            if actions[i] == self.actions.left:
+            if action == self.actions.left:
                 self.agents[i].dir -= 1
                 if self.agents[i].dir < 0:
                     self.agents[i].dir += 4
 
             # Rotate right
-            elif actions[i] == self.actions.right:
+            elif action == self.actions.right:
                 self.agents[i].dir = (self.agents[i].dir + 1) % 4
 
             # Move forward
-            elif actions[i] == self.actions.forward:
+            elif action == self.actions.forward:
                 if fwd_cell is not None:
-                    if fwd_cell.type == 'goal':
+                    if fwd_cell.type == 'ball':
                         done = True
                         self._reward(i, rewards, 300)
+                        self._handle_pickup(i, rewards, fwd_pos, fwd_cell)
                     elif fwd_cell.type == 'switch':
                         self._handle_switch(i, rewards, fwd_pos, fwd_cell)
                 elif fwd_cell is None or fwd_cell.can_overlap():
                     self.grid.set(*fwd_pos, self.agents[i])
                     self.grid.set(*self.agents[i].pos, None)
                     self.agents[i].pos = fwd_pos
+                    self._handle_pickup(i, rewards, fwd_pos, fwd_cell)
                 self._handle_special_moves(i, rewards, fwd_pos, fwd_cell)
 
             elif 'build' in self.actions.available and actions[i] == self.actions.build:
                 self._handle_build(i, rewards, fwd_pos, fwd_cell)
-
-            # Pick up an object
-            elif actions[i] == self.actions.pickup:
-                self._handle_pickup(i, rewards, fwd_pos, fwd_cell)
 
             else:
                 assert False, "unknown action"

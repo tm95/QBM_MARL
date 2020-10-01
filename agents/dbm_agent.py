@@ -2,11 +2,9 @@ import torch.nn as nn
 import torch
 import numpy as np
 import neal
-import pyqubo
 
 def sig(x):
     return 1 / (1 + np.exp(-x))
-
 
 sig_vec = np.vectorize(sig)
 
@@ -46,18 +44,21 @@ class DBM_agent(nn.Module):
         self.dbm.append(self.dim_action)
 
 
+    # Calculate Q-value depending on state, action, hidden nodes and prob of c. Returns negative free energy
     def q(self, s, a):
-        h, hh, ph = self.anneal(s, a)
-        e = []
+        hh, p = self.anneal(s, a)
+
+        s_energy = []
+        a_energy = []
         hidden = []
+        h_energy = []
 
         # Energy action and state
         for k in range(self.n_hidden):
             #s_energy = np.nansum(np.dot(self.w[k], s) * h[k])
             #a_energy = np.nansum(np.dot(self.u[k], a) * h[k])
-            s_energy = np.nansum(np.dot(self.w[k], s) * hh[0][k])
-            a_energy = np.nansum(np.dot(self.u[k], a) * hh[-1][k])
-            e.append(-s_energy - a_energy)
+            s_energy.append(np.nansum(np.dot(self.w[k], s) * hh[0][k]))
+            a_energy.append(np.nansum(np.dot(self.u[k], a) * hh[-1][k]))
 
         # Energy Hidden to Hidden
         for l in range(self.n_layers):
@@ -66,11 +67,13 @@ class DBM_agent(nn.Module):
         hh_energy = np.nansum(hidden)
 
         # Energy Probability
-        h_energy = self.num_reads * ((1/self.num_reads)*np.log((1/self.num_reads)))
-        q = np.nansum(e) - hh_energy + (1/self.beta) * h_energy
+        for i in range(len(p)):
+            h_energy.append((p[i]/self.num_reads)*np.log((p[i]/self.num_reads)))
+        q = -np.nansum(s_energy) - np.nansum(a_energy) - hh_energy + (1/self.beta) * np.sum(h_energy)
 
-        return q
+        return -q
 
+    # Convert DBM to QUBO
     def dbm_to_qubo(self, s, a):
         Q = {}
 
@@ -98,16 +101,16 @@ class DBM_agent(nn.Module):
 
         return Q
 
+    # Convert QUBO structure to DBM
     def qubo_to_dbm(self, Q):
-        # TODO: h ungleich s ?!
-        h = []
+        #h = []
         hh = []
-        a = []
+        #a = []
 
         # State
-        for i in range(self.dim_state):
-            s1 = str(0) + str(i)
-            h.append(Q[s1])
+        #for i in range(self.dim_state):
+        #    s1 = str(0) + str(i)
+        #    h.append(Q[s1])
 
         # Hidden
         for i in range(self.n_layers):
@@ -118,38 +121,47 @@ class DBM_agent(nn.Module):
             hh.append(s)
 
         # Action
-        for i in range(self.dim_action):
-            s1 = str(self.n_layers+2) + str(i)
-            a.append(Q[s1])
+        #for i in range(self.dim_action):
+        #    s1 = str(self.n_layers+2) + str(i)
+        #    a.append(Q[s1])
 
-        return h, hh, a
+        return hh
 
-    def qlearn(self, s1, a1, s2, a2, r):
+    # Updating weights depending on action and state for time-step 1 and 2.
+    def qlearn(self, s1, a1, r):
         self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
 
         b = np.zeros(self.dim_action)
         b[a1] = 1
         a1 = b
 
-        b = np.zeros(self.dim_action)
-        b[a2] = 1
-        a2 = b
+        #b = np.zeros(self.dim_action)
+        #b[a2] = 1
+        #a2 = b
 
         # q learning with gamma = 0
-        h, hh, ph = self.anneal(s1, a1)
-        self.w += self.lr * (r + self.discount_factor * self.q(s2, a2) - self.q(s1, a1)) * np.outer(hh[0], s1)
-        self.u += self.lr * (r + self.discount_factor * self.q(s2, a2) - self.q(s1, a1)) * np.outer(hh[-1], a1)
-        for i in range(self.n_layers-1):
-            self.hh[i] += self.lr * (r + self.discount_factor * self.q(s2, a2) - self.q(s1, a1)) * np.outer(hh[i], hh[i+1])
+        hh, p = self.anneal(s1, a1)
+        self.w += self.lr * (r - self.q(s1, a1)) * np.outer(hh[0], s1)
+        self.u += self.lr * (r - self.q(s1, a1)) * np.outer(hh[-1], a1)
 
+        for i in range(self.n_layers-1):
+            self.hh[i] += self.lr * (r - self.q(s1, a1)) * np.outer(hh[i], hh[i+1])
+
+        #self.w += self.lr * (r + self.discount_factor * self.q(s2, a2) - self.q(s1, a1)) * np.outer(hh[0], s1)
+        #self.u += self.lr * (r + self.discount_factor * self.q(s2, a2) - self.q(s1, a1)) * np.outer(hh[-1], a1)
+        #for i in range(self.n_layers-1):
+        #    self.hh[i] += self.lr * (r + self.discount_factor * self.q(s2, a2) - self.q(s1, a1)) * np.outer(hh[i], hh[i+1])
+
+    # Annealing process. Convert DBM to QUBO, anneal and convert back. Returns averaged Hidden nodes and prob of c
     def anneal(self, s, a):
         Q = self.dbm_to_qubo(s, a)
         hidden = []
 
         sampleset = self.sampler.sample_qubo(Q, num_reads=self.num_reads, seed=1234, vartype=0)
+        p = sampleset.record.num_occurrences
 
         for sample in sampleset:
-            h, hh, ph = self.qubo_to_dbm(sample)
+            hh = self.qubo_to_dbm(sample)
             hidden.append(hh)
 
         # Average over reads
@@ -161,22 +173,22 @@ class DBM_agent(nn.Module):
                 else:
                     hidden[j][i] = 0
 
-        return h, hidden, ph
+        return hidden, p
 
+    # Epsilon-Greedy Policy
     def policy(self, state, n_sample, beta):
         if torch.rand(1) < self.epsilon:
             return torch.randint(self.dim_action, (1,)).item()
         with torch.no_grad():
+            # Go over every action and calculate action with highest q-values
             q = []
-            q.append(self.q(state, [1, 0, 0, 0, 0]))
-            q.append(self.q(state, [0, 1, 0, 0, 0]))
-            q.append(self.q(state, [0, 0, 1, 0, 0]))
-            q.append(self.q(state, [0, 0, 0, 1, 0]))
-            q.append(self.q(state, [0, 0, 0, 0, 1]))
+            q.append(self.q(state, [1, 0, 0]))
+            q.append(self.q(state, [0, 1, 0]))
+            q.append(self.q(state, [0, 0, 1]))
 
-            return np.argmin(q).item()
+            return np.argmax(q).item()
 
 def make_dbm_agent(ni, nh):
 
-    agent = DBM_agent(10, ni, nh, 4, 0.7)
+    agent = DBM_agent(4, ni, nh, 3, 0.7)
     return agent
