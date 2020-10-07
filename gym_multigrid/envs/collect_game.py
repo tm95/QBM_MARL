@@ -87,6 +87,6 @@ class CollectGame4HEnv10x10N2(CollectGameEnv):
         num_balls=[5],
         agents_index = [1],
         balls_index=[1],
-        balls_reward=[200],
+        balls_reward=[10],
         zero_sum=True)
 

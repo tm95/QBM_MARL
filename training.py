@@ -1,6 +1,6 @@
 from datetime import datetime
 import numpy as np
-import time
+
 
 def train(env, agent, nb_episodes, nb_steps, logger):
     exp_time = datetime.now().strftime('%Y%m%d-%H-%M-%S')
@@ -9,37 +9,35 @@ def train(env, agent, nb_episodes, nb_steps, logger):
 
     for training_episode in range(nb_episodes):
         steps = 0
-        env.seed(seed=1234) #Uncomment to randomize grid
+        env.seed(seed=1234)  # Uncomment to randomize grid
         state = env.reset()
-        #action = np.random.randint(3, size=1)
-        action = agent.policy(state, 10, 1)
         all_done = False
         rewards = []
-        discount_factor = 0.001
-
 
         # reinforcement learning loop
         while not all_done and steps < nb_steps:
-            env.render(mode='human', highlight=True)
-            time.sleep(0.1)
+            #env.render(mode='human', highlight=True)
+
+            if training_episode > 200:
+                beta = 1 * (10 / 1) ** (200 / 200)
+            if training_episode <= 200:
+                beta = 1 * (10 / 1) ** (training_episode / 200)
 
             steps += 1
             action_list = []
-            #action = agent.policy(state, 10, 1)
+            action = agent.policy(state[0], beta)
             action_list.append(action)
 
             next_state, reward, done, info = env.step(action_list)
-            reward = np.round((reward * (1-(discount_factor*steps))), decimals=2)
 
-            next_action = agent.policy(next_state, 10, 1)
+            reward = reward[0]
 
-            agent.qlearn(state, action, next_state, next_action, reward)
+            if reward == 0:
+                reward = -0.4
 
+            agent.qlearn(state[0], action, reward)
             rewards.append(reward)
-
-            action = next_action
-            state = next_state
-            #all_done = done
+            all_done = done
 
         if logger is not None:
             logger.log_metric('episode_return', training_episode, np.sum(rewards))

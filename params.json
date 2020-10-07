@@ -1,8 +1,8 @@
 {
   "mini_batch_size": 128,
-  "nb_episodes": 200,
+  "nb_episodes": 3000,
   "nb_evaluation_episodes": 50,
-  "nb_steps": 50,
+  "nb_steps": 500,
   "warm_up_duration": 1000,
   "buffer_capacity": 20000,
   "target_update_period": 500,

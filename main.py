@@ -12,7 +12,6 @@ import sys
 from gym.envs.registration import register
 import gym
 
-
 def train(seed, env_name):
 
     exp_time = datetime.now().strftime('%Y%m%d-%H-%M-%S')
@@ -35,7 +34,6 @@ def train(seed, env_name):
                                'V91cmwiOiJodHRwczovL3VpLm5lcHR1bmUuYWkiLCJhcGlfa2V5IjoiNz'
                                'E4NDgxMmQtYTMzMC00ZTUzLTlkNDAtYWNkZTUzODExZmM4In0=')
         logger = neptune
-        #logger = None
         with neptune.create_experiment(name='sandbox', params=params_json):
             neptune.append_tag('evaluation-{}'.format(training_mode))
             run_experiment(logger, params, log_dir, training_mode, seed, env_name)
@@ -43,8 +41,6 @@ def train(seed, env_name):
 
 def run_experiment(logger, params, log_dir, training_mode, seed, env_name):
 
-    agents = []
-    #env = make_env('simple')
     if env_name == 'soccer':
         register(
             id='multigrid-soccer-v0',
@@ -64,23 +60,11 @@ def run_experiment(logger, params, log_dir, training_mode, seed, env_name):
     if not os.path.exists(weights_dir):
         os.makedirs(weights_dir)
 
-    action_space = env.action_space.n
-    observation_space = env.observation_space
-    print (observation_space)
-
-    # make agents and load weights
-    #for i in range(len(env.agents)):
-    #    agent = make_rbm_agent(70, action_space)
-    #    agents.append(agent)
-
-    agents = make_rbm_agent(76, 2)
+    agents = make_rbm_agent(76, 4)
 
     # train agent and save weights
     if training_mode == 0:
         training.train(env, agents, params.nb_episodes, params.nb_steps, logger)
-
-    #    for i in range(env.n):
-    #        agents[i].save_weights(os.path.join(weights_dir, "weights-{}.pth".format(i)))
 
     # evaluate agents and load weights
     if training_mode == 1:

@@ -2,14 +2,12 @@ from __future__ import division
 from math import exp, log
 from random import random
 import numpy as np
-import torch
 
 def sig(x):
         return 1 / (1 + np.exp(-x))
 
 
 sig_vec = np.vectorize(sig)
-
 
 def samp(p):
     if random() < p:
@@ -63,25 +61,26 @@ class RBM_agent:
         self.u = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_action))
         self.epsilon = 1
         self.epsilon_decay = 0.0008
-        self.epsilon_min = 0.0001
-        self.beta = 0.99
-        self.lr = 0.00008
+        self.epsilon_min = 0.01
+        self.lr = 0.001
+        self.beta = 1
 
     def activation(self, s, a):
         x = np.dot(self.w, s) + np.dot(self.u, a)
         h = sig(x)
         return h
 
-    #def q(self, s, a):
-    #    h = self.activation(s, a)
-    #    e = []
-    #    for k in range(self.n_hidden):
-    #        s_energy = np.nansum(np.dot(self.w[k], s) * h[k])
-    #        a_energy = np.nansum(np.dot(self.u[k], a) * h[k])
-    #        e.append(s_energy + a_energy)
-    #    h_energy = np.nansum([(h[i]*np.log(h[i]) + (1-h[i])*np.log(1-h[i])) for i in range(self.n_hidden)])
-    #    q = np.nansum(e) - (1/self.beta)*h_energy
-    #    return q
+    def q(self, s, a):
+
+        h = self.activation(s, a)
+        e = []
+        for k in range(self.n_hidden):
+            s_energy = np.nansum(np.dot(self.w[k], s) * h[k])
+            a_energy = np.nansum(np.dot(self.u[k], a) * h[k])
+            e.append(s_energy + a_energy)
+        h_energy = np.nansum([(h[i]*np.log(h[i]) + (1-h[i])*np.log(1-h[i])) for i in range(self.n_hidden)])
+        q = np.nansum(e) - (1/self.beta)*h_energy
+        return q
 
     def tau(self, s, a):
         return np.dot(self.w, s) + np.dot(self.u, a)
@@ -89,33 +88,39 @@ class RBM_agent:
     def lam(self, s, a):
         return -logexp_vec(self.tau(s, a))
 
-    def q(self, s, a):
-        return -np.sum(self.lam(s, a))
-
-    def policy(self, s, n_sample, beta):
+    def policy(self, s, beta):
         # First deterministic initialization
         h = samp_vec(sig_vec(beta * np.dot(self.w, s)))
         a = samp_vec(sig_vec(beta * np.dot(self.u.T, h)))
 
         # Gibbs sampling
-        for i in range(n_sample):
+        for i in range(10):
             h = samp_vec(sig_vec(beta * self.tau(s, a)))
             a = samp_vec(sig_vec(beta * np.dot(self.u.T, h)))
 
+        a = int("".join(str(x) for x in a), 2)
+
         return a
 
-    def qlearn(self, s1, a1, s2, a2, r):
+    def qlearn(self, s1, a1, r):
         self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
 
+        if a1 == 0:
+            a1 = [0, 0]
+        elif a1 == 1:
+            a1 = [1, 0]
+        elif a1 == 2:
+            a1 = [0, 1]
+        elif a1 == 3:
+            a1 = [1, 1]
+
         ph = samp_vec(sig_vec(self.tau(s1, a1)))
-        #self.w += self.lr * (r - self.q(s1, a1)) * np.outer(ph, s1)
-        #self.u += self.lr * (r - self.q(s1, a1)) * np.outer(ph, a1)
-        self.w = self.lr * (r + 0.98*self.q(s2, a2) - self.q(s1, a1)) * np.outer(ph, s1)
-        self.u = self.lr * (r + 0.98*self.q(s2, a2) - self.q(s1, a1)) * np.outer(ph, a1)
+        self.w += self.lr * (r - self.q(s1, a1)) * np.outer(ph, s1)
+        self.u += self.lr * (r - self.q(s1, a1)) * np.outer(ph, a1)
 
 
 def make_rbm_agent(ni, nh):
 
-    agent = RBM_agent(50, ni, nh, 0.7)
+    agent = RBM_agent(13, ni, 2, 0.7)
 
     return agent

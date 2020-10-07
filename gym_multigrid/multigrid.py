@@ -939,7 +939,7 @@ class MultiGridEnv(gym.Env):
             obs = [self.grid.encode_for_agents(World, self.agents[i].pos) for i in range(len(self.agents))]
         obs=[self.one_hot_encode(obs[i], i) for i in range(len(self.agents))]
 
-        return np.array(obs).flatten()
+        return obs
 
     def seed(self, seed=1337):
         # Seed the random number generator
@@ -1249,11 +1249,9 @@ class MultiGridEnv(gym.Env):
         for i in range(len(rewards)):
             rewards[i] = 0
 
-        done = False
-
         for i in order:
 
-            action = int("".join(str(x) for x in actions[i]), 2)
+            action = actions[i]
 
             if self.agents[i].terminated:
                 continue
@@ -1284,7 +1282,6 @@ class MultiGridEnv(gym.Env):
             elif action == self.actions.forward:
                 if fwd_cell is not None:
                     if fwd_cell.type == 'ball':
-                        done = True
                         self._reward(i, rewards, 300)
                         self._handle_pickup(i, rewards, fwd_pos, fwd_cell)
                     elif fwd_cell.type == 'switch':
@@ -1302,9 +1299,6 @@ class MultiGridEnv(gym.Env):
             else:
                 assert False, "unknown action"
 
-        if self.step_count >= self.max_steps:
-            done = True
-
         if self.partial_obs:
             obs = self.gen_obs()
         else:
@@ -1312,9 +1306,11 @@ class MultiGridEnv(gym.Env):
 
         obs = [self.objects.normalize_obs*ob for ob in obs]
 
-        observation=[self.one_hot_encode(obs[i], i) for i in range(len(self.agents))]
+        observation = [self.one_hot_encode(obs[i], i) for i in range(len(self.agents))]
 
-        return np.array(observation).flatten(), rewards, done, {}
+        done = not(np.sum(observation[0][self.height*self.width*1 : self.height*self.width*2]))
+
+        return obs, rewards, done, {}
 
     def gen_obs_grid(self):
         """

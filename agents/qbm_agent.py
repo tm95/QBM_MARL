@@ -38,15 +38,9 @@ class QBM_agent(nn.Module):
 
         self.sampler = neal.SimulatedAnnealingSampler()
 
-        self.dbm = []
-        self.dbm.append(self.state_layer)
-        for i in range(self.n_layers):
-            self.dbm.append(self.n_hidden)
-        self.dbm.append(self.dim_action)
-
     # Calculate Q-value depending on state, action, hidden nodes and prob of c. Returns negative free energy
     def q(self, s, a):
-        hh, energy, p = self.anneal(s, a)
+        hh, energy, p = self.anneal()
         h_energy = []
 
         # Energy Probability
@@ -58,15 +52,8 @@ class QBM_agent(nn.Module):
         return q
 
     # Convert DBM structure to QUBO
-    def dbm_to_qubo(self, s, a):
+    def dbm_to_qubo(self):
         Q = {}
-
-        # Dim State to Hidden
-        for i in range(self.dim_state):
-            for j in range(self.n_hidden):
-                s1 = str(0) + str(i)
-                s2 = str(1) + str(j)
-                Q[(s1, s2)] = self.w[j][i] * s[i]
 
         # Hidden to Hidden
         for i in range(self.n_layers):
@@ -75,26 +62,11 @@ class QBM_agent(nn.Module):
                     s1 = str(i+1) + str(j)
                     s2 = str(i+2) + str(k)
                     Q[(s1, s2)] = self.hh[i][j][k]
-
-        # Hidden to Action
-        for i in range(self.dim_action):
-            for j in range(self.n_hidden):
-                s1 = str(self.n_layers+1) + str(j)
-                s2 = str(self.n_layers+2) + str(i)
-                Q[(s1, s2)] = self.u[j][i] * a[i]
-
         return Q
 
     # Convert QUBO structure to DBM
     def qubo_to_dbm(self, Q):
-       #h = []
         hh = []
-        #a = []
-
-        # State
-        #for i in range(self.dim_state):
-        #    s1 = str(0) + str(i)
-        #    h.append(Q[s1])
 
         # Hidden
         for i in range(self.n_layers):
@@ -103,11 +75,6 @@ class QBM_agent(nn.Module):
                 s1 = str(i+1) + str(j)
                 s.append(Q[s1])
             hh.append(s)
-
-        # Action
-        #for i in range(self.dim_action):
-        #    s1 = str(self.n_layers+2) + str(i)
-        #    a.append(Q[s1])
 
         return hh
 
@@ -124,15 +91,15 @@ class QBM_agent(nn.Module):
         a2 = b
 
         # q learning with gamma = 0
-        hh, e, p = self.anneal(s1, a1)
+        hh, e, p = self.anneal()
         self.w += self.lr * (r + self.discount_factor * self.q(s2, a2) - self.q(s1, a1)) * np.outer(hh[0], s1)
         self.u += self.lr * (r + self.discount_factor * self.q(s2, a2) - self.q(s1, a1)) * np.outer(hh[-1], a1)
         for i in range(self.n_layers-1):
             self.hh[i] += self.lr * (r + self.discount_factor * self.q(s2, a2) - self.q(s1, a1)) * np.outer(hh[i], hh[i+1])
 
     # Annealing process. Convert DBM to QUBO, anneal and convert back. Returns averaged Hidden nodes, H[eff] and prob of c
-    def anneal(self, s, a):
-        Q = self.dbm_to_qubo(s, a)
+    def anneal(self):
+        Q = self.dbm_to_qubo()
         hidden = []
 
         sampleset = self.sampler.sample_qubo(Q, num_reads=self.num_reads, seed=1234, vartype=1)
@@ -156,18 +123,17 @@ class QBM_agent(nn.Module):
         return hidden, energy, p
 
     # Epsilon-Greedy Policy
-    def policy(self, state, n_sample, beta):
+    def policy(self, state, beta):
         if torch.rand(1) < self.epsilon:
             return torch.randint(self.dim_action, (1,)).item()
         with torch.no_grad():
             q = []
-            q.append(self.q(state, [1, 0, 0, 0, 0]))
-            q.append(self.q(state, [0, 1, 0, 0, 0]))
-            q.append(self.q(state, [0, 0, 1, 0, 0]))
-            q.append(self.q(state, [0, 0, 0, 1, 0]))
-            q.append(self.q(state, [0, 0, 0, 0, 1]))
+            q.append(self.q(state, [0, 0]))
+            q.append(self.q(state, [1, 0]))
+            q.append(self.q(state, [0, 1]))
+            q.append(self.q(state, [1, 1]))
 
-            return np.argmin(q).item()
+            return np.argmax(q).item()
 
 def make_qbm_agent(ni, nh):
 
