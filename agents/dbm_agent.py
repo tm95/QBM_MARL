@@ -3,7 +3,11 @@ import torch
 import numpy as np
 import neal
 from random import random
+import random as r
 from collections import Counter
+import math
+import matplotlib.pyplot as plt
+
 
 def sig(x):
     return 1 / (1 + np.exp(-x))
@@ -19,12 +23,12 @@ samp_vec = np.vectorize(samp)
 
 
 class DBM_agent(nn.Module):
-    def __init__(self,  n_hidden, dim_state, dim_action, n_layers, scale=None):
+    def __init__(self,  n_layers, dim_state, dim_action, n_hidden, scale=None):
         super(DBM_agent, self).__init__()
 
         self.n_layers = n_layers
         self.hidden_layers = int(self.n_layers)
-        self.scale = scale
+        self.scale = 3.0
 
         self.n_hidden = n_hidden
         self.dim_state = dim_state
@@ -34,55 +38,66 @@ class DBM_agent(nn.Module):
         self.scale = scale
         self.w = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_state))
         self.u = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_action))
-        self.hh = np.random.uniform(low=-self.scale, high=self.scale, size=(n_layers, n_hidden, n_hidden))
+        self.hh = np.random.uniform(low=-self.scale, high=self.scale, size=(n_layers-1, n_hidden, n_hidden))
         self.num_reads = 100
         self.epsilon = 1
-        self.epsilon_decay = 0.001
+        self.epsilon_decay = 0.0008
         self.epsilon_min = 0.1
-        self.beta = 0.99
-        self.lr = 0.0008
+        self.beta = 1.0
+        self.lr = 0.01
         self.discount_factor = 0.98
 
         self.sampler = neal.SimulatedAnnealingSampler()
 
+    #TODO: Ist Ising-Modell richtig konstruiert?
+    #TODO: Passt Variable Beta?
+    #TODO: Variable Learning Rate oder fix?
+    #TODO: Discount Factor oder nicht?
+
     # Calculate Q-value depending on state, action, hidden nodes and prob of c. Returns negative free energy
+    def qlearn(self, s, a, r, lr):
+        self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
+
+        hh, p, h_val, samples = self.anneal(s, a)
+
+        q = self.get_free_energy(h_val, samples, 2, 2)
+
+        self.w -= self.lr * (r - self.discount_factor * q) * np.outer(hh[0], s)
+        self.u -= self.lr * (r - self.discount_factor * q) * np.outer(hh[-1], a)
+
+        for i in range(self.n_layers-1):
+            #self.hh[i] += lr * (r - self.discount_factor * self.q(s1, a1)) * np.outer(hh[i], hh[i+1])
+            self.hh[i] -= self.lr * (r - self.discount_factor * q) * np.outer(hh[i], hh[i + 1])
+
+        return q
+
     def q(self, s, a):
-        hh, p = self.anneal()
+        hh, p, h_val, samples = self.anneal(s, a)
 
-        s_energy = []
-        a_energy = []
-        hidden = []
-        h_energy = []
+        q = self.get_free_energy(h_val, samples, 2, 2)
 
-        # Energy action and state
-        for k in range(self.n_hidden):
-            s_energy.append(np.nansum(np.dot(self.w[k], s) * hh[0][k]))
-            a_energy.append(np.nansum(np.dot(self.u[k], a) * hh[-1][k]))
-
-        # Energy Hidden to Hidden
-        for l in range(self.n_layers):
-            for k in range(self.n_hidden):
-                hidden.append(np.nansum((np.dot(self.hh[l][k], hh[l][k]))))
-        hh_energy = np.nansum(hidden)
-
-        # Energy Probability
-        for i in range(len(p)):
-            h_energy.append((p[i]/self.num_reads)*np.log((p[i]/self.num_reads)))
-        q = -np.nansum(s_energy) - np.nansum(a_energy) - hh_energy + (1/self.beta) * np.sum(h_energy)
-
-        return -q
+        return q
 
     # Convert DBM to QUBO
-    def dbm_to_qubo(self):
+    def dbm_to_qubo(self, state, action):
         Q = {}
 
         # Hidden to Hidden
-        for i in range(self.n_layers):
+        for i in range(self.n_layers-1):
             for j in range(self.n_hidden):
                 for k in range(self.n_hidden):
                     s1 = str(i+1) + str(j)
                     s2 = str(i+2) + str(k)
-                    Q[(s1, s2)] = self.hh[i][j][k]
+                    Q[(s1, s2)] = Q[(s2, s1)] = self.hh[i][j][k]
+
+        # Hidden Neurons
+        for i in range(self.n_layers):
+            for j in range(self.n_hidden):
+                s1 = str(i + 1) + str(j)
+                if i == 0:
+                    Q[(s1, s1)] = sum([self.w[j][k] if state[k] == 1 else -self.w[j][k] for k in range(self.dim_state)])
+                elif i == (self.n_layers - 1):
+                    Q[(s1, s1)] = sum([self.u[j][k] if action[k] == 1 else -self.u[j][k] for k in range(self.dim_action)])
 
         return Q
 
@@ -94,40 +109,38 @@ class DBM_agent(nn.Module):
         for i in range(self.n_layers):
             s = []
             for j in range(self.n_hidden):
-                s1 = str(i+1) + str(j)
+                s1 = str(i + 1) + str(j)
                 s.append(Q[s1])
             hh.append(s)
 
         return hh
 
-    # Updating weights depending on action and state for time-step 1 and 2.
-    def qlearn(self, s1, a1, r):
-        self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
-
-        if a1 == 0:
-            a1 = [0, 0]
-        elif a1 == 1:
-            a1 = [1, 0]
-        elif a1 == 2:
-            a1 = [0, 1]
-        elif a1 == 3:
-            a1 = [1, 1]
-
-        # q learning with gamma = 0
-        hh, p = self.anneal()
-        self.w += self.lr * (r - self.discount_factor * self.q(s1, a1)) * np.outer(hh[0], s1)
-        self.u += self.lr * (r - self.discount_factor * self.q(s1, a1)) * np.outer(hh[-1], a1)
-
-        for i in range(self.n_layers-1):
-            self.hh[i] += self.lr * (r - self.discount_factor * self.q(s1, a1)) * np.outer(hh[i], hh[i+1])
 
     # Annealing process. Convert DBM to QUBO, anneal and convert back. Returns averaged Hidden nodes and prob of c
-    def anneal(self):
-        Q = self.dbm_to_qubo()
+    def anneal(self, state, action):
+
+        if action == 0:
+            action = [0, 0]
+        elif action == 1:
+            action = [1, 0]
+        elif action == 2:
+            action = [0, 1]
+        elif action == 3:
+            action = [1, 1]
+
+
+        Q = self.dbm_to_qubo(state, action)
         hidden = []
         probs = []
 
-        sampleset = self.sampler.sample_qubo(Q, num_reads=self.num_reads, vartype=0)
+        replica_count = 2
+        average_size = 6
+        sample_count = replica_count * average_size
+
+        sampleset = list(self.sampler.sample_qubo(Q, num_reads=sample_count, vartype=0).samples())
+        r.shuffle(sampleset)
+
+        h_val = self.get_3d_hamiltonian_average_value(sampleset, Q, replica_count, average_size, 0.5, 2)
 
         for sample in sampleset:
             hh = self.qubo_to_dbm(sample)
@@ -138,6 +151,7 @@ class DBM_agent(nn.Module):
 
         # Average over reads
         hidden = np.average(np.array(hidden), axis=0)
+
         for j in range(self.n_layers):
             for i in range(self.n_hidden):
                 if hidden[j][i] > 0.5:
@@ -145,7 +159,134 @@ class DBM_agent(nn.Module):
                 else:
                     hidden[j][i] = 0
 
-        return hidden, p
+        return hidden, p, h_val, sampleset
+
+
+    def get_3d_hamiltonian_average_value(self, samples, Q, replica_count, average_size, big_gamma, beta):
+        '''
+        It produces the average Hamiltonian of one dimension higher.
+
+        samples
+            It is a list containg the samples from the DWAVE API.
+
+        Q
+            It is a dict containg the weights of the Chimera graph.
+
+        replica_count
+            It contains the number of replicas in the Hamiltonian of one dimension higher.
+
+        average_size
+            It contains the number of configurations of the Hamiltonian of one dimension higher
+            used for extracting the value.
+
+        big_gamma, beta
+            The parameters with the signification given in the paper.
+        '''
+        i_sample = 0
+
+        h_sum = 0
+
+        w_plus = \
+            math.log10(
+                math.cosh(big_gamma * beta / replica_count) \
+                / math.sinh(big_gamma * beta / replica_count)
+            ) / (2 * beta)
+
+        for _ in range(average_size):
+
+            new_h_0 = new_h_1 = 0
+
+            j_sample = i_sample
+
+            a = i_sample + replica_count - 1
+
+            while j_sample < a:
+
+                added_set = set()
+
+                for k_pair, v_weight in Q.items():
+
+                    if k_pair[0] == k_pair[1]:
+
+                        new_h_0 = new_h_0 + v_weight * (-1 if samples[j_sample][k_pair[0]] == 0 else 1)
+
+                    else:
+
+                        if k_pair not in added_set and (k_pair[1], k_pair[0],) not in added_set:
+                            # if True:
+
+                            new_h_0 = new_h_0 + v_weight \
+                                      * (-1 if samples[j_sample][k_pair[0]] == 0 else 1) \
+                                      * (-1 if samples[j_sample][k_pair[1]] == 0 else 1)
+
+                            added_set.add(k_pair)
+
+                for node_index in samples[j_sample].keys():
+                    new_h_1 = new_h_1 \
+                              + (-1 if samples[j_sample][node_index] == 0 else 1) \
+                              * (-1 if samples[j_sample + 1][node_index] == 0 else 1)
+
+                j_sample += 1
+
+            added_set = set()
+
+            for k_pair, v_weight in Q.items():
+
+                if k_pair[0] == k_pair[1]:
+
+                    new_h_0 = new_h_0 + v_weight * (-1 if samples[j_sample][k_pair[0]] == 0 else 1)
+
+                else:
+
+                    if k_pair not in added_set and (k_pair[1], k_pair[0],) not in added_set:
+                        # if True:
+
+                        new_h_0 = new_h_0 + v_weight \
+                                  * (-1 if samples[j_sample][k_pair[0]] == 0 else 1) \
+                                  * (-1 if samples[j_sample][k_pair[1]] == 0 else 1)
+
+                        added_set.add(k_pair)
+
+            for node_index in samples[j_sample].keys():
+                new_h_1 = new_h_1 \
+                          + (-1 if samples[j_sample][node_index] == 0 else 1) \
+                          * (-1 if samples[i_sample][node_index] == 0 else 1)
+
+            h_sum = h_sum + new_h_0 / replica_count + w_plus * new_h_1
+
+            i_sample += replica_count
+
+        return -1 * h_sum / average_size
+
+    def get_free_energy(self, average_hamiltonina, samples, replica_count, beta):
+
+        key_list = sorted(samples[0].keys())
+
+        prob_dict = dict()
+
+        for i_sample in range(0, len(samples), replica_count):
+
+            c_iterable = list()
+
+            for s in samples[i_sample: i_sample + replica_count]:
+                for k in key_list:
+                    c_iterable.append(s[k])
+
+            c_iterable = tuple(c_iterable)
+
+            if c_iterable in prob_dict:
+                prob_dict[c_iterable] += 1
+            else:
+                prob_dict[c_iterable] = 1
+
+        a_sum = 0
+
+        div_factor = len(samples) // replica_count
+
+        for c in prob_dict.values():
+            a_sum = a_sum + c * math.log10(c / div_factor) / div_factor
+
+        return average_hamiltonina + a_sum / beta
 
     # Epsilon-Greedy Policy
     def policy(self, state, beta):
@@ -158,7 +299,9 @@ class DBM_agent(nn.Module):
             q.append(self.q(state, [0, 1]))
             q.append(self.q(state, [1, 1]))
 
-            return np.argmax(q).item()
+            #print (q)
+
+            return np.argmin(q).item()
 
 
 def make_dbm_agent(ni, nh):

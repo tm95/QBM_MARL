@@ -60,7 +60,7 @@ def run_experiment(logger, params, log_dir, training_mode, seed, env_name):
     if not os.path.exists(weights_dir):
         os.makedirs(weights_dir)
 
-    agents = make_rbm_agent(76, 4)
+    agents = make_dbm_agent(76, 4)
 
     # train agent and save weights
     if training_mode == 0:

@@ -35,7 +35,7 @@ def train(env, agent, nb_episodes, nb_steps, logger):
             if reward == 0:
                 reward = -0.4
 
-            agent.qlearn(state[0], action, reward)
+            agent.qlearn(state[0], action, reward, 0.01)
             rewards.append(reward)
             all_done = done
 
