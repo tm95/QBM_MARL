@@ -28,7 +28,7 @@ class DBM_agent(nn.Module):
 
         self.n_layers = n_layers
         self.hidden_layers = int(self.n_layers)
-        self.scale = 3.0
+        self.scale = 0.95
 
         self.n_hidden = n_hidden
         self.dim_state = dim_state
