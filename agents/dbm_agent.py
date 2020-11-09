@@ -275,5 +275,5 @@ class DBM_agent(nn.Module):
 
 
 def make_dbm_agent(ni, nh):
-    agent = DBM_agent(4, ni, 2, 10, 0.7)
+    agent = DBM_agent(4, 4, 2, 10, 0.7)
     return agent
