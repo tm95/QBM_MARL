@@ -44,7 +44,7 @@ class DBM_agent(nn.Module):
         self.epsilon_decay = 0.0008
         self.epsilon_min = 0.1
         self.beta = 1.0
-        self.lr = 0.01
+        self.lr = 0.001
         self.discount_factor = 0.98
         self.replica_count = 5
         self.average_size = 20
@@ -65,7 +65,7 @@ class DBM_agent(nn.Module):
 
         for i in range(self.n_layers-1):
             #self.hh[i] += lr * (r - self.discount_factor * self.q(s1, a1)) * np.outer(hh[i], hh[i+1])
-            self.hh[i] -= self.lr * (r + self.discount_factor * -q) * np.outer(hh[i], hh[i + 1])
+            self.hh[i] -= self.lr * (r + self.discount_factor * -q) * np.outer(hh[i], hh[i+1])
 
         return q
 
@@ -162,109 +162,60 @@ class DBM_agent(nn.Module):
 
 
     def get_3d_hamiltonian_average_value(self, samples, Q, replica_count, average_size, big_gamma, beta):
-        '''
-        It produces the average Hamiltonian of one dimension higher.
 
-        samples
-            It is a list containg the samples from the DWAVE API.
-
-        Q
-            It is a dict containg the weights of the Chimera graph.
-
-        replica_count
-            It contains the number of replicas in the Hamiltonian of one dimension higher.
-
-        average_size
-            It contains the number of configurations of the Hamiltonian of one dimension higher
-            used for extracting the value.
-
-        big_gamma, beta
-            The parameters with the signification given in the paper.
-        '''
         i_sample = 0
-
         h_sum = 0
 
-        w_plus = \
-            math.log10(
-                math.cosh(big_gamma * beta / replica_count) \
-                / math.sinh(big_gamma * beta / replica_count)
-            ) / (2 * beta)
+        w_plus = math.log10(math.cosh(big_gamma * beta / replica_count)/ math.sinh(big_gamma * beta / replica_count)) / (2 * beta)
 
         for _ in range(average_size):
-
             new_h_0 = new_h_1 = 0
-
             j_sample = i_sample
-
             a = i_sample + replica_count - 1
 
             while j_sample < a:
-
                 added_set = set()
 
                 for k_pair, v_weight in Q.items():
-
                     if k_pair[0] == k_pair[1]:
-
                         new_h_0 = new_h_0 + v_weight * (-1 if samples[j_sample][k_pair[0]] == 0 else 1)
-
                     else:
-
                         if k_pair not in added_set and (k_pair[1], k_pair[0],) not in added_set:
-                            # if True:
-
-                            new_h_0 = new_h_0 + v_weight \
-                                      * (-1 if samples[j_sample][k_pair[0]] == 0 else 1) \
+                            new_h_0 = new_h_0 + v_weight * (-1 if samples[j_sample][k_pair[0]] == 0 else 1)\
                                       * (-1 if samples[j_sample][k_pair[1]] == 0 else 1)
-
                             added_set.add(k_pair)
 
                 for node_index in samples[j_sample].keys():
-                    new_h_1 = new_h_1 \
-                              + (-1 if samples[j_sample][node_index] == 0 else 1) \
+                    new_h_1 = new_h_1 + (-1 if samples[j_sample][node_index] == 0 else 1) \
                               * (-1 if samples[j_sample + 1][node_index] == 0 else 1)
-
                 j_sample += 1
 
             added_set = set()
 
             for k_pair, v_weight in Q.items():
-
                 if k_pair[0] == k_pair[1]:
-
                     new_h_0 = new_h_0 + v_weight * (-1 if samples[j_sample][k_pair[0]] == 0 else 1)
-
                 else:
-
                     if k_pair not in added_set and (k_pair[1], k_pair[0],) not in added_set:
-                        # if True:
-
-                        new_h_0 = new_h_0 + v_weight \
-                                  * (-1 if samples[j_sample][k_pair[0]] == 0 else 1) \
+                        new_h_0 = new_h_0 + v_weight * (-1 if samples[j_sample][k_pair[0]] == 0 else 1) \
                                   * (-1 if samples[j_sample][k_pair[1]] == 0 else 1)
-
                         added_set.add(k_pair)
 
             for node_index in samples[j_sample].keys():
-                new_h_1 = new_h_1 \
-                          + (-1 if samples[j_sample][node_index] == 0 else 1) \
+                new_h_1 = new_h_1 + (-1 if samples[j_sample][node_index] == 0 else 1) \
                           * (-1 if samples[i_sample][node_index] == 0 else 1)
 
             h_sum = h_sum + new_h_0 / replica_count + w_plus * new_h_1
-
             i_sample += replica_count
 
         return -1 * h_sum / average_size
 
-    def get_free_energy(self, average_hamiltonina, samples, replica_count, beta):
+    def get_free_energy(self, average_hamiltonian, samples, replica_count, beta):
 
         key_list = sorted(samples[0].keys())
-
         prob_dict = dict()
 
         for i_sample in range(0, len(samples), replica_count):
-
             c_iterable = list()
 
             for s in samples[i_sample: i_sample + replica_count]:
@@ -285,7 +236,7 @@ class DBM_agent(nn.Module):
         for c in prob_dict.values():
             a_sum = a_sum + c * math.log10(c / div_factor) / div_factor
 
-        return average_hamiltonina + a_sum / beta
+        return average_hamiltonian + a_sum / beta
 
     # Epsilon-Greedy Policy
     def policy(self, state, beta):
@@ -315,7 +266,7 @@ class DBM_agent(nn.Module):
             hidden.append(hh)
 
 
-            a = np.argmax(q).item()
+            a = np.argmin(q).item()
             hh = hidden[a]
             q_val = q[a]
 
