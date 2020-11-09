@@ -60,12 +60,12 @@ class DBM_agent(nn.Module):
     def qlearn(self, s, a, r, lr, q, hh):
         self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
 
-        self.w -= self.lr * (r - self.discount_factor * q) * np.outer(hh[0], s)
-        self.u -= self.lr * (r - self.discount_factor * q) * np.outer(hh[-1], a)
+        self.w -= self.lr * (r - self.discount_factor * -q) * np.outer(hh[0], s)
+        self.u -= self.lr * (r - self.discount_factor * -q) * np.outer(hh[-1], a)
 
         for i in range(self.n_layers-1):
             #self.hh[i] += lr * (r - self.discount_factor * self.q(s1, a1)) * np.outer(hh[i], hh[i+1])
-            self.hh[i] -= self.lr * (r - self.discount_factor * q) * np.outer(hh[i], hh[i + 1])
+            self.hh[i] -= self.lr * (r - self.discount_factor * -q) * np.outer(hh[i], hh[i + 1])
 
         return q
 
@@ -108,7 +108,10 @@ class DBM_agent(nn.Module):
             s = []
             for j in range(self.n_hidden):
                 s1 = str(i + 1) + str(j)
-                s.append(Q[s1])
+                if Q[s1] == 0:
+                    s.append(-1)
+                elif Q[s1] == 1:
+                    s.append(1)
             hh.append(s)
 
         return hh
@@ -148,12 +151,12 @@ class DBM_agent(nn.Module):
         # Average over reads
         hidden = np.average(np.array(hidden), axis=0)
 
-        for j in range(self.n_layers):
-            for i in range(self.n_hidden):
-                if hidden[j][i] > 0.5:
-                    hidden[j][i] = 1
-                else:
-                    hidden[j][i] = 0
+        #for j in range(self.n_layers):
+        #    for i in range(self.n_hidden):
+        #        if hidden[j][i] > 0.5:
+        #            hidden[j][i] = 1
+        #        else:
+        #            hidden[j][i] = 0
 
         return hidden, p, h_val, sampleset
 
@@ -312,7 +315,7 @@ class DBM_agent(nn.Module):
             hidden.append(hh)
 
 
-            a = np.argmin(q).item()
+            a = np.argmax(q).item()
             hh = hidden[a]
             q_val = q[a]
 
