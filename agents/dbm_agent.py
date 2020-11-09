@@ -266,7 +266,7 @@ class DBM_agent(nn.Module):
             hidden.append(hh)
 
 
-            a = np.argmin(q).item()
+            a = np.argmax(q).item()
             hh = hidden[a]
             q_val = q[a]
 
