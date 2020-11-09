@@ -40,7 +40,7 @@ class DBM_agent(nn.Module):
         self.u = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_action))
         self.hh = np.random.uniform(low=-self.scale, high=self.scale, size=(n_layers-1, n_hidden, n_hidden))
         self.num_reads = 100
-        self.epsilon = 1.8
+        self.epsilon = 1.0
         self.epsilon_decay = 0.0008
         self.epsilon_min = 0.1
         self.beta = 1.0
@@ -57,12 +57,8 @@ class DBM_agent(nn.Module):
     #TODO: Discount Factor oder nicht?
 
     # Calculate Q-value depending on state, action, hidden nodes and prob of c. Returns negative free energy
-    def qlearn(self, s, a, r, lr):
+    def qlearn(self, s, a, r, lr, q, hh):
         self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
-
-        hh, p, h_val, samples = self.anneal(s, a)
-
-        q = self.get_free_energy(h_val, samples, 2, 2)
 
         self.w -= self.lr * (r - self.discount_factor * q) * np.outer(hh[0], s)
         self.u -= self.lr * (r - self.discount_factor * q) * np.outer(hh[-1], a)
@@ -78,7 +74,7 @@ class DBM_agent(nn.Module):
 
         q = self.get_free_energy(h_val, samples, 2, 2)
 
-        return q
+        return q, hh
 
     # Convert DBM to QUBO
     def dbm_to_qubo(self, state, action):
@@ -291,17 +287,37 @@ class DBM_agent(nn.Module):
     # Epsilon-Greedy Policy
     def policy(self, state, beta):
         if torch.rand(1) < self.epsilon:
-            return torch.randint(4, (1,)).item()
+            a = torch.randint(4, (1,)).item()
+            q_val, hh = self.q(state, a)
+            return a, q_val, hh
+
         with torch.no_grad():
             q = []
-            q.append(self.q(state, [0, 0]))
-            q.append(self.q(state, [1, 0]))
-            q.append(self.q(state, [0, 1]))
-            q.append(self.q(state, [1, 1]))
+            hidden = []
 
-            #print (q)
+            a, hh = self.q(state, [0, 0])
+            q.append(a)
+            hidden.append(hh)
 
-            return np.argmin(q).item()
+            a, hh = self.q(state, [1, 0])
+            q.append(a)
+            hidden.append(hh)
+
+            a, hh = self.q(state, [0, 1])
+            q.append(a)
+            hidden.append(hh)
+
+            a, hh = self.q(state, [1, 0])
+            q.append(a)
+            hidden.append(hh)
+
+
+            a = np.argmin(q).item()
+            hh = hidden[a]
+            q_val = q[a]
+
+            return a, q_val, hh
+
 
 
 def make_dbm_agent(ni, nh):

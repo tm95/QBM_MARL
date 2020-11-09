@@ -25,7 +25,7 @@ def train(env, agent, nb_episodes, nb_steps, logger):
 
             steps += 1
             action_list = []
-            action = agent.policy(state[0], beta)
+            action, q, hh = agent.policy(state[0], beta)
             action_list.append(action)
 
             next_state, reward, done, info = env.step(action_list)
@@ -35,7 +35,7 @@ def train(env, agent, nb_episodes, nb_steps, logger):
             if reward == 0:
                 reward = -0.4
 
-            agent.qlearn(state[0], action, reward, 0.01)
+            agent.qlearn(state[0], action, reward, 0.01, q, hh)
             rewards.append(reward)
             all_done = done
 
