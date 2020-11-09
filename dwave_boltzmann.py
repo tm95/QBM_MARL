@@ -229,12 +229,12 @@ def paper_simulation_main():
     replica_count = 20
     average_size = 50
     sample_count = replica_count * average_size
-    sample_index = 0
-    done = False
     epsilon = 1
     steps = 200
 
     for run_index in range(runs_count):
+        sample_index = 1
+        done = False
         fidelity_acc_list = actions_count * [0]
 
         agent_state_tuple = random.choice(tuple(available_state_dict.items()))
