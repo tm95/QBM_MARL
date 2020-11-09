@@ -60,12 +60,12 @@ class DBM_agent(nn.Module):
     def qlearn(self, s, a, r, lr, q, hh):
         self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
 
-        self.w -= self.lr * (r - self.discount_factor * -q) * np.outer(hh[0], s)
-        self.u -= self.lr * (r - self.discount_factor * -q) * np.outer(hh[-1], a)
+        self.w -= self.lr * (r + self.discount_factor * -q) * hh[0] * s
+        self.u -= self.lr * (r + self.discount_factor * -q) * hh[-1] * a
 
         for i in range(self.n_layers-1):
             #self.hh[i] += lr * (r - self.discount_factor * self.q(s1, a1)) * np.outer(hh[i], hh[i+1])
-            self.hh[i] -= self.lr * (r - self.discount_factor * -q) * np.outer(hh[i], hh[i + 1])
+            self.hh[i] -= self.lr * (r + self.discount_factor * -q) * hh[i] * hh[i + 1]
 
         return q
 
