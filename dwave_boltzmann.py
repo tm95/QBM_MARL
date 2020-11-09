@@ -223,7 +223,7 @@ def paper_simulation_main():
         for i in range(4, 7):
             Q_vh[(i, j,)] = 2 * random.random() - 1
 
-    runs_count = 1
+    runs_count = 500
     actions_count = 2300
 
     replica_count = 20
