@@ -40,12 +40,14 @@ class DBM_agent(nn.Module):
         self.u = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_action))
         self.hh = np.random.uniform(low=-self.scale, high=self.scale, size=(n_layers-1, n_hidden, n_hidden))
         self.num_reads = 100
-        self.epsilon = 1
+        self.epsilon = 1.8
         self.epsilon_decay = 0.0008
         self.epsilon_min = 0.1
         self.beta = 1.0
         self.lr = 0.01
         self.discount_factor = 0.98
+        self.replica_count = 5
+        self.average_size = 20
 
         self.sampler = neal.SimulatedAnnealingSampler()
 
@@ -133,14 +135,12 @@ class DBM_agent(nn.Module):
         hidden = []
         probs = []
 
-        replica_count = 2
-        average_size = 6
-        sample_count = replica_count * average_size
+        sample_count = self.replica_count * self.average_size
 
         sampleset = list(self.sampler.sample_qubo(Q, num_reads=sample_count, vartype=0).samples())
         r.shuffle(sampleset)
 
-        h_val = self.get_3d_hamiltonian_average_value(sampleset, Q, replica_count, average_size, 0.5, 2)
+        h_val = self.get_3d_hamiltonian_average_value(sampleset, Q, self.replica_count, self.average_size, 0.5, 2)
 
         for sample in sampleset:
             hh = self.qubo_to_dbm(sample)
