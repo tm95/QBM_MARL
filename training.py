@@ -82,8 +82,8 @@ def train(env, agent, nb_episodes, nb_steps, logger):
     for training_episode in range(nb_episodes):
         steps = 0
         env.seed(seed=1234)  # Uncomment to randomize grid
-        #state = env.reset()
-        state = random.choice(tuple(available_state_dict.items()))
+        state = env.reset()
+        #state = random.choice(tuple(available_state_dict.items()))
         all_done = False
         rewards = []
         beta = 1
@@ -98,37 +98,37 @@ def train(env, agent, nb_episodes, nb_steps, logger):
 
             steps += 1
             action_list = []
-            #action, q, hh = agent.policy(state[0], beta)
-            action, q, hh = agent.policy(state[1], beta)
+            action, q, hh = agent.policy(state[0], beta)
+            #action, q, hh = agent.policy(state[1], beta)
             #fidelity_acc_list[0] += 1 if action in optimal_policy_tuple[state[0]][state[1]] else 0
             action_list.append(action)
 
-            #next_state, reward, done, info = env.step(action_list)
+            next_state, reward, done, info = env.step(action_list)
 
 
-            if action == 0:
-                new_position = (state[0][0] - 1, state[0][1])
-            elif action == 1:
-                new_position = (state[0][0], state[0][1] + 1)
-            elif action == 2:
-                new_position = (state[0][0] + 1, state[0][1])
-            elif action == 3:
-                new_position = (state[0][0], state[0][1] - 1)
-            else:
-                new_position = state[0]
+            #if action == 0:
+            #    new_position = (state[0][0] - 1, state[0][1])
+            #elif action == 1:
+            #    new_position = (state[0][0], state[0][1] + 1)
+            #elif action == 2:
+            #    new_position = (state[0][0] + 1, state[0][1])
+            #elif action == 3:
+            #    new_position = (state[0][0], state[0][1] - 1)
+            #else:
+            #    new_position = state[0]
 
-            if new_position in available_state_dict.keys():
-                next_state = (new_position, available_state_dict[new_position])
-            else:
-                next_state = state
+            #if new_position in available_state_dict.keys():
+            #    next_state = (new_position, available_state_dict[new_position])
+            #else:
+            #    next_state = state
 
             #reward = reward_function_tuple[next_state[0][0]][next_state[0][1]]
 
-            if state[0] == (0, 0):
-                reward = reward_function_tuple[next_state[0][0]][next_state[0][1]]
-                done = True
-            else:
-                reward = -2.0
+            #if state[0] == (0, 0):
+            #    reward = reward_function_tuple[next_state[0][0]][next_state[0][1]]
+            #    done = True
+            #else:
+            #    reward = -2.0
 
             #print_agent(state[0])
             #reward = reward[0]
@@ -138,7 +138,7 @@ def train(env, agent, nb_episodes, nb_steps, logger):
 
             #reward = reward_function_tuple[next_state[0][0]][next_state[0][1]]
 
-            agent.qlearn(state[1], action, reward, 0.01, q, hh)
+            agent.qlearn(state[0], action, reward, 0.01, q, hh)
             rewards.append(reward)
             state = next_state
             all_done = done

@@ -262,7 +262,132 @@ def paper_simulation_main():
 
         print (sum(fidelity_acc_list)/sample_index)
 
+def test_main_0():
+        '''
+        Tests the updating mechanism. The free energies should go
+        towards the values in "reward_tuple".
+        '''
+        global replica_count, \
+            average_size, \
+            sample_count
+
+        Q_hh = dict()
+        for i, ii in zip(tuple(range(4)), tuple(range(8, 12))):
+            for j, jj in zip(tuple(range(4, 8)), tuple(range(12, 16))):
+                Q_hh[(i, j)] = 2 * random.random() - 1
+                Q_hh[(ii, jj)] = 2 * random.random() - 1
+        for i, j in zip(tuple(range(4, 8)), tuple(range(12, 16))):
+            Q_hh[(i, j)] = 2 * random.random() - 1
+
+        Q_vh = dict()
+        # Fully connection between state and blue nodes
+        for j in (tuple(range(4)) + tuple(range(12, 16))):
+            for i in range(4):
+                Q_vh[(i, j,)] = 2 * random.random() - 1
+            # Fully connection between action and red nodes
+        for j in (tuple(range(4, 8)) + tuple(range(8, 12))):
+            for i in range(4, 7):
+                Q_vh[(i, j,)] = 2 * random.random() - 1
+
+        replica_count = 3
+        average_size = 5
+        sample_count = replica_count * average_size
+
+        reward_tuple = \
+            ( \
+                500, \
+                400, \
+                300, \
+                200, \
+                100, \
+                )
+
+        tries_count = 3000
+
+        agent_state_tuple = random.choice(tuple(available_state_dict.items()))
+
+        f_value_list = list()
+
+        for _ in range(tries_count):
+
+            f_value_list.append(list())
+
+            for action_index in range(5):
+                vis_iterable = agent_state_tuple[1] + available_actions_list[action_index]
+
+                general_Q = create_general_Q_from(
+                    Q_hh,
+                    Q_vh,
+                    vis_iterable
+                )
+
+                samples = list(SimulatedAnnealingSampler().sample_qubo(
+                    general_Q,
+                    num_reads=sample_count, vartype=0
+                ).samples())
+
+                random.shuffle(samples)
+
+                current_F = get_free_energy(
+                    get_3d_hamiltonian_average_value(
+                        samples,
+                        general_Q,
+                        replica_count,
+                        average_size,
+                        0.5,
+                        2
+                    ),
+                    samples,
+                    replica_count,
+                    2,
+                )
+
+                Q_hh, Q_vh = \
+                    update_weights(
+                        Q_hh,
+                        Q_vh,
+                        samples,
+                        reward_tuple[action_index],
+                        0,
+                        current_F,
+                        vis_iterable,
+                        0.0001,
+                        0.8
+                    )
+
+                f_value_list[-1].append(current_F)
+
+            # print( f_value_list[-1] )
+
+        plt.plot(
+            range(len(f_value_list)),
+            tuple(map(lambda e: e[0], f_value_list)),
+            label='First'
+        )
+        plt.plot(
+            range(len(f_value_list)),
+            tuple(map(lambda e: e[1], f_value_list)),
+            label='Second'
+        )
+        plt.plot(
+            range(len(f_value_list)),
+            tuple(map(lambda e: e[2], f_value_list)),
+            label='Third'
+        )
+        plt.plot(
+            range(len(f_value_list)),
+            tuple(map(lambda e: e[3], f_value_list)),
+            label='Fourth'
+        )
+        plt.plot(
+            range(len(f_value_list)),
+            tuple(map(lambda e: e[4], f_value_list)),
+            label='Fifth'
+        )
+        plt.legend()
+        plt.show()
 
 if __name__ == '__main__':
 
-    paper_simulation_main()
+    #paper_simulation_main()
+    test_main_0()

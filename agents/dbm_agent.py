@@ -2,24 +2,9 @@ import torch.nn as nn
 import torch
 import numpy as np
 import neal
-from random import random
 import random as r
 from collections import Counter
 import math
-import matplotlib.pyplot as plt
-
-
-def sig(x):
-    return 1 / (1 + np.exp(-x))
-
-sig_vec = np.vectorize(sig)
-
-def samp(p):
-    if random() < p:
-        return 1
-    else:
-        return 0
-samp_vec = np.vectorize(samp)
 
 
 class DBM_agent(nn.Module):
@@ -28,7 +13,7 @@ class DBM_agent(nn.Module):
 
         self.n_layers = n_layers
         self.hidden_layers = int(self.n_layers)
-        self.scale = 0.95
+        self.scale = 0.99
 
         self.n_hidden = n_hidden
         self.dim_state = dim_state
@@ -41,20 +26,15 @@ class DBM_agent(nn.Module):
         self.hh = np.random.uniform(low=-self.scale, high=self.scale, size=(n_layers-1, n_hidden, n_hidden))
         self.num_reads = 100
         self.epsilon = 1.0
-        self.epsilon_decay = 0.0008
+        self.epsilon_decay = 0.0005
         self.epsilon_min = 0.1
         self.beta = 1.0
         self.lr = 0.001
-        self.discount_factor = 0.98
+        self.discount_factor = 0.8
         self.replica_count = 5
         self.average_size = 20
 
         self.sampler = neal.SimulatedAnnealingSampler()
-
-    #TODO: Ist Ising-Modell richtig konstruiert?
-    #TODO: Passt Variable Beta?
-    #TODO: Variable Learning Rate oder fix?
-    #TODO: Discount Factor oder nicht?
 
     # Calculate Q-value depending on state, action, hidden nodes and prob of c. Returns negative free energy
     def qlearn(self, s, a, r, lr, q, hh):
@@ -151,15 +131,7 @@ class DBM_agent(nn.Module):
         # Average over reads
         hidden = np.average(np.array(hidden), axis=0)
 
-        #for j in range(self.n_layers):
-        #    for i in range(self.n_hidden):
-        #        if hidden[j][i] > 0.5:
-        #            hidden[j][i] = 1
-        #        else:
-        #            hidden[j][i] = 0
-
         return hidden, p, h_val, sampleset
-
 
     def get_3d_hamiltonian_average_value(self, samples, Q, replica_count, average_size, big_gamma, beta):
 
@@ -209,6 +181,7 @@ class DBM_agent(nn.Module):
             i_sample += replica_count
 
         return -1 * h_sum / average_size
+
 
     def get_free_energy(self, average_hamiltonian, samples, replica_count, beta):
 
@@ -261,19 +234,18 @@ class DBM_agent(nn.Module):
             q.append(a)
             hidden.append(hh)
 
-            a, hh = self.q(state, [1, 0])
+            a, hh = self.q(state, [1, 1])
             q.append(a)
             hidden.append(hh)
 
+            #print (q)
 
-            a = np.argmin(q).item()
+            a = np.argmax(q).item()
             hh = hidden[a]
             q_val = q[a]
 
             return a, q_val, hh
 
-
-
 def make_dbm_agent(ni, nh):
-    agent = DBM_agent(4, 4, 2, 10, 0.7)
+    agent = DBM_agent(4, ni, 2, 10, 0.7)
     return agent

@@ -1208,7 +1208,7 @@ class MultiGridEnv(gym.Env):
 
     def one_hot_encode(self, array, i):
         #TODO: Multi-Agent Case
-        observation = np.zeros((2, self.width, self.height))
+        observation = -np.ones((2, self.width, self.height))
 
         pos_self = 0
         self_goals = 1
@@ -1232,7 +1232,7 @@ class MultiGridEnv(gym.Env):
                 #if array[i, j, 0] == 1 or array[i, j, 0] == 3:
                 #    observation[obstacles][j][i] = 1
 
-        direction = np.zeros(4)
+        direction = -np.ones(4)
         direction[self.agents[0].dir] = 1
 
         observation = np.append(observation, direction)
@@ -1310,7 +1310,7 @@ class MultiGridEnv(gym.Env):
 
         done = not(np.sum(observation[0][self.height*self.width*1 : self.height*self.width*2]))
 
-        return obs, rewards, done, {}
+        return observation, rewards, done, {}
 
     def gen_obs_grid(self):
         """
