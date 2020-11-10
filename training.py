@@ -130,7 +130,7 @@ def train(env, agent, nb_episodes, nb_steps, logger):
             else:
                 reward = -2.0
 
-            print_agent(state[0])
+            #print_agent(state[0])
             #reward = reward[0]
 
             #if reward == 0:
