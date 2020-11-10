@@ -94,7 +94,7 @@ def train(env, agent, nb_episodes, nb_steps, logger):
 
         # reinforcement learning loop
         while not all_done and steps < nb_steps:
-            #env.render(mode='human', highlight=True)
+            env.render(mode='human', highlight=True)
 
             steps += 1
             action_list = []
