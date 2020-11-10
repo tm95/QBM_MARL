@@ -133,8 +133,8 @@ def train(env, agent, nb_episodes, nb_steps, logger):
             #print_agent(state[0])
             #reward = reward[0]
 
-            #if reward == 0:
-            #    reward = -0.4
+            if reward == 0:
+                reward = -1.0
 
             #reward = reward_function_tuple[next_state[0][0]][next_state[0][1]]
 
