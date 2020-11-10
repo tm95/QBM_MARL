@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="927ce324-0310-490f-9111-9c477482d55e" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/gym_multigrid/multigrid.py" beforeDir="false" afterPath="$PROJECT_DIR$/gym_multigrid/multigrid.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agents/dbm_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/dbm_agent.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -25,7 +24,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/training.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="192">
@@ -37,11 +36,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/agents/dbm_agent.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="291">
-              <caret line="28" column="35" selection-start-line="28" selection-start-column="35" selection-end-line="28" selection-end-column="35" />
+            <state relative-caret-position="252">
+              <caret line="238" column="29" lean-forward="true" selection-start-line="238" selection-start-column="29" selection-end-line="238" selection-end-column="29" />
               <folding>
                 <element signature="e#0#21#0" expanded="true" />
               </folding>
@@ -130,9 +129,9 @@
         <option value="$PROJECT_DIR$/main.py" />
         <option value="$USER_HOME$/Downloads/attract_grid_data_flow_optimization-master/dwave_boltzmann.py" />
         <option value="$PROJECT_DIR$/dwave_boltzmann.py" />
-        <option value="$PROJECT_DIR$/agents/dbm_agent.py" />
         <option value="$PROJECT_DIR$/gym_multigrid/multigrid.py" />
         <option value="$PROJECT_DIR$/training.py" />
+        <option value="$PROJECT_DIR$/agents/dbm_agent.py" />
       </list>
     </option>
   </component>
@@ -507,16 +506,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/agents/dbm_agent.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="291">
-          <caret line="28" column="35" selection-start-line="28" selection-start-column="35" selection-end-line="28" selection-end-column="35" />
-          <folding>
-            <element signature="e#0#21#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/gym_multigrid/multigrid.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="309">
@@ -540,6 +529,16 @@
           <caret line="96" column="13" selection-start-line="96" selection-start-column="13" selection-end-line="96" selection-end-column="13" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/agents/dbm_agent.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="252">
+          <caret line="238" column="29" lean-forward="true" selection-start-line="238" selection-start-column="29" selection-end-line="238" selection-end-column="29" />
+          <folding>
+            <element signature="e#0#21#0" expanded="true" />
           </folding>
         </state>
       </provider>

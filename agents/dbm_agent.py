@@ -240,7 +240,7 @@ class DBM_agent(nn.Module):
 
             #print (q)
 
-            a = np.argmax(q).item()
+            a = np.argmin(q).item()
             hh = hidden[a]
             q_val = q[a]
 
