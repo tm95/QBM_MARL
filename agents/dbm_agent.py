@@ -222,25 +222,25 @@ class DBM_agent(nn.Module):
             q = []
             hidden = []
 
-            a, hh = -self.q(state, [0, 0])
+            a, hh = self.q(state, [0, 0])
             q.append(a)
             hidden.append(hh)
 
-            a, hh = -self.q(state, [1, 0])
+            a, hh = self.q(state, [1, 0])
             q.append(a)
             hidden.append(hh)
 
-            a, hh = -self.q(state, [0, 1])
+            a, hh = self.q(state, [0, 1])
             q.append(a)
             hidden.append(hh)
 
-            a, hh = -self.q(state, [1, 1])
+            a, hh = self.q(state, [1, 1])
             q.append(a)
             hidden.append(hh)
 
             #print (q)
 
-            a = np.argmax(q).item()
+            a = np.argmin(q).item()
             hh = hidden[a]
             q_val = q[a]
 
