@@ -25,12 +25,12 @@ class DBM_agent(nn.Module):
         self.u = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_action))
         self.hh = np.random.uniform(low=-self.scale, high=self.scale, size=(n_layers-1, n_hidden, n_hidden))
         self.num_reads = 100
-        self.epsilon = 2.0
+        self.epsilon = 1.7
         self.epsilon_decay = 0.0005
         self.epsilon_min = 0.1
         self.beta = 1.0
-        self.lr = 0.001
-        self.discount_factor = 0.8
+        self.lr = 0.0008
+        self.discount_factor = 0.99
         self.replica_count = 5
         self.average_size = 20
 
