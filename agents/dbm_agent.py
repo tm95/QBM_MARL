@@ -29,8 +29,8 @@ class DBM_agent(nn.Module):
         self.epsilon_decay = 0.0005
         self.epsilon_min = 0.1
         self.beta = 1.0
-        self.lr = 0.0001
-        self.discount_factor = 0.75
+        self.lr = 0.0005
+        self.discount_factor = 0.8
         self.replica_count = 10
         self.average_size = 40
 
@@ -222,19 +222,19 @@ class DBM_agent(nn.Module):
             q = []
             hidden = []
 
-            a, hh = self.q(state, [0, 0])
+            a, hh = -self.q(state, [0, 0])
             q.append(a)
             hidden.append(hh)
 
-            a, hh = self.q(state, [1, 0])
+            a, hh = -self.q(state, [1, 0])
             q.append(a)
             hidden.append(hh)
 
-            a, hh = self.q(state, [0, 1])
+            a, hh = -self.q(state, [0, 1])
             q.append(a)
             hidden.append(hh)
 
-            a, hh = self.q(state, [1, 1])
+            a, hh = -self.q(state, [1, 1])
             q.append(a)
             hidden.append(hh)
 
