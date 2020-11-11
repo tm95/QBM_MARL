@@ -29,8 +29,8 @@ class DBM_agent(nn.Module):
         self.epsilon_decay = 0.0005
         self.epsilon_min = 0.1
         self.beta = 1.0
-        self.lr = 0.001
-        self.discount_factor = 0.99
+        self.lr = 0.0007
+        self.discount_factor = 0.8
         self.replica_count = 5
         self.average_size = 20
 
