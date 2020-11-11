@@ -1309,7 +1309,7 @@ class MultiGridEnv(gym.Env):
         observation = [self.one_hot_encode(obs[i], i) for i in range(len(self.agents))]
 
         #TODO: Richtig implementieren!
-        done = (np.sum(observation[0][self.height*self.width*1 : self.height*self.width*2]) == -36.0)
+        done = (np.sum(observation[0][self.height*self.width*1 : self.height*self.width*2]) == -34.0)
         # done = not(np.sum(observation[0][self.height*self.width*1 : self.height*self.width*2])
 
         return observation, rewards, done, {}

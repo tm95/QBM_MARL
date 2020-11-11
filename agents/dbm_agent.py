@@ -29,7 +29,7 @@ class DBM_agent(nn.Module):
         self.epsilon_decay = 0.0005
         self.epsilon_min = 0.1
         self.beta = 1.0
-        self.lr = 0.0008
+        self.lr = 0.001
         self.discount_factor = 0.99
         self.replica_count = 5
         self.average_size = 20
@@ -116,7 +116,7 @@ class DBM_agent(nn.Module):
 
         sample_count = self.replica_count * self.average_size
 
-        sampleset = list(self.sampler.sample_qubo(Q, num_reads=sample_count, vartype=0).samples())
+        sampleset = list(self.sampler.sample_qubo(Q, num_reads=sample_count, vartype=1).samples())
         r.shuffle(sampleset)
 
         h_val = self.get_3d_hamiltonian_average_value(sampleset, Q, self.replica_count, self.average_size, 0.5, 2)
