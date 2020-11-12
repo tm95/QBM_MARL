@@ -30,7 +30,7 @@ class DBM_agent(nn.Module):
         self.epsilon_min = 0.1
         self.beta = 1.0
         self.lr = 0.0008
-        self.discount_factor = 0.8
+        self.discount_factor = 1.0
         self.replica_count = 5
         self.average_size = 20
 
@@ -239,11 +239,9 @@ class DBM_agent(nn.Module):
 
             #print (q)
 
-            a = np.argmax(q).item()
+            a = np.argmin(q).item()
             hh = hidden[a]
             q_val = q[a]
-
-            print (q)
 
             return a, q_val, hh
 
