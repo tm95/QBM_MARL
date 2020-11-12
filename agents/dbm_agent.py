@@ -25,7 +25,7 @@ class DBM_agent(nn.Module):
         self.u = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_action))
         self.hh = np.random.uniform(low=-self.scale, high=self.scale, size=(n_layers-1, n_hidden, n_hidden))
         self.num_reads = 100
-        self.epsilon = 1.7
+        self.epsilon = 1.3
         self.epsilon_decay = 0.0005
         self.epsilon_min = 0.1
         self.beta = 1.0
@@ -40,11 +40,11 @@ class DBM_agent(nn.Module):
     def qlearn(self, s, a, r, lr, q, hh):
         self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
 
-        self.w += self.lr * (r - self.discount_factor * q) * np.outer(hh[0], s)
-        self.u += self.lr * (r - self.discount_factor * q) * np.outer(hh[-1], a)
+        self.w -= self.lr * (r - self.discount_factor * q) * np.outer(hh[0], s)
+        self.u -= self.lr * (r - self.discount_factor * q) * np.outer(hh[-1], a)
 
         for i in range(self.n_layers-1):
-            self.hh[i] += self.lr * (r - self.discount_factor * q) * np.outer(hh[i], hh[i+1])
+            self.hh[i] -= self.lr * (r - self.discount_factor * q) * np.outer(hh[i], hh[i+1])
 
         return q
 
