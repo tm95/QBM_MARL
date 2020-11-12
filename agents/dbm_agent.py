@@ -31,8 +31,8 @@ class DBM_agent(nn.Module):
         self.beta = 1.0
         self.lr = 0.0005
         self.discount_factor = 0.8
-        self.replica_count = 10
-        self.average_size = 40
+        self.replica_count = 5
+        self.average_size = 20
 
         self.sampler = neal.SimulatedAnnealingSampler()
 
@@ -40,12 +40,11 @@ class DBM_agent(nn.Module):
     def qlearn(self, s, a, r, lr, q, hh):
         self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
 
-        self.w -= self.lr * (r - self.discount_factor * q) * np.outer(hh[0], s)
-        self.u -= self.lr * (r - self.discount_factor * q) * np.outer(hh[-1], a)
+        self.w += self.lr * (r - self.discount_factor * q) * np.outer(hh[0], s)
+        self.u += self.lr * (r - self.discount_factor * q) * np.outer(hh[-1], a)
 
         for i in range(self.n_layers-1):
-            #self.hh[i] += lr * (r - self.discount_factor * self.q(s1, a1)) * np.outer(hh[i], hh[i+1])
-            self.hh[i] -= self.lr * (r - self.discount_factor * q) * np.outer(hh[i], hh[i+1])
+            self.hh[i] += self.lr * (r - self.discount_factor * q) * np.outer(hh[i], hh[i+1])
 
         return q
 
@@ -54,7 +53,7 @@ class DBM_agent(nn.Module):
 
         q = self.get_free_energy(h_val, samples, 2, 2)
 
-        return q, hh
+        return -q, hh
 
     # Convert DBM to QUBO
     def dbm_to_qubo(self, state, action):
@@ -240,7 +239,7 @@ class DBM_agent(nn.Module):
 
             #print (q)
 
-            a = np.argmin(q).item()
+            a = np.argmax(q).item()
             hh = hidden[a]
             q_val = q[a]
 
