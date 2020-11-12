@@ -29,7 +29,7 @@ class DBM_agent(nn.Module):
         self.epsilon_decay = 0.0005
         self.epsilon_min = 0.1
         self.beta = 1.0
-        self.lr = 0.0008
+        self.lr = 0.001
         self.discount_factor = 1.0
         self.replica_count = 5
         self.average_size = 20
@@ -39,6 +39,16 @@ class DBM_agent(nn.Module):
     # Calculate Q-value depending on state, action, hidden nodes and prob of c. Returns negative free energy
     def qlearn(self, s, a, r, lr, q, hh):
         self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
+
+        if a == 0:
+            a = [0, 0]
+        elif a == 1:
+            a = [1, 0]
+        elif a == 2:
+            a = [0, 1]
+        elif a == 3:
+            a = [1, 1]
+
 
         self.w -= self.lr * (r - self.discount_factor * q) * np.outer(hh[0], s)
         self.u -= self.lr * (r - self.discount_factor * q) * np.outer(hh[-1], a)
@@ -115,7 +125,7 @@ class DBM_agent(nn.Module):
 
         sample_count = self.replica_count * self.average_size
 
-        sampleset = list(self.sampler.sample_qubo(Q, num_reads=sample_count, vartype=1).samples())
+        sampleset = list(self.sampler.sample_qubo(Q, num_reads=sample_count, vartype=0).samples())
         r.shuffle(sampleset)
 
         h_val = self.get_3d_hamiltonian_average_value(sampleset, Q, self.replica_count, self.average_size, 0.5, 2)
