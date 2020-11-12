@@ -136,6 +136,8 @@ def train(env, agent, nb_episodes, nb_steps, logger):
             if reward == 0:
                 reward = -1.0
 
+            print (reward)
+
             #reward = reward_function_tuple[next_state[0][0]][next_state[0][1]]
 
             agent.qlearn(state[0], action, reward, 0.01, q, hh)
