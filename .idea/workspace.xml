@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="927ce324-0310-490f-9111-9c477482d55e" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/agents/dbm_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/dbm_agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gym_multigrid/multigrid.py" beforeDir="false" afterPath="$PROJECT_DIR$/gym_multigrid/multigrid.py" afterDir="false" />
-    </list>
+    <list default="true" id="927ce324-0310-490f-9111-9c477482d55e" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,14 +34,23 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/agents/dbm_agent.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="385">
-              <caret line="132" column="32" selection-start-line="132" selection-start-column="32" selection-end-line="132" selection-end-column="32" />
+            <state relative-caret-position="259">
+              <caret line="127" column="43" selection-start-line="127" selection-start-column="43" selection-end-line="127" selection-end-column="43" />
               <folding>
                 <element signature="e#0#21#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$USER_HOME$/qmarl/lib/python3.7/site-packages/dimod/core/sampler.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="415">
+              <caret line="238" column="48" selection-start-line="238" selection-start-column="48" selection-end-line="238" selection-end-column="48" />
             </state>
           </provider>
         </entry>
@@ -163,6 +169,7 @@
         <option value="$PROJECT_DIR$/training.py" />
         <option value="$PROJECT_DIR$/gym_multigrid/multigrid.py" />
         <option value="$PROJECT_DIR$/agents/dbm_agent.py" />
+        <option value="$USER_HOME$/qmarl/lib/python3.7/site-packages/dimod/core/sampler.py" />
       </list>
     </option>
   </component>
@@ -361,7 +368,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="16" y="23" width="1510" height="958" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.16453996" />
       <window_info id="Structure" order="1" weight="0.25" />
@@ -383,8 +389,6 @@
     </layout>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/envs/multiagent/multi_discrete.py" />
-    <entry file="file://$PROJECT_DIR$/envs/multiagent/scenarios/simple_world_comm.py" />
     <entry file="file://$PROJECT_DIR$/envs/multiagent/policy.py" />
     <entry file="file://$USER_HOME$/qmarl/lib/python3.6/site-packages/torch/nn/functional.py" />
     <entry file="file://$PROJECT_DIR$/envs/multiagent/core.py" />
@@ -570,13 +574,27 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/qmarl/lib/python3.7/site-packages/dimod/binary_quadratic_model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="705">
+          <caret line="57" column="6" selection-start-line="57" selection-start-column="6" selection-end-line="57" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/agents/dbm_agent.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="385">
-          <caret line="132" column="32" selection-start-line="132" selection-start-column="32" selection-end-line="132" selection-end-column="32" />
+        <state relative-caret-position="259">
+          <caret line="127" column="43" selection-start-line="127" selection-start-column="43" selection-end-line="127" selection-end-column="43" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/qmarl/lib/python3.7/site-packages/dimod/core/sampler.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="415">
+          <caret line="238" column="48" selection-start-line="238" selection-start-column="48" selection-end-line="238" selection-end-column="48" />
         </state>
       </provider>
     </entry>

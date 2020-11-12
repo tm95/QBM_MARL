@@ -41,11 +41,11 @@ class DBM_agent(nn.Module):
         self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
 
         if a == 0:
-            a = [-1, -1]
+            a = [0, 0]
         elif a == 1:
-            a = [1, -1]
+            a = [1, 0]
         elif a == 2:
-            a = [-1, 1]
+            a = [0, 1]
         elif a == 3:
             a = [1, 1]
 
@@ -98,7 +98,7 @@ class DBM_agent(nn.Module):
             for j in range(self.n_hidden):
                 s1 = str(i + 1) + str(j)
                 if Q[s1] == 0:
-                    s.append(-1)
+                    s.append(0)
                 elif Q[s1] == 1:
                     s.append(1)
             hh.append(s)
@@ -125,7 +125,7 @@ class DBM_agent(nn.Module):
 
         sample_count = self.replica_count * self.average_size
 
-        sampleset = list(self.sampler.sample_qubo(Q, num_reads=sample_count, vartype=0).samples())
+        sampleset = list(self.sampler.sample_qubo(Q, num_reads=sample_count).samples())
         r.shuffle(sampleset)
 
         h_val = self.get_3d_hamiltonian_average_value(sampleset, Q, self.replica_count, self.average_size, 0.5, 2)
@@ -231,15 +231,15 @@ class DBM_agent(nn.Module):
             q = []
             hidden = []
 
-            a, hh = self.q(state, [-1, -1])
+            a, hh = self.q(state, [0, 0])
             q.append(a)
             hidden.append(hh)
 
-            a, hh = self.q(state, [1, -1])
+            a, hh = self.q(state, [1, 0])
             q.append(a)
             hidden.append(hh)
 
-            a, hh = self.q(state, [-1, 1])
+            a, hh = self.q(state, [0, 1])
             q.append(a)
             hidden.append(hh)
 
