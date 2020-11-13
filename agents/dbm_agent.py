@@ -63,7 +63,7 @@ class DBM_agent(nn.Module):
 
         q = self.get_free_energy(h_val, samples, 2, 2)
 
-        return q, hh
+        return -q, hh
 
     # Convert DBM to QUBO
     def dbm_to_qubo(self, state, action):

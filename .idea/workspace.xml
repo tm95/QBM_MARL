@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="927ce324-0310-490f-9111-9c477482d55e" name="Default" comment="" />
+    <list default="true" id="927ce324-0310-490f-9111-9c477482d55e" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/agents/dbm_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/dbm_agent.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,11 +36,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/agents/dbm_agent.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="259">
-              <caret line="127" column="43" selection-start-line="127" selection-start-column="43" selection-end-line="127" selection-end-column="43" />
+            <state relative-caret-position="189">
+              <caret line="65" column="16" selection-start-line="65" selection-start-column="16" selection-end-line="65" selection-end-column="16" />
               <folding>
                 <element signature="e#0#21#0" expanded="true" />
               </folding>
@@ -46,20 +48,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$USER_HOME$/qmarl/lib/python3.7/site-packages/dimod/core/sampler.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="415">
-              <caret line="238" column="48" selection-start-line="238" selection-start-column="48" selection-end-line="238" selection-end-column="48" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/gym_multigrid/multigrid.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="355">
-              <caret line="1314" column="9" selection-start-line="1314" selection-start-column="9" selection-end-line="1314" selection-end-column="9" />
+            <state relative-caret-position="18030">
+              <caret line="1210" column="9" selection-start-line="1210" selection-start-column="9" selection-end-line="1210" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -167,9 +160,10 @@
         <option value="$PROJECT_DIR$/gym_multigrid/envs/collect_game.py" />
         <option value="$PROJECT_DIR$/params.json" />
         <option value="$PROJECT_DIR$/training.py" />
+        <option value="$USER_HOME$/qmarl/lib/python3.7/site-packages/dimod/core/sampler.py" />
+        <option value="$USER_HOME$/qmarl/lib/python3.7/site-packages/dimod/core/bqm.py" />
         <option value="$PROJECT_DIR$/gym_multigrid/multigrid.py" />
         <option value="$PROJECT_DIR$/agents/dbm_agent.py" />
-        <option value="$USER_HOME$/qmarl/lib/python3.7/site-packages/dimod/core/sampler.py" />
       </list>
     </option>
   </component>
@@ -368,6 +362,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="16" y="23" width="1510" height="958" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.16453996" />
       <window_info id="Structure" order="1" weight="0.25" />
@@ -389,7 +384,6 @@
     </layout>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/envs/multiagent/policy.py" />
     <entry file="file://$USER_HOME$/qmarl/lib/python3.6/site-packages/torch/nn/functional.py" />
     <entry file="file://$PROJECT_DIR$/envs/multiagent/core.py" />
     <entry file="file://$PROJECT_DIR$/envs/make_env.py" />
@@ -550,6 +544,34 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/gym_multigrid/envs/collect_game.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="222">
+          <caret line="79" column="26" selection-start-line="79" selection-start-column="26" selection-end-line="79" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/qmarl/lib/python3.7/site-packages/dimod/binary_quadratic_model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="173">
+          <caret line="57" column="6" selection-start-line="57" selection-start-column="6" selection-end-line="57" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/qmarl/lib/python3.7/site-packages/dimod/core/bqm.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="362">
+          <caret line="623" column="36" selection-start-line="623" selection-start-column="36" selection-end-line="623" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/qmarl/lib/python3.7/site-packages/dimod/core/sampler.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="415">
+          <caret line="238" column="41" selection-start-line="238" selection-start-column="41" selection-end-line="238" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/training.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="730">
@@ -560,41 +582,20 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/gym_multigrid/envs/collect_game.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="222">
-          <caret line="79" column="26" selection-start-line="79" selection-start-column="26" selection-end-line="79" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/gym_multigrid/multigrid.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="355">
-          <caret line="1314" column="9" selection-start-line="1314" selection-start-column="9" selection-end-line="1314" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/qmarl/lib/python3.7/site-packages/dimod/binary_quadratic_model.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="705">
-          <caret line="57" column="6" selection-start-line="57" selection-start-column="6" selection-end-line="57" selection-end-column="6" />
+        <state relative-caret-position="18030">
+          <caret line="1210" column="9" selection-start-line="1210" selection-start-column="9" selection-end-line="1210" selection-end-column="9" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/agents/dbm_agent.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="259">
-          <caret line="127" column="43" selection-start-line="127" selection-start-column="43" selection-end-line="127" selection-end-column="43" />
+        <state relative-caret-position="189">
+          <caret line="65" column="16" selection-start-line="65" selection-start-column="16" selection-end-line="65" selection-end-column="16" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/qmarl/lib/python3.7/site-packages/dimod/core/sampler.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="415">
-          <caret line="238" column="48" selection-start-line="238" selection-start-column="48" selection-end-line="238" selection-end-column="48" />
         </state>
       </provider>
     </entry>
