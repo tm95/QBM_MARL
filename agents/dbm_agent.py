@@ -50,11 +50,11 @@ class DBM_agent(nn.Module):
             a = [1, 1]
 
 
-        self.w += self.lr * (r - self.discount_factor * q) * np.outer(hh[0], s)
-        self.u += self.lr * (r - self.discount_factor * q) * np.outer(hh[-1], a)
+        self.w += self.lr * (r + self.discount_factor * q) * np.outer(hh[0], s)
+        self.u += self.lr * (r + self.discount_factor * q) * np.outer(hh[-1], a)
 
         for i in range(self.n_layers-1):
-            self.hh[i] += self.lr * (r - self.discount_factor * q) * np.outer(hh[i], hh[i+1])
+            self.hh[i] += self.lr * (r + self.discount_factor * q) * np.outer(hh[i], hh[i+1])
 
         return q
 
@@ -247,7 +247,7 @@ class DBM_agent(nn.Module):
             q.append(a)
             hidden.append(hh)
 
-            a = np.argmin(q).item()
+            a = np.argmax(q).item()
             hh = hidden[a]
             q_val = q[a]
 
