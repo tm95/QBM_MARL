@@ -63,7 +63,7 @@ class DBM_agent(nn.Module):
 
         q = self.get_free_energy(h_val, samples, 2, 2)
 
-        return -q, hh
+        return q, hh
 
     # Convert DBM to QUBO
     def dbm_to_qubo(self, state, action):
@@ -247,7 +247,7 @@ class DBM_agent(nn.Module):
             q.append(a)
             hidden.append(hh)
 
-            a = np.argmin(q).item()
+            a = np.argmax(q).item()
             hh = hidden[a]
             q_val = q[a]
 
