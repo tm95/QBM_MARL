@@ -5,6 +5,7 @@ import neal
 import random as r
 from collections import Counter
 import math
+from dwave_qbsolv import QBSolv
 
 
 class DBM_agent(nn.Module):
@@ -37,7 +38,7 @@ class DBM_agent(nn.Module):
         self.sampler = neal.SimulatedAnnealingSampler()
 
     # Calculate Q-value depending on state, action, hidden nodes and prob of c. Returns negative free energy
-    def qlearn(self, s, a, r, lr, q, hh):
+    def qlearn(self, s, a, r, s1, lr, q, hh):
         self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
 
         if a == 0:
@@ -49,11 +50,26 @@ class DBM_agent(nn.Module):
         elif a == 3:
             a = [1, 1]
 
-        self.w -= self.lr * (r - self.discount_factor * q) * np.outer(hh[0], s)
-        self.u -= self.lr * (r - self.discount_factor * q) * np.outer(hh[-1], a)
+        future_q = []
+        q1, hh = self.q(s1, [0, 0])
+        future_q.append(q1)
+
+        q1, hh = self.q(s1, [1, 0])
+        future_q.append(q1)
+
+        q1, hh = self.q(s1, [0, 1])
+        future_q.append(q1)
+
+        q1, hh = self.q(s1, [1, 1])
+        future_q.append(q1)
+
+        q1 = np.max(future_q)
+
+        self.w -= self.lr * (r + self.discount_factor * q1 - q) * np.outer(hh[0], s)
+        self.u -= self.lr * (r + self.discount_factor * q1 - q) * np.outer(hh[-1], a)
 
         for i in range(self.n_layers-1):
-            self.hh[i] -= self.lr * (r - self.discount_factor * q) * np.outer(hh[i], hh[i+1])
+            self.hh[i] -= self.lr * (r + self.discount_factor * q1 - q) * np.outer(hh[i], hh[i+1])
 
         return q
 
@@ -123,6 +139,9 @@ class DBM_agent(nn.Module):
         probs = []
 
         sample_count = self.replica_count * self.average_size
+
+        #sampler = neal.SimulatedAnnealingSampler()
+        #sampleset = list(QBSolv().sample_qubo(Q, solver=sampler, num_reads=sample_count).samples())
 
         sampleset = list(self.sampler.sample_qubo(Q, num_reads=sample_count).samples())
         r.shuffle(sampleset)
