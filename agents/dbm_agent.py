@@ -26,7 +26,7 @@ class DBM_agent(nn.Module):
         self.u = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_action))
         self.hh = np.random.uniform(low=-self.scale, high=self.scale, size=(n_layers-1, n_hidden, n_hidden))
         self.num_reads = 100
-        self.epsilon = 1.0
+        self.epsilon = 1.2
         self.epsilon_decay = 0.0008
         self.epsilon_min = 0.1
         self.beta = 1.0
