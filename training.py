@@ -94,7 +94,7 @@ def train(env, agent, nb_episodes, nb_steps, logger):
 
         # reinforcement learning loop
         while not all_done and steps < nb_steps:
-            #env.render(mode='human', highlight=True)
+            env.render(mode='human', highlight=True)
 
             steps += 1
             action_list = []
@@ -140,7 +140,7 @@ def train(env, agent, nb_episodes, nb_steps, logger):
 
             #reward = reward_function_tuple[next_state[0][0]][next_state[0][1]]
 
-            agent.qlearn(state[0], action, 400*reward, next_state[0], 0.01, q, hh)
+            agent.qlearn(state[0], action, reward, next_state[0], 0.01, q, hh)
             rewards.append(reward)
             state = next_state
             all_done = done
