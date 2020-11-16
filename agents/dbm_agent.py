@@ -49,7 +49,6 @@ class DBM_agent(nn.Module):
         elif a == 3:
             a = [1, 1]
 
-
         self.w -= self.lr * (r - self.discount_factor * q) * np.outer(hh[0], s)
         self.u -= self.lr * (r - self.discount_factor * q) * np.outer(hh[-1], a)
 
@@ -139,6 +138,13 @@ class DBM_agent(nn.Module):
 
         # Average over reads
         hidden = np.average(np.array(hidden), axis=0)
+
+        for i in range(len(hidden)):
+            for j in range(len(hidden[0])):
+                if hidden[i][j] > 0:
+                    hidden[i][j] = 1
+                else:
+                    hidden[i][j] = 0
 
         return hidden, p, h_val, sampleset
 
@@ -250,8 +256,6 @@ class DBM_agent(nn.Module):
             a = np.argmax(q).item()
             hh = hidden[a]
             q_val = q[a]
-
-            print (q)
 
             return a, q_val, hh
 
