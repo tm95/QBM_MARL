@@ -51,16 +51,16 @@ class DBM_agent(nn.Module):
             a = [1, 1]
 
         future_q = []
-        q1, hh = self.q(s1, [0, 0])
+        q1, hh1 = self.q(s1, [0, 0])
         future_q.append(q1)
 
-        q1, hh = self.q(s1, [1, 0])
+        q1, hh1 = self.q(s1, [1, 0])
         future_q.append(q1)
 
-        q1, hh = self.q(s1, [0, 1])
+        q1, hh1 = self.q(s1, [0, 1])
         future_q.append(q1)
 
-        q1, hh = self.q(s1, [1, 1])
+        q1, hh1 = self.q(s1, [1, 1])
         future_q.append(q1)
 
         q1 = np.max(future_q)
