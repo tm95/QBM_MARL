@@ -50,26 +50,26 @@ class DBM_agent(nn.Module):
         elif a == 3:
             a = [1, 1]
 
-        future_q = []
-        q1, hh1 = self.q(s1, [0, 0])
-        future_q.append(q1)
+        #future_q = []
+        #q1, hh1 = self.q(s1, [0, 0])
+ #       future_q.append(q1)
+#
+  #      q1, hh1 = self.q(s1, [1, 0])
+ #       future_q.append(q1)
+#
+  #      q1, hh1 = self.q(s1, [0, 1])
+   #     future_q.append(q1)
 
-        q1, hh1 = self.q(s1, [1, 0])
-        future_q.append(q1)
+    #    q1, hh1 = self.q(s1, [1, 1])
+     #   future_q.append(q1)
 
-        q1, hh1 = self.q(s1, [0, 1])
-        future_q.append(q1)
+      #  q1 = np.max(future_q)
 
-        q1, hh1 = self.q(s1, [1, 1])
-        future_q.append(q1)
-
-        q1 = np.max(future_q)
-
-        self.w -= self.lr * (r + self.discount_factor * q1 - q) * np.outer(hh[0], s)
-        self.u -= self.lr * (r + self.discount_factor * q1 - q) * np.outer(hh[-1], a)
+        self.w -= self.lr * (r + self.discount_factor * 0 - q) * np.outer(hh[0], s)
+        self.u -= self.lr * (r + self.discount_factor * 0 - q) * np.outer(hh[-1], a)
 
         for i in range(self.n_layers-1):
-            self.hh[i] -= self.lr * (r + self.discount_factor * q1 - q) * np.outer(hh[i], hh[i+1])
+            self.hh[i] -= self.lr * (r + self.discount_factor * 0 - q) * np.outer(hh[i], hh[i+1])
 
         return q
 

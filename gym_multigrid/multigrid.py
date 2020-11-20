@@ -1312,7 +1312,7 @@ class MultiGridEnv(gym.Env):
 
         #TODO: Richtig implementieren!
         #done = (np.sum(observation[0][self.height*self.width*1 : self.height*self.width*2]) == -34.0)
-        done = not(np.sum(observation[0][self.height*self.width*1 : self.height*self.width*2])-1)
+        done = not(np.sum(observation[0][self.height*self.width*1 : self.height*self.width*2]))
 
         return observation, rewards, done, {}
 

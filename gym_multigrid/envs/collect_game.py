@@ -83,8 +83,8 @@ class CollectGameEnv(MultiGridEnv):
 
 class CollectGame4HEnv10x10N2(CollectGameEnv):
     def __init__(self):
-        super().__init__(size=6,
-        num_balls=[4],
+        super().__init__(size=4,
+        num_balls=[1],
         agents_index = [1],
         balls_index=[1],
         balls_reward=[10],
