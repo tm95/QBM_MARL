@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="927ce324-0310-490f-9111-9c477482d55e" name="Default" comment="" />
+    <list default="true" id="927ce324-0310-490f-9111-9c477482d55e" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -13,8 +17,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="411">
-              <caret line="76" column="26" selection-start-line="76" selection-start-column="26" selection-end-line="76" selection-end-column="26" />
+            <state relative-caret-position="354">
+              <caret line="47" column="9" selection-start-line="47" selection-start-column="9" selection-end-line="47" selection-end-column="9" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
               </folding>
@@ -22,25 +26,13 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/training.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1254">
-              <caret line="110" column="30" lean-forward="true" selection-start-line="110" selection-start-column="30" selection-end-line="110" selection-end-column="30" />
+            <state relative-caret-position="359">
+              <caret line="24" column="18" selection-start-line="24" selection-start-column="18" selection-end-line="24" selection-end-column="18" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/agents/dbm_agent.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3454">
-              <caret line="273" lean-forward="true" selection-start-line="273" selection-end-line="273" />
-              <folding>
-                <element signature="e#0#21#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -49,8 +41,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/agents/rbm_agent.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="623">
-              <caret line="117" column="38" selection-start-line="117" selection-start-column="38" selection-end-line="117" selection-end-column="38" />
+            <state relative-caret-position="57">
+              <caret line="102" column="16" lean-forward="true" selection-start-line="102" selection-start-column="16" selection-end-line="102" selection-end-column="16" />
               <folding>
                 <element signature="e#0#31#0" expanded="true" />
               </folding>
@@ -59,10 +51,19 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/gym_multigrid/multigrid.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="19275">
+              <caret line="1293" column="48" selection-start-line="1293" selection-start-column="41" selection-end-line="1293" selection-end-column="48" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/gym_multigrid/envs/collect_game.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="505">
-              <caret line="79" column="26" selection-start-line="79" selection-start-column="26" selection-end-line="79" selection-end-column="26" />
+            <state relative-caret-position="1185">
+              <caret line="79" column="50" selection-start-line="79" selection-start-column="50" selection-end-line="79" selection-end-column="50" />
             </state>
           </provider>
         </entry>
@@ -80,12 +81,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>self.dbm</find>
-      <find>self.discount_factor</find>
-      <find>self.samples</find>
-      <find>#</find>
-      <find>flatten</find>
-      <find>self.con</find>
       <find>self.world</find>
       <find>agent</find>
       <find>env</find>
@@ -107,9 +102,15 @@
       <find>one_hot</find>
       <find>self.ac</find>
       <find>self.get</find>
-      <find>dbm</find>
       <find>episode</find>
       <find>print</find>
+      <find>poison</find>
+      <find>get_normalized</find>
+      <find>dbm</find>
+      <find>action</find>
+      <find>front</find>
+      <find>self.agents</find>
+      <find>front_pos</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -141,7 +142,6 @@
         <option value="$PROJECT_DIR$/gym_gridworld/__init__.py" />
         <option value="$PROJECT_DIR$/agents/dqn_agent.py" />
         <option value="$PROJECT_DIR$/agents/qbm_agent.py" />
-        <option value="$PROJECT_DIR$/agents/rbm_agent.py" />
         <option value="$USER_HOME$/Downloads/FERL-master/dbm_agent.py" />
         <option value="$USER_HOME$/Downloads/attract_grid_data_flow_optimization-master/dwave_boltzmann.py" />
         <option value="$PROJECT_DIR$/dwave_boltzmann.py" />
@@ -149,10 +149,12 @@
         <option value="$PROJECT_DIR$/params.json" />
         <option value="$USER_HOME$/qmarl/lib/python3.7/site-packages/dimod/core/sampler.py" />
         <option value="$USER_HOME$/qmarl/lib/python3.7/site-packages/dimod/core/bqm.py" />
+        <option value="$PROJECT_DIR$/agents/dbm_agent.py" />
+        <option value="$USER_HOME$/Downloads/attract_grid_data_flow_optimization-master/agent_main_2.py" />
         <option value="$PROJECT_DIR$/gym_multigrid/multigrid.py" />
         <option value="$PROJECT_DIR$/main.py" />
+        <option value="$PROJECT_DIR$/agents/rbm_agent.py" />
         <option value="$PROJECT_DIR$/training.py" />
-        <option value="$PROJECT_DIR$/agents/dbm_agent.py" />
       </list>
     </option>
   </component>
@@ -214,6 +216,27 @@
     </option>
   </component>
   <component name="RunManager" selected="Python.main">
+    <configuration name="agent_main_2" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="qmarl" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$USER_HOME$/Downloads/attract_grid_data_flow_optimization-master" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$USER_HOME$/Downloads/attract_grid_data_flow_optimization-master/agent_main_2.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="dwave_boltzmann (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="qmarl" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -298,41 +321,20 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="qubo" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="qmarl" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/qubo.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <list>
       <item itemvalue="Python.main" />
-      <item itemvalue="Python.qubo" />
       <item itemvalue="Python.qubo (1)" />
       <item itemvalue="Python.dwave_boltzmann" />
       <item itemvalue="Python.dwave_boltzmann (1)" />
+      <item itemvalue="Python.agent_main_2" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.agent_main_2" />
         <item itemvalue="Python.dwave_boltzmann (1)" />
         <item itemvalue="Python.dwave_boltzmann" />
         <item itemvalue="Python.qubo (1)" />
-        <item itemvalue="Python.qubo" />
       </list>
     </recent_temporary>
   </component>
@@ -373,8 +375,6 @@
     </layout>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/qmarl/lib/python3.6/site-packages/torch/nn/functional.py" />
-    <entry file="file://$PROJECT_DIR$/envs/multiagent/core.py" />
     <entry file="file://$PROJECT_DIR$/envs/make_env.py" />
     <entry file="file://$PROJECT_DIR$/envs/multiagent/scenarios/simple.py" />
     <entry file="file://$PROJECT_DIR$/envs/multiagent/scenarios/simple_crypto.py" />
@@ -527,10 +527,24 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/Downloads/attract_grid_data_flow_optimization-master/agent_main_2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-9">
+          <caret line="2" column="25" lean-forward="true" selection-start-line="2" selection-start-column="25" selection-end-line="2" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/gym_multigrid/multigrid.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="169">
-          <caret line="149" column="8" selection-start-line="149" selection-start-column="8" selection-end-line="149" selection-end-column="8" />
+        <state relative-caret-position="19275">
+          <caret line="1293" column="48" selection-start-line="1293" selection-start-column="41" selection-end-line="1293" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gym_multigrid/envs/collect_game.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1185">
+          <caret line="79" column="50" selection-start-line="79" selection-start-column="50" selection-end-line="79" selection-end-column="50" />
         </state>
       </provider>
     </entry>
@@ -541,49 +555,45 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/My Cloud/Uni/KDD2/code/pca.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="411">
-          <caret line="76" column="26" selection-start-line="76" selection-start-column="26" selection-end-line="76" selection-end-column="26" />
+        <state relative-caret-position="354">
+          <caret line="47" column="9" selection-start-line="47" selection-start-column="9" selection-end-line="47" selection-end-column="9" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/agents/dbm_agent.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-30">
+          <caret line="31" column="23" selection-start-line="31" selection-start-column="23" selection-end-line="31" selection-end-column="23" />
+          <folding>
+            <element signature="e#0#21#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/agents/rbm_agent.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="623">
-          <caret line="117" column="38" selection-start-line="117" selection-start-column="38" selection-end-line="117" selection-end-column="38" />
+        <state relative-caret-position="57">
+          <caret line="102" column="16" lean-forward="true" selection-start-line="102" selection-start-column="16" selection-end-line="102" selection-end-column="16" />
           <folding>
             <element signature="e#0#31#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/gym_multigrid/envs/collect_game.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="505">
-          <caret line="79" column="26" selection-start-line="79" selection-start-column="26" selection-end-line="79" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/training.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1254">
-          <caret line="110" column="30" lean-forward="true" selection-start-line="110" selection-start-column="30" selection-end-line="110" selection-end-column="30" />
+        <state relative-caret-position="359">
+          <caret line="24" column="18" selection-start-line="24" selection-start-column="18" selection-end-line="24" selection-end-column="18" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/agents/dbm_agent.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3454">
-          <caret line="273" lean-forward="true" selection-start-line="273" selection-end-line="273" />
-          <folding>
-            <element signature="e#0#21#0" expanded="true" />
           </folding>
         </state>
       </provider>
