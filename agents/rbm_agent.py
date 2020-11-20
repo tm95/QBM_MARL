@@ -115,8 +115,8 @@ class RBM_agent:
             a1 = [1, 1]
 
         ph = samp_vec(sig_vec(self.tau(s1, a1)))
-        self.w -= self.lr * (r - self.q(s1, a1)) * np.outer(ph, s1)
-        self.u -= self.lr * (r - self.q(s1, a1)) * np.outer(ph, a1)
+        self.w += self.lr * (r - self.q(s1, a1)) * np.outer(ph, s1)
+        self.u += self.lr * (r - self.q(s1, a1)) * np.outer(ph, a1)
 
 
 def make_rbm_agent(ni, nh):

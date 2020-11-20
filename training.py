@@ -14,6 +14,9 @@ def train(env, agent, nb_episodes, nb_steps, logger):
         all_done = False
         rewards = []
         beta = 1
+        start_beta = 1
+        end_beta = 10
+
 
         # reinforcement learning loop
         while not all_done and steps < nb_steps:
@@ -21,6 +24,12 @@ def train(env, agent, nb_episodes, nb_steps, logger):
 
             steps += 1
             action_list = []
+
+            if (beta + 0.0001) <= end_beta:
+                beta += 0.0001
+            else:
+                beta = end_beta
+
             #action, q, hh = agent.policy(state[0], beta)
             action = agent.policy(state[0], beta)
             action_list.append(action)
