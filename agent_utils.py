@@ -15,7 +15,7 @@ class Test_agent(nn.Module):
 		self.epsilon_min = 0.1
 		self.epsilon_decay = 0.0008
 
-		self.lr = 0.008
+		self.lr = 0.012
 		self.discount_factor = 0.8
 		self.beta = 2
 		self.gamma = 0.5

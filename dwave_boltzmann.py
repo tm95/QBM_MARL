@@ -19,6 +19,7 @@ def run(env, agent, logger):
     fidelity_list = list()
 
     for training_episode in range(nb_episodes):
+        rewards = []
 
         agent_state_tuple, available_actions, available_actions_list = env.reset()
 
@@ -38,6 +39,8 @@ def run(env, agent, logger):
 
                 agent.qlearn(current_samples, reward, future_F, current_F, current_vis_iterable)
 
+                rewards.append(reward)
+
                 if agent_state_tuple[0] == (0, 0):
                     break
 
@@ -46,12 +49,14 @@ def run(env, agent, logger):
         fidelity_list.append(fidelity_count/step_count)
         step_count_list.append(step_count)
 
-        print("episode {} finished at step {} with fidelity: {} at timestamp {}".format(
-            training_episode, step_count, np.round(fidelity_count/step_count, decimals=2), datetime.now().strftime('%Y%m%d-%H-%M-%S')))
+        print("episode {} finished at step {} with fidelity: {} and reward: {} at timestamp {}".format(
+            training_episode, step_count, np.round(fidelity_count/step_count, decimals=2), np.sum(rewards), datetime.now().strftime('%Y%m%d-%H-%M-%S')))
 
         if logger is not None:
             logger.log_metric('episode_fidelity', training_episode, np.round(fidelity_count/step_count, decimals=2))
+            logger.log_metric('episode_rewards', training_episode, np.sum(rewards))
             logger.log_metric('episode_steps', training_episode, step_count)
+
 
     #print_results(step_count_list, fidelity_list)
 
