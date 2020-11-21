@@ -5,11 +5,10 @@ import torch.nn as nn
 
 class Test_agent(nn.Module):
 
-	def __init__(self, n_layers, dim_state, dim_action, n_hidden, scale=None):
+	def __init__(self, n_layers, dim_state, dim_action, n_hidden):
 		super(Test_agent, self).__init__()
 
-		self.Q_hh = self.init_hidden_neurons()
-		self.Q_vh = self.init_visible_neurons()
+		self.Q_hh, self.Q_vh = self.init_neurons(n_layers, dim_state, dim_action, n_hidden)
 		self.sampler = SimulatedAnnealingSampler()
 
 		self.epsilon = 1
@@ -17,40 +16,41 @@ class Test_agent(nn.Module):
 		self.epsilon_decay = 0.0008
 
 		self.lr = 0.01
-		self.gamma = 0.8
+		self.discount_factor = 0.8
+		self.beta = 2
+		self.gamma = 0.5
 
 		self.replica_count = 1
 		self.average_size = 10
 		self.sample_count = self.replica_count * self.average_size
 
-	def init_hidden_neurons(self):
+	def init_neurons(self, n_layers, dim_state, dim_action, n_hidden):
 		Q_hh = dict()
-		for i, ii in zip(tuple(range(4)), tuple(range(8, 12))):
-			for j, jj in zip(tuple(range(4, 8)), tuple(range(12, 16))):
+		for i, ii in zip(tuple(range(dim_state)), tuple(range(8, 12))):
+			for j, jj in zip(tuple(range(4, 7)), tuple(range(12, 16))):
 				Q_hh[(i, j)] = 2 * random.random() - 1
 				Q_hh[(ii, jj)] = 2 * random.random() - 1
 
-		for i, j in zip(tuple(range(4, 8)), tuple(range(12, 16))):
-			Q_hh[(i, j)] = 2 * random.random() - 1
-		return Q_hh
+		#for i, j in zip(tuple(range(4, 8)), tuple(range(12, 16))):
+	#		Q_hh[(i, j)] = 2 * random.random() - 1
 
-	def init_visible_neurons(self):
 		Q_vh = dict()
 		# Fully connection between state and blue nodes
-		for j in (tuple(range(4)) + tuple(range(12, 16))):
-			for i in range(4):
+		for j in (tuple(range(dim_state)) + tuple(range(12, 16))):
+			for i in range(dim_state):
 				Q_vh[(i, j,)] = 2 * random.random() - 1
 
 		# Fully connection between action and red nodes
-		for j in (tuple(range(4, 8)) + tuple(range(8, 12))):
-			for i in range(4, 7):
+		for j in (tuple(range(4, 7)) + tuple(range(8, 12))):
+			for i in range(dim_state, dim_state + dim_action):
 				Q_vh[(i, j,)] = 2 * random.random() - 1
-		return Q_vh
 
-	def get_3d_hamiltonian_average_value(self, samples, Q, big_gamma, beta):
+		return Q_hh, Q_vh
+
+	def get_3d_hamiltonian_average_value(self, samples, Q):
 		i_sample = 0
 		h_sum = 0
-		w_plus = math.log10(math.cosh(big_gamma * beta / self.replica_count) / math.sinh(big_gamma * beta / self.replica_count)) / (2 * beta)
+		w_plus = math.log10(math.cosh(self.gamma * self.beta / self.replica_count) / math.sinh(self.gamma * self.beta / self.replica_count)) / (2 * self.beta)
 
 		for _ in range(self.average_size):
 			new_h_0 = new_h_1 = 0
@@ -90,7 +90,7 @@ class Test_agent(nn.Module):
 
 		return -1 * h_sum / self.average_size
 
-	def get_free_energy(self, average_hamiltonina, samples, beta):
+	def get_free_energy(self, average_hamiltonian, samples):
 
 		key_list = sorted(samples[0].keys())
 		prob_dict = dict()
@@ -115,11 +115,20 @@ class Test_agent(nn.Module):
 		for c in prob_dict.values():
 			a_sum = a_sum + c * math.log10(c / div_factor) / div_factor
 
-		return average_hamiltonina + a_sum / beta
+		return average_hamiltonian + a_sum / self.beta
 
-	def qlearn(self, samples, reward, future_F, current_F, visible_iterable):
+	def qlearn(self, samples, r, q1, q0, visible_iterable):
 		self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
 
+		prob_dict = self.get_average_configuration(samples)
+
+		for k_pair in self.Q_hh.keys():
+			self.Q_hh[k_pair] = self.Q_hh[k_pair] - self.lr * (r + self.discount_factor * q1 - q0) * prob_dict[k_pair] / len(samples)
+
+		for k_pair in self.Q_vh.keys():
+			self.Q_vh[k_pair] = self.Q_vh[k_pair] - self.lr * (r + self.discount_factor * q1 - q0) * visible_iterable[k_pair[0]] * prob_dict[k_pair[1]] / len(samples)
+
+	def get_average_configuration(self, samples):
 		prob_dict = dict()
 
 		for s in samples:
@@ -134,12 +143,7 @@ class Test_agent(nn.Module):
 					prob_dict[k] += (-1 if s[k] == 0 else 1)
 				else:
 					prob_dict[k] = (-1 if s[k] == 0 else 1)
-
-		for k_pair in self.Q_hh.keys():
-			self.Q_hh[k_pair] = self.Q_hh[k_pair] - self.lr * (reward + self.gamma * future_F - current_F) * prob_dict[k_pair] / len(samples)
-
-		for k_pair in self.Q_vh.keys():
-			self.Q_vh[k_pair] = self.Q_vh[k_pair] - self.lr * (reward + self.gamma * future_F - current_F) * visible_iterable[k_pair[0]] * prob_dict[k_pair[1]] / len(samples)
+		return prob_dict
 
 	def create_general_Q_from(self, visible_iterable):
 		Q = dict()
@@ -160,8 +164,8 @@ class Test_agent(nn.Module):
 		general_Q = self.create_general_Q_from(vis_iterable)
 		samples = list(self.sampler.sample_qubo(general_Q, num_reads=self.sample_count).samples())
 		random.shuffle(samples)
-		hamiltonian = self.get_3d_hamiltonian_average_value(samples, general_Q, 0.5, 2)
-		current_F = self.get_free_energy(hamiltonian, samples, 2)
+		hamiltonian = self.get_3d_hamiltonian_average_value(samples, general_Q)
+		current_F = self.get_free_energy(hamiltonian, samples)
 		return current_F, samples, vis_iterable
 
 	def policy(self, current_state, available_actions, available_actions_list):
@@ -175,12 +179,12 @@ class Test_agent(nn.Module):
 		else:
 			action_index = random.choice(tuple(available_actions))
 			vis_iterable = current_state[1] + available_actions_list[action_index]
-			current_F, samples, vis_iterable = self.calculate_q( vis_iterable)
+			current_F, samples, vis_iterable = self.calculate_q(vis_iterable)
 			max_tuple = (current_F, action_index, samples, vis_iterable)
 
 		return (max_tuple[0], max_tuple[2], max_tuple[3], max_tuple[1], current_state[0])
 
 
-def make_test_agent(ni, nh):
-	agent = Test_agent(4, ni, nh, 10, 0.7)
+def make_test_agent(observation_space, action_space):
+	agent = Test_agent(4, observation_space, action_space, 10)
 	return agent

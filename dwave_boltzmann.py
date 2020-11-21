@@ -50,7 +50,7 @@ def run(env, agent, logger):
             training_episode, step_count, np.round(fidelity_count/step_count, decimals=2), datetime.now().strftime('%Y%m%d-%H-%M-%S')))
 
         if logger is not None:
-            logger.log_metric('episode_return', training_episode, np.round(fidelity_count/step_count, decimals=2))
+            logger.log_metric('episode_fidelity', training_episode, np.round(fidelity_count/step_count, decimals=2))
             logger.log_metric('episode_steps', training_episode, step_count)
 
     #print_results(step_count_list, fidelity_list)
@@ -71,7 +71,11 @@ def print_results(step_count_list, fidelity_list):
 
 if __name__ == '__main__':
     env = make_env()
-    agent = make_test_agent(24, 4)
+
+    observation_space = env.observation_space()
+    action_space = env.action_space()
+
+    agent = make_test_agent(observation_space, action_space)
 
     # Load action set
     params = ('params.json')

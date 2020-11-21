@@ -113,6 +113,12 @@ class Env():
 		state = random.choice(tuple(filter(lambda e: e[0] != (0, 0) and e[0] != (1, 2), self.available_state_dict.items())))
 		return state, self.get_available_actions(state), self.available_actions_list
 
+	def observation_space(self):
+		return len(list(self.get_available_state_dict().values())[0])
+
+	def action_space(self):
+		return len(self.get_available_actions_list()[0])
+
 def make_env():
 	env = Env()
 	return env
