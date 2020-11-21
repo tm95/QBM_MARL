@@ -5,8 +5,6 @@ import neal
 import random as r
 from collections import Counter
 import math
-from dwave_qbsolv import QBSolv
-
 
 class DBM_agent(nn.Module):
     def __init__(self,  n_layers, dim_state, dim_action, n_hidden, scale=None):
@@ -26,50 +24,50 @@ class DBM_agent(nn.Module):
         self.u = np.random.uniform(low=-self.scale, high=self.scale, size=(n_hidden, dim_action))
         self.hh = np.random.uniform(low=-self.scale, high=self.scale, size=(n_layers-1, n_hidden, n_hidden))
         self.num_reads = 100
-        self.epsilon = 1.2
-        self.epsilon_decay = 0.0008
+        self.epsilon = 1.0
+        self.epsilon_decay = 0.001
         self.epsilon_min = 0.1
         self.beta = 1.0
         self.lr = 0.001
         self.discount_factor = 0.8
-        self.replica_count = 5
-        self.average_size = 20
+        self.replica_count = 1
+        self.average_size = 5
 
         self.sampler = neal.SimulatedAnnealingSampler()
 
     # Calculate Q-value depending on state, action, hidden nodes and prob of c. Returns negative free energy
-    def qlearn(self, s, a, r, s1, lr, q, hh):
+    def qlearn(self, s, a, r, s1, lr, q2, q, hh):
         self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
 
-        if a == 0:
-            a = [0, 0]
-        elif a == 1:
-            a = [1, 0]
-        elif a == 2:
-            a = [0, 1]
-        elif a == 3:
-            a = [1, 1]
+        #if a == 0:
+        #    a = [0, 0]
+        #elif a == 1:
+        #    a = [1, 0]
+        #elif a == 2:
+        #    a = [0, 1]
+        #elif a == 3:
+        #    a = [1, 1]
 
         #future_q = []
         #q1, hh1 = self.q(s1, [0, 0])
- #       future_q.append(q1)
-#
-  #      q1, hh1 = self.q(s1, [1, 0])
- #       future_q.append(q1)
-#
-  #      q1, hh1 = self.q(s1, [0, 1])
-   #     future_q.append(q1)
+        #future_q.append(q1)
 
-    #    q1, hh1 = self.q(s1, [1, 1])
-     #   future_q.append(q1)
+        #q1, hh1 = self.q(s1, [1, 0])
+        #future_q.append(q1)
 
-      #  q1 = np.max(future_q)
+        #q1, hh1 = self.q(s1, [0, 1])
+        #future_q.append(q1)
 
-        self.w -= self.lr * (r + self.discount_factor * 0 - q) * np.outer(hh[0], s)
-        self.u -= self.lr * (r + self.discount_factor * 0 - q) * np.outer(hh[-1], a)
+        #q1, hh1 = self.q(s1, [1, 1])
+        #future_q.append(q1)
+
+        #q1 = np.max(future_q)
+
+        self.w -= self.lr * (r + self.discount_factor * q2 - q) * np.outer(hh[0], s)
+        self.u -= self.lr * (r + self.discount_factor * q2 - q) * np.outer(hh[-1], a)
 
         for i in range(self.n_layers-1):
-            self.hh[i] -= self.lr * (r + self.discount_factor * 0 - q) * np.outer(hh[i], hh[i+1])
+            self.hh[i] -= self.lr * (r + self.discount_factor * q2 - q) * np.outer(hh[i], hh[i+1])
 
         return q
 
@@ -139,9 +137,6 @@ class DBM_agent(nn.Module):
         probs = []
 
         sample_count = self.replica_count * self.average_size
-
-        #sampler = neal.SimulatedAnnealingSampler()
-        #sampleset = list(QBSolv().sample_qubo(Q, solver=sampler, num_reads=sample_count).samples())
 
         sampleset = list(self.sampler.sample_qubo(Q, num_reads=sample_count).samples())
         r.shuffle(sampleset)
@@ -252,7 +247,7 @@ class DBM_agent(nn.Module):
             q_val, hh = self.q(state, a)
             return a, q_val, hh
 
-        with torch.no_grad():
+        else:
             q = []
             hidden = []
 
@@ -278,6 +273,28 @@ class DBM_agent(nn.Module):
 
             return a, q_val, hh
 
+    def policy_test(self, state, beta, available_action_dict, action_dict):
+        if torch.rand(1) < self.epsilon:
+            a = r.choice(tuple(filter(lambda e: True, available_action_dict[state[0][0]][state[0][1]])))
+            action = action_dict[a]
+            q_val, hh = self.q(state[1], action)
+            return a, q_val, hh
+
+        else:
+            hidden = []
+            q_val = -1000
+            index = 0
+
+            for action_index in filter(lambda e: True, available_action_dict[state[0][0]][state[0][1]]):
+
+                a, hh = self.q(state[1], action_dict[action_index])
+                if a > q_val or q_val == -1000:
+                    q_val = a
+                    index = action_index
+                    hidden = hh
+
+            return index, q_val, hidden
+
 def make_dbm_agent(ni, nh):
-    agent = DBM_agent(4, ni, 2, 10, 0.7)
+    agent = DBM_agent(4, ni, nh, 10, 0.7)
     return agent

@@ -2,6 +2,7 @@ from __future__ import division
 from math import exp, log
 from random import random
 import numpy as np
+import torch
 
 def sig(x):
         return 1 / (1 + np.exp(-x))
@@ -80,13 +81,14 @@ class RBM_agent:
             e.append(s_energy + a_energy)
         h_energy = np.nansum([(h[i]*np.log(h[i]) + (1-h[i])*np.log(1-h[i])) for i in range(self.n_hidden)])
         q = np.nansum(e) - (1/self.beta)*h_energy
-        return q
+        return q, h
 
     def tau(self, s, a):
         return np.dot(self.w, s) + np.dot(self.u, a)
 
     def lam(self, s, a):
         return -logexp_vec(self.tau(s, a))
+
 
     def policy(self, s, beta):
         # First deterministic initialization
@@ -98,11 +100,13 @@ class RBM_agent:
             h = samp_vec(sig_vec(beta * self.tau(s, a)))
             a = samp_vec(sig_vec(beta * np.dot(self.u.T, h)))
 
+        q, h = self.q(s, a)
+
         a = int("".join(str(x) for x in a), 2)
 
-        return a
+        return a, q, h
 
-    def qlearn(self, s1, a1, r):
+    def qlearn(self, s1, a1, r, s2, lr, q, hh):
         self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
 
         if a1 == 0:
@@ -114,13 +118,12 @@ class RBM_agent:
         elif a1 == 3:
             a1 = [1, 1]
 
-        ph = samp_vec(sig_vec(self.tau(s1, a1)))
-        self.w += self.lr * (r - self.q(s1, a1)) * np.outer(ph, s1)
-        self.u += self.lr * (r - self.q(s1, a1)) * np.outer(ph, a1)
+        self.w += lr * (r - q) * np.outer(hh, s1)
+        self.u += lr * (r - q) * np.outer(hh, a1)
 
 
 def make_rbm_agent(ni, nh):
 
-    agent = RBM_agent(13, ni, 2, 0.7)
+    agent = RBM_agent(13, ni, nh, 0.7)
 
     return agent
