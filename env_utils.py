@@ -107,7 +107,7 @@ class Env():
 		if agent_state_tuple[0] == (0, 0):
 			reward = self.reward_function_tuple[agent_state_tuple[0][0]][agent_state_tuple[0][1]]
 		else:
-			reward = 0
+			reward = -10
 		return reward
 
 	def get_available_actions(self, current_state):
