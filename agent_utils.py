@@ -8,7 +8,7 @@ class Test_agent(nn.Module):
 	def __init__(self, n_layers, dim_state, dim_action, n_hidden):
 		super(Test_agent, self).__init__()
 
-		self.Q_hh, self.Q_vh = self.init_neurons(n_layers, dim_state, dim_action, n_hidden)
+		self.Q_hh, self.Q_vh = self.init_weights(n_layers, dim_state, dim_action, n_hidden)
 		self.sampler = SimulatedAnnealingSampler()
 
 		self.epsilon = 1
@@ -24,24 +24,36 @@ class Test_agent(nn.Module):
 		self.average_size = 10
 		self.sample_count = self.replica_count * self.average_size
 
-	def init_neurons(self, n_layers, dim_state, dim_action, n_hidden):
+	def init_weights(self, n_layers, dim_state, dim_action, n_hidden):
 		Q_hh = dict()
-		for i, ii in zip(tuple(range(dim_state)), tuple(range(8, 12))):
-			for j, jj in zip(tuple(range(4, 8)), tuple(range(12, 16))):
-				Q_hh[(i, j)] = 2 * random.random() - 1
-				Q_hh[(ii, jj)] = 2 * random.random() - 1
 
-		for i, j in zip(tuple(range(4, 8)), tuple(range(12, 16))):
+		len_visible = 8
+		# len_visible = dim_state + dim_action + 1 ?!
+
+		hidden = []
+		for i in range(n_layers):
+			hidden.append([(len_visible + i * n_hidden), (len_visible + (i+1) * n_hidden)])
+
+		for i in tuple(range(dim_state)):
+			for j in tuple(range(dim_state, len_visible)):
+				Q_hh[(i, j)] = 2 * random.random() - 1
+
+		for i in range(n_layers-1):
+			for ii in (tuple(range(hidden[i][0], hidden[i][1]))):
+				for jj in tuple(range(hidden[i+1][0], hidden[i+1][1])):
+					Q_hh[(ii, jj)] = 2 * random.random() - 1
+
+		for i, j in zip(tuple(range(dim_state, len_visible)), tuple(range(hidden[-1][0], hidden[-1][1]))):
 			Q_hh[(i, j)] = 2 * random.random() - 1
 
 		Q_vh = dict()
 		# Fully connection between state and blue nodes
-		for j in (tuple(range(dim_state)) + tuple(range(12, 16))):
+		for j in (tuple(range(dim_state)) + tuple(range(hidden[-1][0], hidden[-1][1]))):
 			for i in range(dim_state):
 				Q_vh[(i, j,)] = 2 * random.random() - 1
 
 		# Fully connection between action and red nodes
-		for j in (tuple(range(4, 8)) + tuple(range(8, 12))):
+		for j in (tuple(range(dim_state, len_visible)) + tuple(range(hidden[0][0], hidden[0][1]))):
 			for i in range(dim_state, dim_state + dim_action):
 				Q_vh[(i, j,)] = 2 * random.random() - 1
 
@@ -186,5 +198,5 @@ class Test_agent(nn.Module):
 
 
 def make_test_agent(observation_space, action_space):
-	agent = Test_agent(2, observation_space, action_space, 4)
+	agent = Test_agent(4, observation_space, action_space, 4)
 	return agent
