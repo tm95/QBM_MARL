@@ -97,18 +97,18 @@ class Env():
 			new_position = current_state[0]
 
 		return (new_position, self.available_state_dict[new_position]), self.get_available_actions((new_position, self.available_state_dict[new_position])),\
-			self.get_fidelity(action, old_position_tuple), self.get_reward(current_state)
+			self.get_fidelity(action, old_position_tuple), self.get_reward(new_position)
 
 	def get_fidelity(self, action, old_position_tuple):
 		fidelity = (1 if action in self.get_optimal_policy_tuple()[old_position_tuple[0]][old_position_tuple[1]] else 0)
 		return fidelity
 
 	def get_reward(self, agent_state_tuple):
-		if agent_state_tuple[0] == (0, 0):
-			reward = self.reward_function_tuple[agent_state_tuple[0][0]][agent_state_tuple[0][1]]
+		if agent_state_tuple == (0, 0):
+			reward = self.reward_function_tuple[agent_state_tuple[0]][agent_state_tuple[1]]
 		else:
 			reward = -10
-		#reward = self.reward_function_tuple[agent_state_tuple[0][0]][agent_state_tuple[0][1]]
+		#reward = self.reward_function_tuple[agent_state_tuple[0]][agent_state_tuple[1]]
 		return reward
 
 	def get_available_actions(self, current_state):
