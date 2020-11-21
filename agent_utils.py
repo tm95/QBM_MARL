@@ -15,7 +15,7 @@ class Test_agent(nn.Module):
 		self.epsilon_min = 0.1
 		self.epsilon_decay = 0.0008
 
-		self.lr = 0.008
+		self.lr = 0.02
 		self.discount_factor = 0.8
 		self.beta = 2
 		self.gamma = 0.5
@@ -198,5 +198,5 @@ class Test_agent(nn.Module):
 
 
 def make_test_agent(observation_space, action_space):
-	agent = Test_agent(4, observation_space, action_space, 4)
+	agent = Test_agent(6, observation_space, action_space, 4)
 	return agent
