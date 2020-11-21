@@ -104,7 +104,11 @@ class Env():
 		return fidelity
 
 	def get_reward(self, agent_state_tuple):
-		return self.reward_function_tuple[agent_state_tuple[0][0]][agent_state_tuple[0][1]]
+		if agent_state_tuple[0] == (0, 0):
+			reward = self.reward_function_tuple[agent_state_tuple[0][0]][agent_state_tuple[0][1]]
+		else:
+			reward = 0
+		return reward
 
 	def get_available_actions(self, current_state):
 		return filter(lambda e: True, self.available_actions_per_position_tuple[current_state[0][0]][current_state[0][1]])
