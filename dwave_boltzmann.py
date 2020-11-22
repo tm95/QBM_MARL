@@ -37,7 +37,7 @@ def run(env, agent, logger):
                 fidelity_count += fidelity
                 step_count += 1
 
-                agent.save(current_state[1], available_actions_list[action_index], agent_state_tuple[1], reward)
+                agent.save(current_state[1], available_actions_list[action_index], agent_state_tuple, reward)
 
                 agent.qlearn(current_samples, reward, future_F, current_F, current_vis_iterable)
 

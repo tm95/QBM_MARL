@@ -7,6 +7,7 @@ from env_utils import *
 
 env = make_env()
 available_actions_list = env.get_available_actions_list()
+available_state_dict = env.get_available_state_dict()
 
 Transition = namedtuple('Transition',
                         ('state', 'action', 'next_state', 'reward'))
@@ -177,8 +178,9 @@ class Test_agent(nn.Module):
 
 			future_F = -100000
 
-			for action_index in env.get_available_actions(((0, 1), self.available_state_dict[batch[2][i]])):
-				vis_iterable = batch[2][i] + available_actions_list[action_index]
+			#TODO: Richtiger Action Index heraussuchen
+			for action_index in env.get_available_actions(batch[2][i]):
+				vis_iterable = batch[2][i][1] + available_actions_list[action_index]
 				F, samples, vis_iterable = self.calculate_q(vis_iterable)
 				if F > future_F:
 					future_F = F
