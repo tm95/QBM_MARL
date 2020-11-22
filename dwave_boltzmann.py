@@ -30,12 +30,14 @@ def run(env, agent, logger):
         if agent_state_tuple[0] != (0, 0):
             while step_count < nb_steps:
                 # env.render(agent_state_tuple[0])
-
+                current_state = agent_state_tuple
                 future_F, future_samples, future_vis_iterable, action_index, old_position_tuple = agent.policy(agent_state_tuple, available_actions, available_actions_list)
                 agent_state_tuple, available_actions, fidelity, reward = env.step(action_index, agent_state_tuple, old_position_tuple)
 
                 fidelity_count += fidelity
                 step_count += 1
+
+                agent.save(current_state[1], available_actions_list[action_index], agent_state_tuple[1], reward)
 
                 agent.qlearn(current_samples, reward, future_F, current_F, current_vis_iterable)
 

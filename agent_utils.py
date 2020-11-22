@@ -2,6 +2,35 @@ import math
 import random
 from neal import SimulatedAnnealingSampler
 import torch.nn as nn
+from collections import namedtuple
+from env_utils import *
+
+env = make_env()
+available_actions_list = env.get_available_actions_list()
+
+Transition = namedtuple('Transition',
+                        ('state', 'action', 'next_state', 'reward'))
+
+class ReplayMemory(object):
+    def __init__(self, capacity: int, seed: int = 42) -> None:
+        self.rng = random
+        self.rng.seed(seed)
+        self.capacity = capacity
+        self.memory = []
+        self.position = 0
+
+    def push(self, *args) -> None:
+        if len(self.memory) < self.capacity:
+            self.memory.append(None)
+        self.memory[self.position] = Transition(*args)
+        self.position = (self.position + 1) % self.capacity
+
+    def sample(self, batch_size) -> []:
+        return self.rng.sample(self.memory, batch_size)
+
+    def __len__(self):
+        return len(self.memory)
+
 
 class Test_agent(nn.Module):
 
@@ -23,6 +52,11 @@ class Test_agent(nn.Module):
 		self.replica_count = 1
 		self.average_size = 10
 		self.sample_count = self.replica_count * self.average_size
+
+		self.mini_batch_size = 4
+		self.warm_up_duration = 250
+		self.target_update_period = 500
+		self.memory = ReplayMemory(50000, 42)
 
 	def init_weights(self, n_layers, dim_state, dim_action, n_hidden):
 		Q_hh = dict()
@@ -130,15 +164,42 @@ class Test_agent(nn.Module):
 		return average_hamiltonian + a_sum / self.beta
 
 	def qlearn(self, samples, r, q1, q0, visible_iterable):
+		if len(self.memory) < self.warm_up_duration:
+			return
+
+		transitions = self.memory.sample(self.mini_batch_size)
+		batch = Transition(*zip(*transitions))
+
+		for i in range(self.mini_batch_size):
+			vis_iterable = batch[0][i] + batch[1][i]
+			current_F, samples, vis_iterable = self.calculate_q(vis_iterable)
+			prob_dict = self.get_average_configuration(samples)
+
+			future_F = -100000
+
+			for action_index in env.get_available_actions(((0, 1), self.available_state_dict[batch[2][i]])):
+				vis_iterable = batch[2][i] + available_actions_list[action_index]
+				F, samples, vis_iterable = self.calculate_q(vis_iterable)
+				if F > future_F:
+					future_F = F
+
+			for k_pair in self.Q_hh.keys():
+				self.Q_hh[k_pair] = self.Q_hh[k_pair] - self.lr * (batch[3][i] + self.discount_factor * future_F - current_F) * prob_dict[k_pair] / len(samples)
+
+			for k_pair in self.Q_vh.keys():
+				self.Q_vh[k_pair] = self.Q_vh[k_pair] - self.lr * (batch[3][i] + self.discount_factor * future_F - current_F) * visible_iterable[k_pair[0]] * prob_dict[k_pair[1]] / len(samples)
+
+
+
 		self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
 
-		prob_dict = self.get_average_configuration(samples)
+#		prob_dict = self.get_average_configuration(samples)
 
-		for k_pair in self.Q_hh.keys():
-			self.Q_hh[k_pair] = self.Q_hh[k_pair] - self.lr * (r + self.discount_factor * q1 - q0) * prob_dict[k_pair] / len(samples)
+#		for k_pair in self.Q_hh.keys():
+#			self.Q_hh[k_pair] = self.Q_hh[k_pair] - self.lr * (r + self.discount_factor * q1 - q0) * prob_dict[k_pair] / len(samples)
 
-		for k_pair in self.Q_vh.keys():
-			self.Q_vh[k_pair] = self.Q_vh[k_pair] - self.lr * (r + self.discount_factor * q1 - q0) * visible_iterable[k_pair[0]] * prob_dict[k_pair[1]] / len(samples)
+#		for k_pair in self.Q_vh.keys():
+#			self.Q_vh[k_pair] = self.Q_vh[k_pair] - self.lr * (r + self.discount_factor * q1 - q0) * visible_iterable[k_pair[0]] * prob_dict[k_pair[1]] / len(samples)
 
 	def get_average_configuration(self, samples):
 		prob_dict = dict()
@@ -171,6 +232,9 @@ class Test_agent(nn.Module):
 				Q[(k_pair[1], k_pair[1])] += w * visible_iterable[k_pair[0]]
 
 		return Q
+
+	def save(self, state, action, next_state, reward):
+		self.memory.push(state, action, next_state, reward)
 
 	def calculate_q(self, vis_iterable):
 		general_Q = self.create_general_Q_from(vis_iterable)
