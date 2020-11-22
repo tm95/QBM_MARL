@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="927ce324-0310-490f-9111-9c477482d55e" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/agent_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/agent_utils.py" afterDir="false" />
-    </list>
+    <list default="true" id="927ce324-0310-490f-9111-9c477482d55e" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,11 +43,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/dwave_boltzmann.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="339">
-              <caret line="39" column="100" selection-start-line="39" selection-start-column="100" selection-end-line="39" selection-end-column="100" />
+            <state relative-caret-position="219">
+              <caret line="31" column="50" lean-forward="true" selection-start-line="31" selection-start-column="50" selection-end-line="31" selection-end-column="50" />
               <folding>
                 <element signature="e#0#39#0" expanded="true" />
               </folding>
@@ -57,11 +55,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/agent_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-437">
-              <caret line="208" column="77" selection-start-line="208" selection-start-column="77" selection-end-line="208" selection-end-column="77" />
+            <state relative-caret-position="295">
+              <caret line="257" lean-forward="true" selection-start-line="257" selection-end-line="257" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -91,8 +89,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>front_pos</find>
-      <find>self.acti</find>
       <find>print_agent</find>
       <find>torch</find>
       <find>agent_step</find>
@@ -121,6 +117,8 @@
       <find>old_position</find>
       <find>calculate_q</find>
       <find>self.Q_hh</find>
+      <find>self.beta</find>
+      <find>self.gamma</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -654,22 +652,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dwave_boltzmann.py">
+    <entry file="file://$PROJECT_DIR$/agent_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="339">
-          <caret line="39" column="100" selection-start-line="39" selection-start-column="100" selection-end-line="39" selection-end-column="100" />
+        <state relative-caret-position="295">
+          <caret line="257" lean-forward="true" selection-start-line="257" selection-end-line="257" />
           <folding>
-            <element signature="e#0#39#0" expanded="true" />
+            <element signature="e#0#11#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/agent_utils.py">
+    <entry file="file://$PROJECT_DIR$/dwave_boltzmann.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-437">
-          <caret line="208" column="77" selection-start-line="208" selection-start-column="77" selection-end-line="208" selection-end-column="77" />
+        <state relative-caret-position="219">
+          <caret line="31" column="50" lean-forward="true" selection-start-line="31" selection-start-column="50" selection-end-line="31" selection-end-column="50" />
           <folding>
-            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#0#39#0" expanded="true" />
           </folding>
         </state>
       </provider>
