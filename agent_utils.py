@@ -172,7 +172,7 @@ class Test_agent(nn.Module):
 
 		for i in range(self.mini_batch_size):
 			vis_iterable = batch[0][i] + batch[1][i]
-			current_F, samples, vis_iterable = self.calculate_q(vis_iterable)
+			current_F, samples, visible_iterable = self.calculate_q(vis_iterable)
 			prob_dict = self.get_average_configuration(samples)
 
 			future_F = -100000
