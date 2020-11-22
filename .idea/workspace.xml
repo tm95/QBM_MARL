@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="927ce324-0310-490f-9111-9c477482d55e" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/agent_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/agent_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dwave_boltzmann.py" beforeDir="false" afterPath="$PROJECT_DIR$/dwave_boltzmann.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -61,8 +60,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/agent_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="273">
-              <caret line="182" column="84" selection-start-line="182" selection-start-column="84" selection-end-line="182" selection-end-column="84" />
+            <state relative-caret-position="-437">
+              <caret line="208" column="77" selection-start-line="208" selection-start-column="77" selection-end-line="208" selection-end-column="77" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -92,8 +91,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>front</find>
-      <find>self.agents</find>
       <find>front_pos</find>
       <find>self.acti</find>
       <find>print_agent</find>
@@ -122,6 +119,8 @@
       <find>get_reward</find>
       <find>Q</find>
       <find>old_position</find>
+      <find>calculate_q</find>
+      <find>self.Q_hh</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -667,8 +666,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/agent_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="273">
-          <caret line="182" column="84" selection-start-line="182" selection-start-column="84" selection-end-line="182" selection-end-column="84" />
+        <state relative-caret-position="-437">
+          <caret line="208" column="77" selection-start-line="208" selection-start-column="77" selection-end-line="208" selection-end-column="77" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>

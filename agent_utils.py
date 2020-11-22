@@ -32,21 +32,13 @@ class ReplayMemory(object):
     def __len__(self):
         return len(self.memory)
 
-
-class Test_agent(nn.Module):
-
+class DBM:
 	def __init__(self, n_layers, dim_state, dim_action, n_hidden):
-		super(Test_agent, self).__init__()
+		super(DBM, self).__init__()
 
 		self.Q_hh, self.Q_vh = self.init_weights(n_layers, dim_state, dim_action, n_hidden)
 		self.sampler = SimulatedAnnealingSampler()
 
-		self.epsilon = 1
-		self.epsilon_min = 0.1
-		self.epsilon_decay = 0.0008
-
-		self.lr = 0.008
-		self.discount_factor = 0.8
 		self.beta = 2
 		self.gamma = 0.5
 
@@ -164,44 +156,6 @@ class Test_agent(nn.Module):
 
 		return average_hamiltonian + a_sum / self.beta
 
-	def qlearn(self, samples, r, q1, q0, visible_iterable):
-		if len(self.memory) < self.warm_up_duration:
-			return
-
-		transitions = self.memory.sample(self.mini_batch_size)
-		batch = Transition(*zip(*transitions))
-
-		for i in range(self.mini_batch_size):
-			vis_iterable = batch[0][i] + batch[1][i]
-			current_F, samples, visible_iterable = self.calculate_q(vis_iterable)
-			prob_dict = self.get_average_configuration(samples)
-
-			future_F = -100000
-
-			#TODO: Richtiger Action Index heraussuchen
-			for action_index in env.get_available_actions(batch[2][i]):
-				vis_iterable = batch[2][i][1] + available_actions_list[action_index]
-				F, samples, vis_iterable = self.calculate_q(vis_iterable)
-				if F > future_F:
-					future_F = F
-
-			for k_pair in self.Q_hh.keys():
-				self.Q_hh[k_pair] = self.Q_hh[k_pair] - self.lr * (batch[3][i] + self.discount_factor * future_F - current_F) * prob_dict[k_pair] / len(samples)
-
-			for k_pair in self.Q_vh.keys():
-				self.Q_vh[k_pair] = self.Q_vh[k_pair] - self.lr * (batch[3][i] + self.discount_factor * future_F - current_F) * visible_iterable[k_pair[0]] * prob_dict[k_pair[1]] / len(samples)
-
-
-
-		self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
-
-#		prob_dict = self.get_average_configuration(samples)
-
-#		for k_pair in self.Q_hh.keys():
-#			self.Q_hh[k_pair] = self.Q_hh[k_pair] - self.lr * (r + self.discount_factor * q1 - q0) * prob_dict[k_pair] / len(samples)
-
-#		for k_pair in self.Q_vh.keys():
-#			self.Q_vh[k_pair] = self.Q_vh[k_pair] - self.lr * (r + self.discount_factor * q1 - q0) * visible_iterable[k_pair[0]] * prob_dict[k_pair[1]] / len(samples)
 
 	def get_average_configuration(self, samples):
 		prob_dict = dict()
@@ -235,9 +189,6 @@ class Test_agent(nn.Module):
 
 		return Q
 
-	def save(self, state, action, next_state, reward):
-		self.memory.push(state, action, next_state, reward)
-
 	def calculate_q(self, vis_iterable):
 		general_Q = self.create_general_Q_from(vis_iterable)
 		samples = list(self.sampler.sample_qubo(general_Q, num_reads=self.sample_count).samples())
@@ -246,18 +197,83 @@ class Test_agent(nn.Module):
 		current_F = self.get_free_energy(hamiltonian, samples)
 		return current_F, samples, vis_iterable
 
+
+class Test_agent:
+	def __init__(self, n_layers, dim_state, dim_action, n_hidden):
+		super(Test_agent, self).__init__()
+
+		self.policy_net = DBM(n_layers, dim_state, dim_action, n_hidden)
+		self.target_net = DBM(n_layers, dim_state, dim_action, n_hidden)
+
+		self.epsilon = 1
+		self.epsilon_min = 0.1
+		self.epsilon_decay = 0.0008
+
+		self.lr = 0.008
+		self.discount_factor = 0.8
+
+		self.mini_batch_size = 4
+		self.warm_up_duration = 250
+		self.target_update_period = 200
+		self.memory = ReplayMemory(50000, 42)
+		self.training_count = 1
+
+	def qlearn(self, samples, r, q1, q0, visible_iterable):
+		if len(self.memory) < self.warm_up_duration:
+			return
+
+		transitions = self.memory.sample(self.mini_batch_size)
+		batch = Transition(*zip(*transitions))
+
+		for i in range(self.mini_batch_size):
+			vis_iterable = batch[0][i] + batch[1][i]
+			current_F, samples, visible_iterable = self.policy_net.calculate_q(vis_iterable)
+			prob_dict = self.policy_net.get_average_configuration(samples)
+
+			future_F = -100000
+
+			for action_index in env.get_available_actions(batch[2][i]):
+				vis_iterable = batch[2][i][1] + available_actions_list[action_index]
+				F, samples, vis_iterable = self.target_net.calculate_q(vis_iterable)
+				if F > future_F:
+					future_F = F
+
+			for k_pair in self.policy_net.Q_hh.keys():
+				self.policy_net.Q_hh[k_pair] = self.policy_net.Q_hh[k_pair] - self.lr * (batch[3][i] + self.discount_factor * future_F - current_F) * prob_dict[k_pair] / len(samples)
+
+			for k_pair in self.policy_net.Q_vh.keys():
+				self.policy_net.Q_vh[k_pair] = self.policy_net.Q_vh[k_pair] - self.lr * (batch[3][i] + self.discount_factor * future_F - current_F) * visible_iterable[k_pair[0]] * prob_dict[k_pair[1]] / len(samples)
+
+		self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
+
+		self.training_count += 1
+		if self.training_count % self.target_update_period is 0:
+			self.target_net.Q_hh = self.policy_net.Q_hh
+			self.target_net.Q_vh = self.policy_net.Q_vh
+
+	#	prob_dict = self.get_average_configuration(samples)
+
+	#	for k_pair in self.Q_hh.keys():
+	#		self.Q_hh[k_pair] = self.Q_hh[k_pair] - self.lr * (r + self.discount_factor * q1 - q0) * prob_dict[k_pair] / len(samples)
+
+	#	for k_pair in self.Q_vh.keys():
+	#		self.Q_vh[k_pair] = self.Q_vh[k_pair] - self.lr * (r + self.discount_factor * q1 - q0) * visible_iterable[k_pair[0]] * prob_dict[k_pair[1]] / len(samples)
+
+	def save(self, state, action, next_state, reward):
+		self.memory.push(state, action, next_state, reward)
+
 	def policy(self, current_state, available_actions, available_actions_list):
 		max_tuple = None
 		if random.random() > self.epsilon:
 			for action_index in available_actions:
 				vis_iterable = current_state[1] + available_actions_list[action_index]
-				current_F, samples, vis_iterable = self.calculate_q(vis_iterable)
+				current_F, samples, vis_iterable = self.policy_net.calculate_q(vis_iterable)
 				if max_tuple is None or max_tuple[0] < current_F:
 					max_tuple = (current_F, action_index, samples, vis_iterable)
 		else:
 			action_index = random.choice(tuple(available_actions))
 			vis_iterable = current_state[1] + available_actions_list[action_index]
-			current_F, samples, vis_iterable = self.calculate_q(vis_iterable)
+			current_F, samples, vis_iterable = self.policy_net.calculate_q(vis_iterable)
 			max_tuple = (current_F, action_index, samples, vis_iterable)
 
 		return (max_tuple[0], max_tuple[2], max_tuple[3], max_tuple[1], current_state[0])
