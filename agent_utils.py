@@ -32,6 +32,7 @@ class ReplayMemory(object):
     def __len__(self):
         return len(self.memory)
 
+
 class DBM:
 	def __init__(self, n_layers, dim_state, dim_action, n_hidden):
 		super(DBM, self).__init__()
@@ -46,9 +47,9 @@ class DBM:
 		self.average_size = 10
 		self.sample_count = self.replica_count * self.average_size
 
-		self.mini_batch_size = 4
+		self.mini_batch_size = 8
 		self.warm_up_duration = 250
-		self.target_update_period = 500
+		self.target_update_period = 250
 		self.memory = ReplayMemory(50000, 42)
 
 	def init_weights(self, n_layers, dim_state, dim_action, n_hidden):
@@ -209,7 +210,7 @@ class Test_agent:
 		self.epsilon_min = 0.1
 		self.epsilon_decay = 0.0008
 
-		self.lr = 0.008
+		self.lr = 0.006
 		self.discount_factor = 0.8
 
 		self.mini_batch_size = 4
