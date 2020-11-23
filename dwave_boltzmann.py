@@ -35,7 +35,7 @@ def run(env, agent, logger):
 
             agent.save(state[1], available_actions_list[action_index], next_state, reward)
 
-            agent.qlearn()
+            agent.qlearn(available_actions_list)
 
             rewards.append(reward)
             fidelity_count += fidelity
@@ -70,24 +70,25 @@ def print_results(step_count_list, fidelity_list):
 
 
 if __name__ == '__main__':
-    env = make_env()
+    for lr in [0.01, 0.009, 0.008, 0.007, 0.006, 0.005, 0.004, 0.003, 0.002, 0.001]:
+        env = make_env()
 
-    observation_space = env.observation_space()
-    action_space = env.action_space()
+        observation_space = env.observation_space()
+        action_space = env.action_space()
 
-    agent = make_test_agent(observation_space, action_space)
+        agent = make_test_agent(observation_space, action_space, lr)
 
-    # Load action set
-    params = ('params.json')
-    with open(params, 'r') as f:
-        params_json = json.load(f)
-    params = DotMap(params_json)
+        # Load action set
+        params = ('params.json')
+        with open(params, 'r') as f:
+            params_json = json.load(f)
+        params = DotMap(params_json)
 
-    neptune.init('tobiasmueller/sandbox',
-                 api_token='eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vdWkubmVwdHVuZS5tbCIsImFwa'
-                           'V91cmwiOiJodHRwczovL3VpLm5lcHR1bmUuYWkiLCJhcGlfa2V5IjoiNz'
-                           'E4NDgxMmQtYTMzMC00ZTUzLTlkNDAtYWNkZTUzODExZmM4In0=')
-    logger = neptune
-    with neptune.create_experiment(name='sandbox', params=params_json):
-        neptune.append_tag('evaluation')
-        run(env, agent, logger)
+        neptune.init('tobiasmueller/sandbox',
+                    api_token='eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vdWkubmVwdHVuZS5tbCIsImFwa'
+                            'V91cmwiOiJodHRwczovL3VpLm5lcHR1bmUuYWkiLCJhcGlfa2V5IjoiNz'
+                            'E4NDgxMmQtYTMzMC00ZTUzLTlkNDAtYWNkZTUzODExZmM4In0=')
+        logger = neptune
+        with neptune.create_experiment(name='sandbox', params=params_json):
+            neptune.append_tag('lr-{}'.format(lr))
+            run(env, agent, logger)

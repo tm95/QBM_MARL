@@ -2,11 +2,6 @@ import math
 import random
 from neal import SimulatedAnnealingSampler
 from collections import namedtuple
-from env_utils import *
-
-env = make_env()
-available_actions_list = env.get_available_actions_list()
-available_state_dict = env.get_available_state_dict()
 
 Transition = namedtuple('Transition',
                         ('state', 'action', 'next_state', 'reward'))
@@ -193,7 +188,7 @@ class DBM:
 
 
 class Test_agent:
-	def __init__(self, n_layers, dim_state, dim_action, n_hidden):
+	def __init__(self, n_layers, dim_state, dim_action, n_hidden, lr):
 		super(Test_agent, self).__init__()
 
 		self.policy_net = DBM(n_layers, dim_state, dim_action, n_hidden)
@@ -205,7 +200,7 @@ class Test_agent:
 		self.epsilon_min = 0.1
 		self.epsilon_decay = 0.0008
 
-		self.lr = 0.006
+		self.lr = lr
 		self.discount_factor = 0.8
 
 		self.mini_batch_size = 8
@@ -214,7 +209,7 @@ class Test_agent:
 		self.memory = ReplayMemory(50000, 42)
 		self.training_count = 1
 
-	def qlearn(self):
+	def qlearn(self, available_actions_list):
 		if len(self.memory) < self.warm_up_duration:
 			return
 
@@ -267,6 +262,6 @@ class Test_agent:
 		return (max_tuple[1])
 
 
-def make_test_agent(observation_space, action_space):
-	agent = Test_agent(4, observation_space, action_space, 4)
+def make_test_agent(observation_space, action_space, lr):
+	agent = Test_agent(4, observation_space, action_space, 4, lr)
 	return agent

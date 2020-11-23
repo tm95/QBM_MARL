@@ -19,7 +19,7 @@ class Env():
 	def get_reward_function_tuple(self):
 		reward_function_tuple = (
 			(220, 200, 180, 160, 140),
-			(200, 180, 160, 120, 120),
+			(200, 180, 160, -200, 120),
 			(180, 160,   0, 120, 100))
 		return reward_function_tuple
 
@@ -111,9 +111,10 @@ class Env():
 	def get_reward(self, agent_state_tuple):
 		if agent_state_tuple == (0, 0):
 			reward = self.reward_function_tuple[agent_state_tuple[0]][agent_state_tuple[1]]
+		#elif agent_state_tuple == (1, 3):
+	#		reward = self.reward_function_tuple[agent_state_tuple[0]][agent_state_tuple[1]]
 		else:
 			reward = -10
-		#reward = self.reward_function_tuple[agent_state_tuple[0]][agent_state_tuple[1]]
 		return reward
 
 	def reset(self):
