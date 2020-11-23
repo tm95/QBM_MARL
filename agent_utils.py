@@ -205,7 +205,7 @@ class Test_agent:
 		self.epsilon_min = 0.1
 		self.epsilon_decay = 0.0008
 
-		self.lr = 0.01
+		self.lr = 0.06
 		self.discount_factor = 0.8
 
 		self.mini_batch_size = 8
