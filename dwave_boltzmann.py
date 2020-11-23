@@ -24,29 +24,27 @@ def run(env, agent, logger):
         agent_state_tuple, available_actions, available_actions_list = env.reset()
 
         step_count = 1
-        current_F, current_samples, current_vis_iterable, action_index, old_position_tuple = agent.policy(agent_state_tuple, available_actions, available_actions_list)
-        agent_state_tuple, available_actions, fidelity_count, reward = env.step(action_index, agent_state_tuple, old_position_tuple)
+        action_index = agent.policy(agent_state_tuple, available_actions, available_actions_list)
+        state, available_actions, fidelity_count, reward, done = env.step(action_index, agent_state_tuple, agent_state_tuple[0])
 
         if agent_state_tuple[0] != (0, 0):
-            while step_count < nb_steps:
+            while step_count < nb_steps and not done:
                 # env.render(agent_state_tuple[0])
-                current_state = agent_state_tuple
-                future_F, future_samples, future_vis_iterable, action_index, old_position_tuple = agent.policy(agent_state_tuple, available_actions, available_actions_list)
-                agent_state_tuple, available_actions, fidelity, reward = env.step(action_index, agent_state_tuple, old_position_tuple)
+                action_index = agent.policy(state, available_actions, available_actions_list)
+                next_state, available_actions, fidelity, reward, done = env.step(action_index, state, state[0])
 
-                fidelity_count += fidelity
-                step_count += 1
+                agent.save(state[1], available_actions_list[action_index], next_state, reward)
 
-                agent.save(current_state[1], available_actions_list[action_index], agent_state_tuple, reward)
-
-                agent.qlearn(current_samples, reward, future_F, current_F, current_vis_iterable)
+                agent.qlearn()
 
                 rewards.append(reward)
+                fidelity_count += fidelity
+                step_count += 1
 
                 if agent_state_tuple[0] == (0, 0):
                     break
 
-                current_F, current_samples, current_vis_iterable = future_F, future_samples, future_vis_iterable
+                state = next_state
 
         fidelity_list.append(fidelity_count/step_count)
         step_count_list.append(step_count)

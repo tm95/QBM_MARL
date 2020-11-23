@@ -81,23 +81,33 @@ class Env():
 
 	def step(self, action, current_state, old_position_tuple):
 
+		next_state = self.get_next_state(action, current_state)
+		done = self.get_done(next_state)
+		available_actions = self.get_available_actions((next_state[0], self.available_state_dict[next_state[0]]))
+		fidelity = self.get_fidelity(action, old_position_tuple)
+		reward = self.get_reward(next_state[0])
+
+		return next_state, available_actions, fidelity, reward, done
+
+	def get_next_state(self, action, current_state):
 		if action == 0:
-			new_position = (current_state[0][0] - 1, current_state[0][1])
-
+			next_state = (current_state[0][0] - 1, current_state[0][1])
 		elif action == 1:
-			new_position = (current_state[0][0], current_state[0][1] + 1)
-
+			next_state = (current_state[0][0], current_state[0][1] + 1)
 		elif action == 2:
-			new_position = (current_state[0][0] + 1, current_state[0][1])
-
+			next_state = (current_state[0][0] + 1, current_state[0][1])
 		elif action == 3:
-			new_position = (current_state[0][0], current_state[0][1] - 1)
-
+			next_state = (current_state[0][0], current_state[0][1] - 1)
 		else:
-			new_position = current_state[0]
+			next_state = current_state[0]
+		return (next_state, self.available_state_dict[next_state])
 
-		return (new_position, self.available_state_dict[new_position]), self.get_available_actions((new_position, self.available_state_dict[new_position])),\
-			self.get_fidelity(action, old_position_tuple), self.get_reward(new_position)
+	def get_done(self, next_state):
+		if next_state[0] == (0, 0):
+			done = True
+		else:
+			done = False
+		return done
 
 	def get_fidelity(self, action, old_position_tuple):
 		fidelity = (1 if action in self.get_optimal_policy_tuple()[old_position_tuple[0]][old_position_tuple[1]] else 0)
@@ -108,7 +118,6 @@ class Env():
 			reward = self.reward_function_tuple[agent_state_tuple[0]][agent_state_tuple[1]]
 		else:
 			reward = -10
-		#reward = self.reward_function_tuple[agent_state_tuple[0]][agent_state_tuple[1]]
 		return reward
 
 	def get_available_actions(self, current_state):

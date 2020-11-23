@@ -219,7 +219,7 @@ class Test_agent:
 		self.memory = ReplayMemory(50000, 42)
 		self.training_count = 1
 
-	def qlearn(self, samples, r, q1, q0, visible_iterable):
+	def qlearn(self):
 		if len(self.memory) < self.warm_up_duration:
 			return
 
@@ -252,13 +252,6 @@ class Test_agent:
 			self.target_net.Q_hh = self.policy_net.Q_hh
 			self.target_net.Q_vh = self.policy_net.Q_vh
 
-	#	prob_dict = self.get_average_configuration(samples)
-
-	#	for k_pair in self.Q_hh.keys():
-	#		self.Q_hh[k_pair] = self.Q_hh[k_pair] - self.lr * (r + self.discount_factor * q1 - q0) * prob_dict[k_pair] / len(samples)
-
-	#	for k_pair in self.Q_vh.keys():
-	#		self.Q_vh[k_pair] = self.Q_vh[k_pair] - self.lr * (r + self.discount_factor * q1 - q0) * visible_iterable[k_pair[0]] * prob_dict[k_pair[1]] / len(samples)
 
 	def save(self, state, action, next_state, reward):
 		self.memory.push(state, action, next_state, reward)
@@ -277,7 +270,7 @@ class Test_agent:
 			current_F, samples, vis_iterable = self.policy_net.calculate_q(vis_iterable)
 			max_tuple = (current_F, action_index, samples, vis_iterable)
 
-		return (max_tuple[0], max_tuple[2], max_tuple[3], max_tuple[1], current_state[0])
+		return (max_tuple[1])
 
 
 def make_test_agent(observation_space, action_space):
