@@ -21,7 +21,7 @@ def run(env, agent, logger):
     for training_episode in range(nb_episodes):
         rewards = []
 
-        state, available_actions, available_actions_list = env.reset()
+        state, available_actions_list = env.reset()
 
         step_count = 1
         fidelity_count = 1
@@ -29,11 +29,11 @@ def run(env, agent, logger):
 
         while step_count < nb_steps and not done:
             # env.render(agent_state_tuple[0])
-            #current_state = agent_state_tuple
-            action = agent.policy(state, available_actions, available_actions_list)
-            next_state, available_actions, fidelity, reward, done = env.step(action, state, state[0])
 
-            agent.save(state[1], available_actions_list[action], next_state, reward)
+            action_index = agent.policy(state, available_actions_list)
+            next_state, fidelity, reward, done = env.step(action_index, state, state[0])
+
+            agent.save(state[1], available_actions_list[action_index], next_state, reward)
 
             agent.qlearn()
 
@@ -54,9 +54,6 @@ def run(env, agent, logger):
             logger.log_metric('episode_fidelity', training_episode, np.round(fidelity_count/step_count, decimals=2))
             logger.log_metric('episode_rewards', training_episode, np.sum(rewards))
             logger.log_metric('episode_steps', training_episode, step_count)
-
-
-    #print_results(step_count_list, fidelity_list)
 
 
 def print_results(step_count_list, fidelity_list):

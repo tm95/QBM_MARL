@@ -1,7 +1,6 @@
 import math
 import random
 from neal import SimulatedAnnealingSampler
-import torch.nn as nn
 from collections import namedtuple
 from env_utils import *
 
@@ -31,7 +30,6 @@ class ReplayMemory(object):
 
     def __len__(self):
         return len(self.memory)
-
 
 class DBM:
 	def __init__(self, n_layers, dim_state, dim_action, n_hidden):
@@ -201,11 +199,13 @@ class Test_agent:
 		self.policy_net = DBM(n_layers, dim_state, dim_action, n_hidden)
 		self.target_net = DBM(n_layers, dim_state, dim_action, n_hidden)
 
+		self.action_size = 5
+
 		self.epsilon = 1
 		self.epsilon_min = 0.1
 		self.epsilon_decay = 0.0008
 
-		self.lr = 0.06
+		self.lr = 0.006
 		self.discount_factor = 0.8
 
 		self.mini_batch_size = 8
@@ -228,7 +228,7 @@ class Test_agent:
 
 			future_F = -100000
 
-			for action_index in env.get_available_actions(batch[2][i]):
+			for action_index in range(self.action_size):
 				vis_iterable = batch[2][i][1] + available_actions_list[action_index]
 				F, samples, vis_iterable = self.target_net.calculate_q(vis_iterable)
 				if F > future_F:
@@ -247,20 +247,19 @@ class Test_agent:
 			self.target_net.Q_hh = self.policy_net.Q_hh
 			self.target_net.Q_vh = self.policy_net.Q_vh
 
-
 	def save(self, state, action, next_state, reward):
 		self.memory.push(state, action, next_state, reward)
 
-	def policy(self, current_state, available_actions, available_actions_list):
+	def policy(self, current_state, available_actions_list):
 		max_tuple = None
 		if random.random() > self.epsilon:
-			for action_index in available_actions:
+			for action_index in range(self.action_size):
 				vis_iterable = current_state[1] + available_actions_list[action_index]
 				current_F, samples, vis_iterable = self.policy_net.calculate_q(vis_iterable)
 				if max_tuple is None or max_tuple[0] < current_F:
 					max_tuple = (current_F, action_index, samples, vis_iterable)
 		else:
-			action_index = random.choice(tuple(available_actions))
+			action_index = random.choice(range(self.action_size))
 			vis_iterable = current_state[1] + available_actions_list[action_index]
 			current_F, samples, vis_iterable = self.policy_net.calculate_q(vis_iterable)
 			max_tuple = (current_F, action_index, samples, vis_iterable)

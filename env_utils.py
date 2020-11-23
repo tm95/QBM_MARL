@@ -8,7 +8,6 @@ class Env():
 		self.reward_function_tuple = self.get_reward_function_tuple()
 		self.available_state_dict = self.get_available_state_dict()
 		self.available_actions_list = self.get_available_actions_list()
-		self.available_actions_per_position_tuple = self.get_available_actions_per_position_tuple()
 
 	def get_optimal_policy_tuple(self):
 		optimal_policy_tuple = (
@@ -57,13 +56,6 @@ class Env():
 				break
 		return available_actions_list
 
-	def get_available_actions_per_position_tuple(self):
-		available_actions_per_position_tuple = (
-			((1, 2, 4), (1, 2, 3, 4), (1, 3, 4), (1, 2, 3, 4), (2, 3, 4)),
-			((0, 1, 2, 4), (0, 2, 3, 4), tuple(), (0, 1, 2, 4), (0, 2, 3, 4)),
-			((0, 1, 4), (0, 1, 3, 4), (1, 3, 4), (0, 1, 3, 4), (0, 3, 4)))
-		return available_actions_per_position_tuple
-
 	def render(self, x_y_position):
 		for i in range(3):
 			line_string = ''
@@ -83,11 +75,10 @@ class Env():
 
 		next_state = self.get_next_state(action, current_state)
 		done = self.get_done(next_state)
-		available_actions = self.get_available_actions((next_state[0], self.available_state_dict[next_state[0]]))
 		fidelity = self.get_fidelity(action, old_position_tuple)
 		reward = self.get_reward(next_state[0])
 
-		return next_state, available_actions, fidelity, reward, done
+		return next_state, fidelity, reward, done
 
 	def get_next_state(self, action, current_state):
 		if action == 0:
@@ -100,6 +91,10 @@ class Env():
 			next_state = (current_state[0][0], current_state[0][1] - 1)
 		else:
 			next_state = current_state[0]
+
+		if next_state not in self.get_available_state_dict().keys():
+			next_state = current_state[0]
+
 		return (next_state, self.available_state_dict[next_state])
 
 	def get_done(self, next_state):
@@ -121,12 +116,9 @@ class Env():
 		#reward = self.reward_function_tuple[agent_state_tuple[0]][agent_state_tuple[1]]
 		return reward
 
-	def get_available_actions(self, current_state):
-		return filter(lambda e: True, self.available_actions_per_position_tuple[current_state[0][0]][current_state[0][1]])
-
 	def reset(self):
 		state = random.choice(tuple(filter(lambda e: e[0] != (0, 0) and e[0] != (1, 2), self.available_state_dict.items())))
-		return state, self.get_available_actions(state), self.available_actions_list
+		return state, self.available_actions_list
 
 	def observation_space(self):
 		return len(list(self.get_available_state_dict().values())[0])
