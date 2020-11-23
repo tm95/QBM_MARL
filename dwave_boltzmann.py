@@ -21,7 +21,7 @@ def run(env, agent, logger):
     for training_episode in range(nb_episodes):
         rewards = []
 
-        agent_state_tuple, available_actions, available_actions_list = env.reset()
+        state, available_actions, available_actions_list = env.reset()
 
         step_count = 1
         fidelity_count = 1
