@@ -26,14 +26,13 @@ def run(env, agent, logger):
         step_count = 1
         fidelity_count = 1
         done = False
-        action_index, old_position_tuple = agent.policy(agent_state_tuple, available_actions, available_actions_list)
-        agent_state_tuple, available_actions, fidelity_count, reward, done = env.step(action_index, agent_state_tuple, old_position_tuple)
+        #action_index, old_position_tuple = agent.policy(agent_state_tuple, available_actions, available_actions_list)
+        #agent_state_tuple, available_actions, fidelity_count, reward, done = env.step(action_index, agent_state_tuple, old_position_tuple)
 
         while step_count < nb_steps and not done:
             # env.render(agent_state_tuple[0])
             current_state = agent_state_tuple
-            old_position_tuple = agent_state_tuple[0]
-            action_index = agent.policy(agent_state_tuple, available_actions, available_actions_list)
+            action_index, old_position_tuple = agent.policy(agent_state_tuple, available_actions, available_actions_list)
             agent_state_tuple, available_actions, fidelity, reward, done = env.step(action_index, agent_state_tuple, old_position_tuple)
 
             agent.save(current_state[1], available_actions_list[action_index], agent_state_tuple, reward)

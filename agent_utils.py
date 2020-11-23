@@ -205,12 +205,12 @@ class Test_agent:
 		self.epsilon_min = 0.1
 		self.epsilon_decay = 0.0008
 
-		self.lr = 0.01
+		self.lr = 0.006
 		self.discount_factor = 0.8
 
 		self.mini_batch_size = 8
 		self.warm_up_duration = 250
-		self.target_update_period = 200
+		self.target_update_period = 250
 		self.memory = ReplayMemory(50000, 42)
 		self.training_count = 1
 
@@ -252,18 +252,20 @@ class Test_agent:
 		self.memory.push(state, action, next_state, reward)
 
 	def policy(self, current_state, available_actions, available_actions_list):
-		F = None
+		max_tuple = None
 		if random.random() > self.epsilon:
 			for action_index in available_actions:
 				vis_iterable = current_state[1] + available_actions_list[action_index]
 				current_F, samples, vis_iterable = self.policy_net.calculate_q(vis_iterable)
-				if F is None or F < current_F:
-					action = action_index
-					F = current_F
+				if max_tuple is None or max_tuple[0] < current_F:
+					max_tuple = (current_F, action_index, samples, vis_iterable)
 		else:
-			action = random.choice(tuple(available_actions))
+			action_index = random.choice(tuple(available_actions))
+			vis_iterable = current_state[1] + available_actions_list[action_index]
+			current_F, samples, vis_iterable = self.policy_net.calculate_q(vis_iterable)
+			max_tuple = (current_F, action_index, samples, vis_iterable)
 
-		return action
+		return (max_tuple[1], current_state[0])
 
 
 def make_test_agent(observation_space, action_space):
