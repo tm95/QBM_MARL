@@ -205,7 +205,7 @@ class Test_agent:
 		self.epsilon_min = 0.1
 		self.epsilon_decay = 0.0008
 
-		self.lr = 0.006
+		self.lr = 0.01
 		self.discount_factor = 0.8
 
 		self.mini_batch_size = 8
@@ -265,7 +265,7 @@ class Test_agent:
 			current_F, samples, vis_iterable = self.policy_net.calculate_q(vis_iterable)
 			max_tuple = (current_F, action_index, samples, vis_iterable)
 
-		return (max_tuple[1], current_state[0])
+		return (max_tuple[1])
 
 
 def make_test_agent(observation_space, action_space):
