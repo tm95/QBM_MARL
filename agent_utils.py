@@ -1,6 +1,7 @@
 import math
 import random
 from neal import SimulatedAnnealingSampler
+import torch.nn as nn
 from collections import namedtuple
 from env_utils import *
 
@@ -36,7 +37,7 @@ class DBM:
 	def __init__(self, n_layers, dim_state, dim_action, n_hidden):
 		super(DBM, self).__init__()
 
-		self.hh, self.vh = self.init_weights(n_layers, dim_state, dim_action, n_hidden)
+		self.Q_hh, self.Q_vh = self.init_weights(n_layers, dim_state, dim_action, n_hidden)
 		self.sampler = SimulatedAnnealingSampler()
 
 		self.beta = 2
@@ -47,7 +48,7 @@ class DBM:
 		self.sample_count = self.replica_count * self.average_size
 
 	def init_weights(self, n_layers, dim_state, dim_action, n_hidden):
-		hh = dict()
+		Q_hh = dict()
 
 		len_visible = 8
 		# len_visible = dim_state + dim_action + 1 ?!
@@ -58,28 +59,28 @@ class DBM:
 
 		for i in tuple(range(dim_state)):
 			for j in tuple(range(dim_state, len_visible)):
-				hh[(i, j)] = 2 * random.random() - 1
+				Q_hh[(i, j)] = 2 * random.random() - 1
 
 		for i in range(n_layers-1):
 			for ii in (tuple(range(hidden[i][0], hidden[i][1]))):
 				for jj in tuple(range(hidden[i+1][0], hidden[i+1][1])):
-					hh[(ii, jj)] = 2 * random.random() - 1
+					Q_hh[(ii, jj)] = 2 * random.random() - 1
 
 		for i, j in zip(tuple(range(dim_state, len_visible)), tuple(range(hidden[-1][0], hidden[-1][1]))):
-			hh[(i, j)] = 2 * random.random() - 1
+			Q_hh[(i, j)] = 2 * random.random() - 1
 
-		vh = dict()
+		Q_vh = dict()
 		# Fully connection between state and blue nodes
 		for j in (tuple(range(dim_state)) + tuple(range(hidden[-1][0], hidden[-1][1]))):
 			for i in range(dim_state):
-				vh[(i, j,)] = 2 * random.random() - 1
+				Q_vh[(i, j,)] = 2 * random.random() - 1
 
 		# Fully connection between action and red nodes
 		for j in (tuple(range(dim_state, len_visible)) + tuple(range(hidden[0][0], hidden[0][1]))):
 			for i in range(dim_state, dim_state + dim_action):
-				vh[(i, j,)] = 2 * random.random() - 1
+				Q_vh[(i, j,)] = 2 * random.random() - 1
 
-		return hh, vh
+		return Q_hh, Q_vh
 
 	def get_3d_hamiltonian_average_value(self, samples, Q):
 		i_sample = 0
@@ -151,11 +152,12 @@ class DBM:
 
 		return average_hamiltonian + a_sum / self.beta
 
+
 	def get_average_configuration(self, samples):
 		prob_dict = dict()
 
 		for s in samples:
-			for k_pair in self.hh.keys():
+			for k_pair in self.Q_hh.keys():
 				if k_pair in prob_dict:
 					prob_dict[k_pair] += (-1 if s[k_pair[0]] == 0 else 1) * (-1 if s[k_pair[1]] == 0 else 1)
 				else:
@@ -171,10 +173,10 @@ class DBM:
 	def create_general_Q_from(self, visible_iterable):
 		Q = dict()
 
-		for k_pair, w in self.hh.items():
+		for k_pair, w in self.Q_hh.items():
 			Q[k_pair] = Q[(k_pair[1], k_pair[0])] = w
 
-		for k_pair, w in self.vh.items():
+		for k_pair, w in self.Q_vh.items():
 
 			if (k_pair[1], k_pair[1],) not in Q:
 				Q[(k_pair[1], k_pair[1])] = w * visible_iterable[k_pair[0]]
@@ -203,12 +205,12 @@ class Test_agent:
 		self.epsilon_min = 0.1
 		self.epsilon_decay = 0.0008
 
-		self.lr = 0.006
+		self.lr = 0.01
 		self.discount_factor = 0.8
 
 		self.mini_batch_size = 8
 		self.warm_up_duration = 250
-		self.target_update_period = 150
+		self.target_update_period = 200
 		self.memory = ReplayMemory(50000, 42)
 		self.training_count = 1
 
@@ -224,26 +226,27 @@ class Test_agent:
 			current_F, samples, visible_iterable = self.policy_net.calculate_q(vis_iterable)
 			prob_dict = self.policy_net.get_average_configuration(samples)
 
-			future_F = None
+			future_F = -100000
 
 			for action_index in env.get_available_actions(batch[2][i]):
 				vis_iterable = batch[2][i][1] + available_actions_list[action_index]
 				F, samples, vis_iterable = self.target_net.calculate_q(vis_iterable)
-				if future_F is None or future_F < F:
+				if F > future_F:
 					future_F = F
 
-			for k_pair in self.policy_net.hh.keys():
-				self.policy_net.hh[k_pair] = self.policy_net.hh[k_pair] - self.lr * (batch[3][i] + self.discount_factor * future_F - current_F) * prob_dict[k_pair] / len(samples)
+			for k_pair in self.policy_net.Q_hh.keys():
+				self.policy_net.Q_hh[k_pair] = self.policy_net.Q_hh[k_pair] - self.lr * (batch[3][i] + self.discount_factor * future_F - current_F) * prob_dict[k_pair] / len(samples)
 
-			for k_pair in self.policy_net.vh.keys():
-				self.policy_net.vh[k_pair] = self.policy_net.vh[k_pair] - self.lr * (batch[3][i] + self.discount_factor * future_F - current_F) * visible_iterable[k_pair[0]] * prob_dict[k_pair[1]] / len(samples)
+			for k_pair in self.policy_net.Q_vh.keys():
+				self.policy_net.Q_vh[k_pair] = self.policy_net.Q_vh[k_pair] - self.lr * (batch[3][i] + self.discount_factor * future_F - current_F) * visible_iterable[k_pair[0]] * prob_dict[k_pair[1]] / len(samples)
 
 		self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
 
 		self.training_count += 1
 		if self.training_count % self.target_update_period is 0:
-			self.target_net.hh = self.policy_net.hh
-			self.target_net.vh = self.policy_net.vh
+			self.target_net.Q_hh = self.policy_net.Q_hh
+			self.target_net.Q_vh = self.policy_net.Q_vh
+
 
 	def save(self, state, action, next_state, reward):
 		self.memory.push(state, action, next_state, reward)
@@ -256,6 +259,7 @@ class Test_agent:
 				current_F, samples, vis_iterable = self.policy_net.calculate_q(vis_iterable)
 				if F is None or F < current_F:
 					action = action_index
+					F = current_F
 		else:
 			action = random.choice(tuple(available_actions))
 
