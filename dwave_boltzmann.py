@@ -13,7 +13,7 @@ def run(env, agent, logger):
     print("training started at {}".format(exp_time))
 
     # Initialize constants
-    nb_episodes = 1000
+    nb_episodes = 500
     nb_steps = 300
     step_count_list = list()
     fidelity_list = list()
@@ -70,7 +70,7 @@ def print_results(step_count_list, fidelity_list):
 
 
 if __name__ == '__main__':
-    for lr in [0.01, 0.009, 0.008, 0.007, 0.006, 0.005, 0.004, 0.003, 0.002, 0.001]:
+    for lr in [0.009, 0.008, 0.007, 0.006, 0.005, 0.004, 0.003, 0.002, 0.001]:
         env = make_env()
 
         observation_space = env.observation_space()
