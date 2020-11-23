@@ -206,7 +206,7 @@ class Test_agent:
 		self.lr = 0.006
 		self.discount_factor = 0.8
 
-		self.mini_batch_size = 16
+		self.mini_batch_size = 8
 		self.warm_up_duration = 250
 		self.target_update_period = 150
 		self.memory = ReplayMemory(50000, 42)
