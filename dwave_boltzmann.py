@@ -32,7 +32,6 @@ def run(env, agent, logger):
             next_state, available_actions, fidelity, reward, done = env.step(action_index, state, state[0])
 
             agent.save(state[1], available_actions_list[action_index], next_state, reward)
-
             agent.qlearn()
 
             rewards.append(reward)

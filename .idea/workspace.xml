@@ -4,7 +4,6 @@
     <list default="true" id="927ce324-0310-490f-9111-9c477482d55e" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/agent_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/agent_utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dwave_boltzmann.py" beforeDir="false" afterPath="$PROJECT_DIR$/dwave_boltzmann.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/env_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/env_utils.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -50,8 +49,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dwave_boltzmann.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="409">
-              <caret line="55" column="50" lean-forward="true" selection-start-line="55" selection-start-column="50" selection-end-line="55" selection-end-column="50" />
+            <state relative-caret-position="168">
+              <caret line="52" lean-forward="true" selection-start-line="52" selection-end-line="52" />
               <folding>
                 <element signature="e#0#39#0" expanded="true" />
               </folding>
@@ -62,8 +61,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/agent_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="398">
-              <caret line="50" column="39" selection-start-line="50" selection-start-column="39" selection-end-line="50" selection-end-column="39" />
+            <state relative-caret-position="169">
+              <caret line="208" column="17" selection-start-line="208" selection-start-column="8" selection-end-line="208" selection-end-column="17" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -75,7 +74,7 @@
         <entry file="file://$PROJECT_DIR$/env_utils.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="175">
-              <caret line="120" column="87" selection-start-line="120" selection-start-column="87" selection-end-line="120" selection-end-column="87" />
+              <caret line="120" column="9" selection-start-line="120" selection-start-column="9" selection-end-line="120" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -93,12 +92,10 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>current_vis_iterable</find>
       <find>rint</find>
       <find>print</find>
       <find>tuple</find>
       <find>vis_iterable</find>
-      <find>Q_</find>
       <find>available_state</find>
       <find>optimal</find>
       <find>epsilon</find>
@@ -123,6 +120,8 @@
       <find>env</find>
       <find>reward</find>
       <find>calculate</find>
+      <find>Q_</find>
+      <find>self.mini</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -169,8 +168,8 @@
         <option value="$PROJECT_DIR$/agents/dbm_agent.py" />
         <option value="$USER_HOME$/Downloads/attract_grid_data_flow_optimization-master-2/dwave_boltzmann.py" />
         <option value="$PROJECT_DIR$/main.py" />
-        <option value="$PROJECT_DIR$/dwave_boltzmann.py" />
         <option value="$PROJECT_DIR$/env_utils.py" />
+        <option value="$PROJECT_DIR$/dwave_boltzmann.py" />
         <option value="$PROJECT_DIR$/agent_utils.py" />
       </list>
     </option>
@@ -643,14 +642,14 @@
     <entry file="file://$PROJECT_DIR$/env_utils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="175">
-          <caret line="120" column="87" selection-start-line="120" selection-start-column="87" selection-end-line="120" selection-end-column="87" />
+          <caret line="120" column="9" selection-start-line="120" selection-start-column="9" selection-end-line="120" selection-end-column="9" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/dwave_boltzmann.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="409">
-          <caret line="55" column="50" lean-forward="true" selection-start-line="55" selection-start-column="50" selection-end-line="55" selection-end-column="50" />
+        <state relative-caret-position="168">
+          <caret line="52" lean-forward="true" selection-start-line="52" selection-end-line="52" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
           </folding>
@@ -659,8 +658,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/agent_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="398">
-          <caret line="50" column="39" selection-start-line="50" selection-start-column="39" selection-end-line="50" selection-end-column="39" />
+        <state relative-caret-position="169">
+          <caret line="208" column="17" selection-start-line="208" selection-start-column="8" selection-end-line="208" selection-end-column="17" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>

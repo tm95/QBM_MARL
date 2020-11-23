@@ -46,11 +46,6 @@ class DBM:
 		self.average_size = 10
 		self.sample_count = self.replica_count * self.average_size
 
-		self.mini_batch_size = 32
-		self.warm_up_duration = 250
-		self.target_update_period = 150
-		self.memory = ReplayMemory(50000, 42)
-
 	def init_weights(self, n_layers, dim_state, dim_action, n_hidden):
 		hh = dict()
 
@@ -156,7 +151,6 @@ class DBM:
 
 		return average_hamiltonian + a_sum / self.beta
 
-
 	def get_average_configuration(self, samples):
 		prob_dict = dict()
 
@@ -212,9 +206,9 @@ class Test_agent:
 		self.lr = 0.006
 		self.discount_factor = 0.8
 
-		self.mini_batch_size = 4
+		self.mini_batch_size = 16
 		self.warm_up_duration = 250
-		self.target_update_period = 200
+		self.target_update_period = 150
 		self.memory = ReplayMemory(50000, 42)
 		self.training_count = 1
 
