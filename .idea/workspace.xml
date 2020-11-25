@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="927ce324-0310-490f-9111-9c477482d55e" name="Default" comment="" />
+    <list default="true" id="927ce324-0310-490f-9111-9c477482d55e" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/env_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/env_utils.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,8 +60,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/env_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-393">
-              <caret line="105" column="12" selection-start-line="105" selection-start-column="12" selection-end-line="105" selection-end-column="12" />
+            <state relative-caret-position="302">
+              <caret line="148" column="5" selection-start-line="148" selection-start-column="5" selection-end-line="148" selection-end-column="5" />
             </state>
           </provider>
         </entry>
@@ -345,6 +347,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="154" y="23" width="1510" height="958" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.16453996" />
       <window_info id="Structure" order="1" weight="0.25" />
@@ -648,8 +651,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/env_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-393">
-          <caret line="105" column="12" selection-start-line="105" selection-start-column="12" selection-end-line="105" selection-end-column="12" />
+        <state relative-caret-position="302">
+          <caret line="148" column="5" selection-start-line="148" selection-start-column="5" selection-end-line="148" selection-end-column="5" />
         </state>
       </provider>
     </entry>

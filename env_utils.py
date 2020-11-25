@@ -142,11 +142,11 @@ class Env():
 		self.goals = [(0,0)]
 
 
-		d = (np.random.randint(self.height), np.random.randint(self.width))
-		if d != decimal:
-			self.goals = [d]
-		else:
-			self.goals = [(np.random.randint(self.height), np.random.randint(self.width))]
+		#d = (np.random.randint(self.height), np.random.randint(self.width))
+		#if d != decimal:
+	#		self.goals = [d]
+	#	else:
+	#		self.goals = [(np.random.randint(self.height), np.random.randint(self.width))]
 
 		return obs, self.available_actions_list
 
