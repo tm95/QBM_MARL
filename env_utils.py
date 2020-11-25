@@ -45,8 +45,6 @@ class Env():
 					line_string += 'X'
 				elif (i, j,) == (0, 0):
 					line_string += 'G'
-				elif (i, j) == (1, 2):
-					line_string += 'W'
 				else:
 					line_string += 'O'
 			print(line_string)
@@ -103,7 +101,6 @@ class Env():
 
 					binary_others[next_state[0]][next_state[1]] = 1
 
-
 			obs.append((next_state, tuple(binary_agent.flatten()) + tuple(binary_others.flatten())))
 
 		return obs
@@ -123,7 +120,6 @@ class Env():
 			if agent_state_tuple[i][0] in list(self.goals):
 				rewards.append(220)
 				self.goals.remove(agent_state_tuple[i][0])
-				print (self.goals)
 			else:
 				rewards.append(-10)
 		return rewards
@@ -138,7 +134,7 @@ class Env():
 			binary_others = -np.ones((self.height, self.width), dtype=int)
 			obs.append((decimal, tuple(binary.flatten()) + tuple(binary_others.flatten())))
 
-		self.goals = [(0,0), (1,2)]
+		self.goals = [(0,0), (0,2)]
 
 		return obs, self.available_actions_list
 
