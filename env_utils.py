@@ -62,6 +62,7 @@ class Env():
 		obs = []
 		binary_agent = -np.ones((self.height, self.width), dtype=int)
 		binary_others = -np.ones((self.height, self.width), dtype=int)
+		binary_goals = -np.ones((self.height, self.width), dtype=int)
 
 		for i in range(self.nb_agents):
 			if action[i] == 0:
@@ -80,7 +81,7 @@ class Env():
 
 			binary_agent[next_state[0]][next_state[1]] = 1
 			for goal in self.goals:
-				binary_others[goal[0]][goal[1]] = 1
+				binary_goals[goal[0]][goal[1]] = 1
 
 			for j in range(self.nb_agents):
 				if i != j:
@@ -101,8 +102,8 @@ class Env():
 
 					#binary_others[next_state[0]][next_state[1]] = 1
 
-			#obs.append((next_state, tuple(binary_agent.flatten()) + tuple(binary_others.flatten())))
-			obs.append((next_state, tuple(binary_agent.flatten())))
+			obs.append((next_state, tuple(binary_agent.flatten()) + tuple(binar_goals.flatten())))
+			#obs.append((next_state, tuple(binary_agent.flatten())))
 
 		return obs
 
