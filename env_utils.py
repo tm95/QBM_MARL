@@ -1,43 +1,23 @@
-import random
+import numpy as np
 
 class Env():
 
-	def __init__(self):
+	def __init__(self, nb_agents):
 		super(Env, self).__init__()
 
-		self.reward_function_tuple = self.get_reward_function_tuple()
-		self.available_state_dict = self.get_available_state_dict()
+		self.nb_agents = nb_agents
+		self.height = 3
+		self.width = 5
+
+		self.available_states = self.get_available_states()
 		self.available_actions_list = self.get_available_actions_list()
 
-	def get_optimal_policy_tuple(self):
-		optimal_policy_tuple = (
-			((4,), (3,), (3,), (3,), (3,)),
-			((0,), (3, 0), tuple(), (0,), (3, 0,)),
-			((0,), (3, 0), (3,), (0,), (3, 0,)))
-		return optimal_policy_tuple
-
-	def get_reward_function_tuple(self):
-		reward_function_tuple = (
-			(220, 200, 180, 160, 140),
-			(200, 180, 160, -200, 120),
-			(180, 160,   0, 120, 100))
-		return reward_function_tuple
-
-	def get_available_state_dict(self):
-		available_state_dict = dict()
-		i = 0
-		for q1 in ((-1,), (1,),):
-			for q2 in ((-1,), (1,),):
-				for q3 in ((-1,), (1,),):
-					for q4 in ((-1,), (1,),):
-						if i != 7:
-							available_state_dict[(i // 5, i % 5,)] = q1 + q2 + q3 + q4
-						i += 1
-						if i >= 15: break
-					if i >= 15: break
-				if i >= 15: break
-			if i >= 15: break
-		return available_state_dict
+	def get_available_states(self):
+		available_states = []
+		for i in range(self.height):
+			for j in range(self.width):
+				available_states.append((i, j))
+		return available_states
 
 	def get_available_actions_list(self):
 		available_actions_list = list()
@@ -71,62 +51,96 @@ class Env():
 			print(line_string)
 		print()
 
-	def step(self, action, current_state, old_position_tuple):
+	def step(self, action, current_state):
 
 		next_state = self.get_next_state(action, current_state)
 		done = self.get_done(next_state)
-		fidelity = self.get_fidelity(action, old_position_tuple)
-		reward = self.get_reward(next_state[0])
+		reward = self.get_reward(next_state)
 
-		return next_state, fidelity, reward, done
+		return next_state, reward, done
 
 	def get_next_state(self, action, current_state):
-		if action == 0:
-			next_state = (current_state[0][0] - 1, current_state[0][1])
-		elif action == 1:
-			next_state = (current_state[0][0], current_state[0][1] + 1)
-		elif action == 2:
-			next_state = (current_state[0][0] + 1, current_state[0][1])
-		elif action == 3:
-			next_state = (current_state[0][0], current_state[0][1] - 1)
-		else:
-			next_state = current_state[0]
+		obs = []
+		binary_agent = -np.ones((self.height, self.width), dtype=int)
+		binary_others = -np.ones((self.height, self.width), dtype=int)
 
-		if next_state not in self.get_available_state_dict().keys():
-			next_state = current_state[0]
+		for i in range(self.nb_agents):
+			if action[i] == 0:
+				next_state = (current_state[i][0][0] - 1, current_state[i][0][1])
+			elif action[i] == 1:
+				next_state = (current_state[i][0][0], current_state[i][0][1] + 1)
+			elif action[i] == 2:
+				next_state = (current_state[i][0][0] + 1, current_state[i][0][1])
+			elif action[i] == 3:
+				next_state = (current_state[i][0][0], current_state[i][0][1] - 1)
+			else:
+				next_state = (current_state[i][0])
 
-		return (next_state, self.available_state_dict[next_state])
+			if next_state not in list(self.available_states):
+				next_state = (current_state[i][0])
+
+			binary_agent[next_state[0]][next_state[1]] = 1
+			binary_agent[0][0] = 1
+
+			for j in range(self.nb_agents):
+				if i != j:
+
+					if action[j] == 0:
+						next_state = (current_state[j][0][0] - 1, current_state[j][0][1])
+					elif action[j] == 1:
+						next_state = (current_state[j][0][0], current_state[j][0][1] + 1)
+					elif action[j] == 2:
+						next_state = (current_state[j][0][0] + 1, current_state[j][0][1])
+					elif action[j] == 3:
+						next_state = (current_state[j][0][0], current_state[j][0][1] - 1)
+					else:
+						next_state = (current_state[j][0])
+
+					if next_state not in list(self.available_states):
+						next_state = (current_state[j][0])
+
+					binary_others[next_state[0]][next_state[1]] = 1
+
+
+			obs.append((next_state, tuple(binary_agent.flatten()) + tuple(binary_others.flatten())))
+
+		return obs
 
 	def get_done(self, next_state):
-		if next_state[0] == (0, 0):
-			done = True
-		else:
-			done = False
+		done = []
+		for i in range(self.nb_agents):
+			if next_state[i][0] == (0, 0):
+				done.append(True)
+			else:
+				done.append(False)
 		return done
 
-	def get_fidelity(self, action, old_position_tuple):
-		fidelity = (1 if action in self.get_optimal_policy_tuple()[old_position_tuple[0]][old_position_tuple[1]] else 0)
-		return fidelity
-
 	def get_reward(self, agent_state_tuple):
-		if agent_state_tuple == (0, 0):
-			reward = self.reward_function_tuple[agent_state_tuple[0]][agent_state_tuple[1]]
-		#elif agent_state_tuple == (1, 3):
-	#		reward = self.reward_function_tuple[agent_state_tuple[0]][agent_state_tuple[1]]
-		else:
-			reward = -10
-		return reward
+		rewards = []
+		for i in range(self.nb_agents):
+			if agent_state_tuple[i][0] == (0, 0):
+				rewards.append(220)
+			else:
+				rewards.append(-10)
+		return rewards
 
 	def reset(self):
-		state = random.choice(tuple(filter(lambda e: e[0] != (0, 0) and e[0] != (1, 2), self.available_state_dict.items())))
-		return state, self.available_actions_list
+		obs = []
+		binary = -np.ones((self.height, self.width), dtype=int)
+		for i in range(self.nb_agents):
+			decimal = (np.random.randint(self.height), np.random.randint(self.width))
+			binary[decimal[0]][decimal[1]] = 1
+			binary[0][0] = 1
+			binary_others = -np.ones((self.height, self.width), dtype=int)
+			obs.append((decimal, tuple(binary.flatten()) + tuple(binary_others.flatten())))
+		return obs, self.available_actions_list
 
 	def observation_space(self):
-		return len(list(self.get_available_state_dict().values())[0])
+		return self.height * self.width * 2
 
 	def action_space(self):
 		return len(self.get_available_actions_list()[0])
 
-def make_env():
-	env = Env()
+def make_env(nb_agents):
+	env = Env(nb_agents)
 	return env

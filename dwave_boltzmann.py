@@ -1,13 +1,12 @@
 from agent_utils import make_test_agent
 from env_utils import make_env
-import matplotlib.pyplot as plt
 from datetime import datetime
 import numpy as np
 import neptune
 import json
 from dotmap import DotMap
 
-def run(env, agent, logger):
+def run(env, agents, logger):
 
     exp_time = datetime.now().strftime('%Y%m%d-%H-%M-%S')
     print("training started at {}".format(exp_time))
@@ -15,68 +14,58 @@ def run(env, agent, logger):
     # Initialize constants
     nb_episodes = 500
     nb_steps = 300
-    step_count_list = list()
-    fidelity_list = list()
 
     for training_episode in range(nb_episodes):
-        rewards = []
+        episode_rewards = np.zeros(env.nb_agents)
 
         state, available_actions_list = env.reset()
 
         step_count = 1
-        fidelity_count = 1
-        done = False
+        all_done = False
 
-        while step_count < nb_steps and not done:
+        while step_count < nb_steps and not all_done:
             # env.render(agent_state_tuple[0])
+            actions_list = []
 
-            action_index = agent.policy(state, available_actions_list)
-            next_state, fidelity, reward, done = env.step(action_index, state, state[0])
+            for i in range(env.nb_agents):
+                action_index = agents[i].policy(state[i], available_actions_list)
+                actions_list.append(action_index)
 
-            agent.save(state[1], available_actions_list[action_index], next_state, reward)
+            next_state, reward, done = env.step(actions_list, state)
 
-            agent.qlearn(available_actions_list)
+            for i in range(env.nb_agents):
+                agents[i].save(state[i][1], available_actions_list[actions_list[i]], next_state[i], reward[i])
+                episode_rewards[i] += reward[i]
 
-            rewards.append(reward)
-            fidelity_count += fidelity
+            for i in range(env.nb_agents):
+                agents[i].qlearn(available_actions_list)
+
             step_count += 1
-
             state = next_state
+            all_done = any(done is True for done in done)
 
-
-        fidelity_list.append(fidelity_count/step_count)
-        step_count_list.append(step_count)
-
-        print("episode {} finished at step {} with fidelity: {} and reward: {} at timestamp {}".format(
-            training_episode, step_count, np.round(fidelity_count/step_count, decimals=2), np.sum(rewards), datetime.now().strftime('%Y%m%d-%H-%M-%S')))
+        print("episode {} finished at step {} with and reward: {} at timestamp {}".format(
+            training_episode, step_count, np.sum(episode_rewards), datetime.now().strftime('%Y%m%d-%H-%M-%S')))
 
         if logger is not None:
-            logger.log_metric('episode_fidelity', training_episode, np.round(fidelity_count/step_count, decimals=2))
-            logger.log_metric('episode_rewards', training_episode, np.sum(rewards))
+            logger.log_metric('episode_rewards', training_episode, np.sum(episode_rewards))
             logger.log_metric('episode_steps', training_episode, step_count)
 
-
-def print_results(step_count_list, fidelity_list):
-    plt.plot(range(len(step_count_list)), step_count_list, 'b-')
-    plt.plot(range(len(step_count_list)), step_count_list, 'ro')
-    # plt.show()
-    plt.savefig('agent_step_history.png')
-
-    plt.clf()
-
-    plt.plot(range(len(fidelity_list)), fidelity_list, 'b-')
-    plt.plot(range(len(fidelity_list)), fidelity_list, 'ro')
-    plt.show()
+            for i in range(env.nb_agents):
+                logger.log_metric('episode_return_agent-{}'.format(i), training_episode, episode_rewards[i])
 
 
 if __name__ == '__main__':
     for lr in [0.009, 0.008, 0.007, 0.006, 0.005, 0.004, 0.003, 0.002, 0.001]:
-        env = make_env()
+        nb_agents = 2
+
+        env = make_env(nb_agents)
 
         observation_space = env.observation_space()
         action_space = env.action_space()
-
-        agent = make_test_agent(observation_space, action_space, lr)
+        agents = []
+        for i in range(nb_agents):
+            agents.append(make_test_agent(observation_space, action_space, lr))
 
         # Load action set
         params = ('params.json')
@@ -91,4 +80,4 @@ if __name__ == '__main__':
         logger = neptune
         with neptune.create_experiment(name='sandbox', params=params_json):
             neptune.append_tag('lr-{}'.format(lr))
-            run(env, agent, logger)
+            run(env, agents, logger)

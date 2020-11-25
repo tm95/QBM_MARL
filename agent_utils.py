@@ -43,8 +43,7 @@ class DBM:
 	def init_weights(self, n_layers, dim_state, dim_action, n_hidden):
 		Q_hh = dict()
 
-		len_visible = 8
-		# len_visible = dim_state + dim_action + 1 ?!
+		len_visible = dim_state + dim_action
 
 		hidden = []
 		for i in range(n_layers):
@@ -59,8 +58,8 @@ class DBM:
 				for jj in tuple(range(hidden[i+1][0], hidden[i+1][1])):
 					Q_hh[(ii, jj)] = 2 * random.random() - 1
 
-		for i, j in zip(tuple(range(dim_state, len_visible)), tuple(range(hidden[-1][0], hidden[-1][1]))):
-			Q_hh[(i, j)] = 2 * random.random() - 1
+		#for i, j in zip(tuple(range(dim_state, len_visible)), tuple(range(hidden[-1][0], hidden[-1][1]))):
+	#		Q_hh[(i, j)] = 2 * random.random() - 1
 
 		Q_vh = dict()
 		# Fully connection between state and blue nodes
@@ -200,7 +199,7 @@ class Test_agent:
 		self.epsilon_min = 0.1
 		self.epsilon_decay = 0.0008
 
-		self.lr = lr
+		self.lr = 0.005
 		self.discount_factor = 0.8
 
 		self.mini_batch_size = 8
