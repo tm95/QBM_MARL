@@ -8,6 +8,7 @@ class Env():
 		self.nb_agents = nb_agents
 		self.height = 3
 		self.width = 5
+		self.goals = []
 
 		self.available_states = self.get_available_states()
 		self.available_actions_list = self.get_available_actions_list()
@@ -54,8 +55,8 @@ class Env():
 	def step(self, action, current_state):
 
 		next_state = self.get_next_state(action, current_state)
-		done = self.get_done(next_state)
 		reward = self.get_reward(next_state)
+		done = self.get_done()
 
 		return next_state, reward, done
 
@@ -80,7 +81,8 @@ class Env():
 				next_state = (current_state[i][0])
 
 			binary_agent[next_state[0]][next_state[1]] = 1
-			binary_agent[0][0] = 1
+			for goal in self.goals:
+				binary_agent[goal[0]][goal[1]] = 1
 
 			for j in range(self.nb_agents):
 				if i != j:
@@ -106,10 +108,10 @@ class Env():
 
 		return obs
 
-	def get_done(self, next_state):
+	def get_done(self):
 		done = []
 		for i in range(self.nb_agents):
-			if next_state[i][0] == (0, 0):
+			if len(self.goals) == 0:
 				done.append(True)
 			else:
 				done.append(False)
@@ -118,8 +120,10 @@ class Env():
 	def get_reward(self, agent_state_tuple):
 		rewards = []
 		for i in range(self.nb_agents):
-			if agent_state_tuple[i][0] == (0, 0):
+			if agent_state_tuple[i][0] in list(self.goals):
 				rewards.append(220)
+				self.goals.remove(agent_state_tuple[i][0])
+				print (self.goals)
 			else:
 				rewards.append(-10)
 		return rewards
@@ -133,6 +137,9 @@ class Env():
 			binary[0][0] = 1
 			binary_others = -np.ones((self.height, self.width), dtype=int)
 			obs.append((decimal, tuple(binary.flatten()) + tuple(binary_others.flatten())))
+
+		self.goals = [(0,0), (1,2)]
+
 		return obs, self.available_actions_list
 
 	def observation_space(self):
