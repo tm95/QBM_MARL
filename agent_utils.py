@@ -254,9 +254,9 @@ class Test_agent:
 					max_tuple = (current_F, action_index, samples, vis_iterable)
 		else:
 			action_index = random.choice(range(self.action_size))
-			vis_iterable = current_state[1] + available_actions_list[action_index]
-			current_F, samples, vis_iterable = self.policy_net.calculate_q(vis_iterable)
-			max_tuple = (current_F, action_index, samples, vis_iterable)
+			#vis_iterable = current_state[1] + available_actions_list[action_index]
+			#current_F, samples, vis_iterable = self.policy_net.calculate_q(vis_iterable)
+			max_tuple = (0, action_index, 0, 0)
 
 		return (max_tuple[1])
 
