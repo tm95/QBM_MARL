@@ -57,7 +57,7 @@ def run(env, agents, logger):
 
 if __name__ == '__main__':
     for lr in [0.009, 0.008, 0.007, 0.006, 0.005, 0.004, 0.003, 0.002, 0.001]:
-        nb_agents = 1
+        nb_agents = 2
 
         env = make_env(nb_agents)
 

@@ -129,24 +129,14 @@ class Env():
 	def reset(self):
 		obs = []
 		binary = -np.ones((self.height, self.width), dtype=int)
-		binary_goals = -np.ones((self.height, self.width), dtype=int)
 		for i in range(self.nb_agents):
 			decimal = (np.random.randint(self.height), np.random.randint(self.width))
 			binary[decimal[0]][decimal[1]] = 1
-			for goal in self.goals:
-				binary_goals[goal[0]][goal[1]] = 1
 			binary_others = -np.ones((self.height, self.width), dtype=int)
 			#obs.append((decimal, tuple(binary.flatten()) + tuple(binary_goals.flatten())))
 			obs.append((decimal, tuple(binary.flatten())))
 
 		self.goals = [(0,0)]
-
-
-		#d = (np.random.randint(self.height), np.random.randint(self.width))
-		#if d != decimal:
-	#		self.goals = [d]
-	#	else:
-	#		self.goals = [(np.random.randint(self.height), np.random.randint(self.width))]
 
 		return obs, self.available_actions_list
 
