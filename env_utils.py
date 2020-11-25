@@ -80,7 +80,7 @@ class Env():
 
 			binary_agent[next_state[0]][next_state[1]] = 1
 			for goal in self.goals:
-				binary_agent[goal[0]][goal[1]] = 1
+				binary_others[goal[0]][goal[1]] = 1
 
 			for j in range(self.nb_agents):
 				if i != j:
@@ -99,7 +99,7 @@ class Env():
 					if next_state not in list(self.available_states):
 						next_state = (current_state[j][0])
 
-					binary_others[next_state[0]][next_state[1]] = 1
+					#binary_others[next_state[0]][next_state[1]] = 1
 
 			#obs.append((next_state, tuple(binary_agent.flatten()) + tuple(binary_others.flatten())))
 			obs.append((next_state, tuple(binary_agent.flatten())))
@@ -128,13 +128,15 @@ class Env():
 	def reset(self):
 		obs = []
 		binary = -np.ones((self.height, self.width), dtype=int)
+		binary_goals = -np.ones((self.height, self.width), dtype=int)
 		for i in range(self.nb_agents):
 			decimal = (np.random.randint(self.height), np.random.randint(self.width))
 			binary[decimal[0]][decimal[1]] = 1
-			binary[0][0] = 1
+			for goal in self.goals:
+				binary_goals[goal[0]][goal[1]] = 1
 			binary_others = -np.ones((self.height, self.width), dtype=int)
-			#obs.append((decimal, tuple(binary.flatten()) + tuple(binary_others.flatten())))
-			obs.append((decimal, tuple(binary.flatten())))
+			obs.append((decimal, tuple(binary.flatten()) + tuple(binary_goals.flatten())))
+			#obs.append((decimal, tuple(binary.flatten())))
 
 		d = (np.random.randint(self.height), np.random.randint(self.width))
 
@@ -143,12 +145,10 @@ class Env():
 		else:
 			self.goals = [(np.random.randint(self.height), np.random.randint(self.width))]
 
-		print (self.goals)
-
 		return obs, self.available_actions_list
 
 	def observation_space(self):
-		return self.height * self.width
+		return self.height * self.width * 2
 
 	def action_space(self):
 		return len(self.get_available_actions_list()[0])
