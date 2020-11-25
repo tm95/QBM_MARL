@@ -136,7 +136,14 @@ class Env():
 			#obs.append((decimal, tuple(binary.flatten()) + tuple(binary_others.flatten())))
 			obs.append((decimal, tuple(binary.flatten())))
 
-		self.goals = [(0,0), (0,2)]
+		d = (np.random.randint(self.height), np.random.randint(self.width))
+
+		if d != decimal:
+			self.goals = [d]
+		else:
+			self.goals = [(np.random.randint(self.height), np.random.randint(self.width))]
+
+		print (self.goals)
 
 		return obs, self.available_actions_list
 
