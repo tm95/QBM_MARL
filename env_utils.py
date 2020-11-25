@@ -101,7 +101,8 @@ class Env():
 
 					binary_others[next_state[0]][next_state[1]] = 1
 
-			obs.append((next_state, tuple(binary_agent.flatten()) + tuple(binary_others.flatten())))
+			#obs.append((next_state, tuple(binary_agent.flatten()) + tuple(binary_others.flatten())))
+			obs.append((next_state, tuple(binary_agent.flatten())))
 
 		return obs
 
@@ -132,14 +133,15 @@ class Env():
 			binary[decimal[0]][decimal[1]] = 1
 			binary[0][0] = 1
 			binary_others = -np.ones((self.height, self.width), dtype=int)
-			obs.append((decimal, tuple(binary.flatten()) + tuple(binary_others.flatten())))
+			#obs.append((decimal, tuple(binary.flatten()) + tuple(binary_others.flatten())))
+			obs.append((decimal, tuple(binary.flatten())))
 
 		self.goals = [(0,0), (0,2)]
 
 		return obs, self.available_actions_list
 
 	def observation_space(self):
-		return self.height * self.width * 2
+		return self.height * self.width
 
 	def action_space(self):
 		return len(self.get_available_actions_list()[0])
