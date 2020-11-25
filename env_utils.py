@@ -139,8 +139,10 @@ class Env():
 			#obs.append((decimal, tuple(binary.flatten()) + tuple(binary_goals.flatten())))
 			obs.append((decimal, tuple(binary.flatten())))
 
-		d = (np.random.randint(self.height), np.random.randint(self.width))
+		self.goals = [(0,0)]
 
+
+		d = (np.random.randint(self.height), np.random.randint(self.width))
 		if d != decimal:
 			self.goals = [d]
 		else:
