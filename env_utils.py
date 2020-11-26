@@ -100,11 +100,11 @@ class Env():
 					if n not in list(self.available_states):
 						n = (current_state[j][0])
 
-					#binary_others[n[0]][n[1]] = 1
-					binary_agent[n[0]][n[1]] = 1
+					binary_others[n[0]][n[1]] = 1
+					#binary_agent[n[0]][n[1]] = 1
 
-			#obs.append((next_state, tuple(binary_agent.flatten()) + tuple(binary_goals.flatten())))
-			obs.append((next_state, tuple(binary_agent.flatten())))
+			obs.append((next_state, tuple(binary_agent.flatten()) + tuple(binary_goals.flatten())))
+			#obs.append((next_state, tuple(binary_agent.flatten())))
 
 		return obs
 
@@ -134,15 +134,15 @@ class Env():
 			decimal = (np.random.randint(self.height), np.random.randint(self.width))
 			binary[decimal[0]][decimal[1]] = 1
 			binary_others = -np.ones((self.height, self.width), dtype=int)
-			#obs.append((decimal, tuple(binary.flatten()) + tuple(binary_others.flatten())))
-			obs.append((decimal, tuple(binary.flatten())))
+			obs.append((decimal, tuple(binary.flatten()) + tuple(binary_others.flatten())))
+			#obs.append((decimal, tuple(binary.flatten())))
 
 		self.goals = [(0,0), (0,3)]
 
 		return obs, self.available_actions_list
 
 	def observation_space(self):
-		return self.height * self.width
+		return self.height * self.width * 2
 
 	def action_space(self):
 		return len(self.get_available_actions_list()[0])

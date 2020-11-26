@@ -36,8 +36,8 @@ class DBM:
 		self.beta = 2
 		self.gamma = 0.5
 
-		self.replica_count = 1
-		self.average_size = 10
+		self.replica_count = 2
+		self.average_size = 15
 		self.sample_count = self.replica_count * self.average_size
 
 	def init_weights(self, n_layers, dim_state, dim_action, n_hidden):
@@ -57,9 +57,6 @@ class DBM:
 			for ii in (tuple(range(hidden[i][0], hidden[i][1]))):
 				for jj in tuple(range(hidden[i+1][0], hidden[i+1][1])):
 					Q_hh[(ii, jj)] = 2 * random.random() - 1
-
-		#for i, j in zip(tuple(range(dim_state, len_visible)), tuple(range(hidden[-1][0], hidden[-1][1]))):
-	#		Q_hh[(i, j)] = 2 * random.random() - 1
 
 		Q_vh = dict()
 		# Fully connection between state and blue nodes
@@ -203,7 +200,7 @@ class Test_agent:
 		self.discount_factor = 0.8
 
 		self.mini_batch_size = 8
-		self.warm_up_duration = 250
+		self.warm_up_duration = 500
 		self.target_update_period = 250
 		self.memory = ReplayMemory(50000, 42)
 		self.training_count = 1
