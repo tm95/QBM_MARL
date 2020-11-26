@@ -136,7 +136,7 @@ class Env():
 			#obs.append((decimal, tuple(binary.flatten()) + tuple(binary_goals.flatten())))
 			obs.append((decimal, tuple(binary.flatten())))
 
-		self.goals = [(0,0)]
+		self.goals = [(0,0), (0,3)]
 
 		return obs, self.available_actions_list
 

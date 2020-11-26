@@ -262,5 +262,5 @@ class Test_agent:
 
 
 def make_test_agent(observation_space, action_space, lr):
-	agent = Test_agent(4, observation_space, action_space, 4, lr)
+	agent = Test_agent(4, observation_space, action_space, 8, lr)
 	return agent
