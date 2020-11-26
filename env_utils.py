@@ -101,7 +101,7 @@ class Env():
 						n = (current_state[j][0])
 
 					#binary_others[next_state[0]][next_state[1]] = 1
-				#binary_others[n[0]][n[1]] = 1
+					binary_agent[n[0]][n[1]] = 1
 
 			#obs.append((next_state, tuple(binary_agent.flatten()) + tuple(binary_goals.flatten())))
 			obs.append((next_state, tuple(binary_agent.flatten())))
