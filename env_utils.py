@@ -97,7 +97,7 @@ class Env():
 					else:
 						n = (current_state[j][0])
 
-					if next_state not in list(self.available_states):
+					if n not in list(self.available_states):
 						n = (current_state[j][0])
 
 					#binary_others[next_state[0]][next_state[1]] = 1
