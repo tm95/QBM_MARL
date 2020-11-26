@@ -39,7 +39,11 @@ def run(env, agents, logger):
                 episode_rewards[i] += reward[i]
 
             for i in range(env.nb_agents):
-                agents[i].qlearn(available_actions_list)
+                if i == 1:
+                    agents[i].qlearn(available_actions_list)
+                else:
+                    agents[j].policy_net.Q_hh = agents[i].policy_net.Q_hh
+                    agents[j].policy_net.Q_vh = agents[i].policy_net.Q_vh
 
             step_count += 1
             state = next_state

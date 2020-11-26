@@ -36,8 +36,8 @@ class DBM:
 		self.beta = 2
 		self.gamma = 0.5
 
-		self.replica_count = 2
-		self.average_size = 15
+		self.replica_count = 1
+		self.average_size = 10
 		self.sample_count = self.replica_count * self.average_size
 
 	def init_weights(self, n_layers, dim_state, dim_action, n_hidden):
@@ -199,10 +199,10 @@ class Test_agent:
 		self.lr = 0.005
 		self.discount_factor = 0.8
 
-		self.mini_batch_size = 8
-		self.warm_up_duration = 500
+		self.mini_batch_size = 16
+		self.warm_up_duration = 250
 		self.target_update_period = 250
-		self.memory = ReplayMemory(50000, 42)
+		self.memory = ReplayMemory(20000, 42)
 		self.training_count = 1
 
 	def qlearn(self, available_actions_list):
@@ -251,8 +251,6 @@ class Test_agent:
 					max_tuple = (current_F, action_index, samples, vis_iterable)
 		else:
 			action_index = random.choice(range(self.action_size))
-			#vis_iterable = current_state[1] + available_actions_list[action_index]
-			#current_F, samples, vis_iterable = self.policy_net.calculate_q(vis_iterable)
 			max_tuple = (0, action_index, 0, 0)
 
 		return (max_tuple[1])

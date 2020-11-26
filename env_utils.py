@@ -43,7 +43,7 @@ class Env():
 			for j in range(5):
 				if x_y_position == (i, j,):
 					line_string += 'X'
-				elif (i, j,) == (0, 0):
+				elif (i, j,) in list(self.goals):
 					line_string += 'G'
 				else:
 					line_string += 'O'
