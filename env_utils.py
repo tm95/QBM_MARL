@@ -87,20 +87,21 @@ class Env():
 				if i != j:
 
 					if action[j] == 0:
-						next_state = (current_state[j][0][0] - 1, current_state[j][0][1])
+						n = (current_state[j][0][0] - 1, current_state[j][0][1])
 					elif action[j] == 1:
-						next_state = (current_state[j][0][0], current_state[j][0][1] + 1)
+						n = (current_state[j][0][0], current_state[j][0][1] + 1)
 					elif action[j] == 2:
-						next_state = (current_state[j][0][0] + 1, current_state[j][0][1])
+						n = (current_state[j][0][0] + 1, current_state[j][0][1])
 					elif action[j] == 3:
-						next_state = (current_state[j][0][0], current_state[j][0][1] - 1)
+						n = (current_state[j][0][0], current_state[j][0][1] - 1)
 					else:
-						next_state = (current_state[j][0])
+						n = (current_state[j][0])
 
 					if next_state not in list(self.available_states):
-						next_state = (current_state[j][0])
+						n = (current_state[j][0])
 
 					#binary_others[next_state[0]][next_state[1]] = 1
+				#binary_others[n[0]][n[1]] = 1
 
 			#obs.append((next_state, tuple(binary_agent.flatten()) + tuple(binary_goals.flatten())))
 			obs.append((next_state, tuple(binary_agent.flatten())))
