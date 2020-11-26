@@ -34,7 +34,8 @@ def run(env, agents, logger):
             next_state, reward, done = env.step(actions_list, state)
 
             for i in range(env.nb_agents):
-                agents[i].save(state[i][1], available_actions_list[actions_list[i]], next_state[i], reward[i])
+                for j in range(env.nb_agents):
+                    agents[i].save(state[j][1], available_actions_list[actions_list[j]], next_state[j], reward[j])
                 episode_rewards[i] += reward[i]
 
             for i in range(env.nb_agents):
