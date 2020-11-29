@@ -7,7 +7,7 @@ class Env():
 
 		self.nb_agents = nb_agents
 		self.height = 3
-		self.width = 5
+		self.width = 3
 		self.goals = []
 
 		self.available_states = self.get_available_states()
@@ -60,11 +60,11 @@ class Env():
 
 	def get_next_state(self, action, current_state):
 		obs = []
-		binary_agent = -np.ones((self.height, self.width), dtype=int)
-		binary_others = -np.ones((self.height, self.width), dtype=int)
-		binary_goals = -np.ones((self.height, self.width), dtype=int)
 
 		for i in range(self.nb_agents):
+			binary_agent = -np.ones((self.height, self.width), dtype=int)
+			binary_others = -np.ones((self.height, self.width), dtype=int)
+
 			if action[i] == 0:
 				next_state = (current_state[i][0][0] - 1, current_state[i][0][1])
 			elif action[i] == 1:
@@ -80,8 +80,8 @@ class Env():
 				next_state = (current_state[i][0])
 
 			binary_agent[next_state[0]][next_state[1]] = 1
-			for goal in self.goals:
-				binary_goals[goal[0]][goal[1]] = 1
+			if (0, 0) in list(self.goals):
+				binary_agent[0][0] = 1
 
 			for j in range(self.nb_agents):
 				if i != j:
@@ -101,9 +101,13 @@ class Env():
 						n = (current_state[j][0])
 
 					binary_others[n[0]][n[1]] = 1
+					if (2,2) in list(self.goals):
+						binary_others[2][2] = 1
+
+					#binary_others[j][j] = 1
 					#binary_agent[n[0]][n[1]] = 1
 
-			obs.append((next_state, tuple(binary_agent.flatten()) + tuple(binary_goals.flatten())))
+			obs.append((next_state, tuple(binary_agent.flatten()) + tuple(binary_others.flatten())))
 			#obs.append((next_state, tuple(binary_agent.flatten())))
 
 		return obs
@@ -120,24 +124,49 @@ class Env():
 	def get_reward(self, agent_state_tuple):
 		rewards = []
 		for i in range(self.nb_agents):
-			if agent_state_tuple[i][0] in list(self.goals):
-				rewards.append(220)
-				self.goals.remove(agent_state_tuple[i][0])
-			else:
-				rewards.append(-10)
+			if i == 0:
+				if agent_state_tuple[0][0] == (0, 0) and agent_state_tuple[0][0] in list(self.goals):
+					rewards.append(220)
+					self.goals.remove(agent_state_tuple[i][0])#
+				elif agent_state_tuple[0][0] in list(self.goals):
+					rewards.append(-210)
+				elif (0,0) not in list(self.goals):
+					rewards.append(0)
+				else:
+					rewards.append(-10)
+			if i == 1:
+				if agent_state_tuple[1][0] == (2, 2) and agent_state_tuple[1][0] in list(self.goals):
+					rewards.append(220)
+					self.goals.remove(agent_state_tuple[i][0])
+				elif agent_state_tuple[1][0] in list(self.goals):
+					rewards.append(-210)
+				elif (2,2) not in list(self.goals):
+					rewards.append(0)
+				else:
+					rewards.append(-10)
+#			if agent_state_tuple[i][0] in list(self.goals):
+#				rewards.append(220)
+#				self.goals.remove(agent_state_tuple[i][0])
+#			else:
+#				rewards.append(-10)
 		return rewards
 
 	def reset(self):
 		obs = []
-		binary = -np.ones((self.height, self.width), dtype=int)
+		decimal = [(2,0), (0,2)]
+		self.goals = [(0,0), (2,2)]
 		for i in range(self.nb_agents):
-			decimal = (np.random.randint(self.height), np.random.randint(self.width))
-			binary[decimal[0]][decimal[1]] = 1
+			#decimal = (np.random.randint(self.height), np.random.randint(self.width))
+			binary = -np.ones((self.height, self.width), dtype=int)
+			binary[decimal[i][0]][decimal[i][1]] = 1
+			binary[self.goals[i][0]][self.goals[i][1]] = 1
 			binary_others = -np.ones((self.height, self.width), dtype=int)
-			obs.append((decimal, tuple(binary.flatten()) + tuple(binary_others.flatten())))
+			for j in range(self.nb_agents):
+				if i != j:
+					binary_others[decimal[j][0]][decimal[j][1]] = 1
+					binary_others[self.goals[j][0]][self.goals[j][1]] = 1
+			obs.append((decimal[i], tuple(binary.flatten()) + tuple(binary_others.flatten())))
 			#obs.append((decimal, tuple(binary.flatten())))
-
-		self.goals = [(0,0), (0,3)]
 
 		return obs, self.available_actions_list
 

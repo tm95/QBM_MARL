@@ -24,7 +24,7 @@ def run(env, agents, logger):
         all_done = False
 
         while step_count < nb_steps and not all_done:
-            # env.render(agent_state_tuple[0])
+            #env.render(state[0][0])
             actions_list = []
 
             for i in range(env.nb_agents):
@@ -34,16 +34,15 @@ def run(env, agents, logger):
             next_state, reward, done = env.step(actions_list, state)
 
             for i in range(env.nb_agents):
-                for j in range(env.nb_agents):
-                    agents[i].save(state[j][1], available_actions_list[actions_list[j]], next_state[j], reward[j])
+                agents[i].save(state[i][1], available_actions_list[actions_list[i]], next_state[i], reward[i])
                 episode_rewards[i] += reward[i]
 
             for i in range(env.nb_agents):
-                if i == 1:
-                    agents[i].qlearn(available_actions_list)
-                else:
-                    agents[j].policy_net.Q_hh = agents[i].policy_net.Q_hh
-                    agents[j].policy_net.Q_vh = agents[i].policy_net.Q_vh
+                agents[i].qlearn(available_actions_list)
+
+            #if training_episode > 5:
+            #    agents[1].policy_net.Q_hh = agents[0].policy_net.Q_hh
+            #    agents[1].policy_net.Q_vh = agents[0].policy_net.Q_vh
 
             step_count += 1
             state = next_state

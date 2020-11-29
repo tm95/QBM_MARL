@@ -37,7 +37,7 @@ class DBM:
 		self.gamma = 0.5
 
 		self.replica_count = 1
-		self.average_size = 10
+		self.average_size = 100
 		self.sample_count = self.replica_count * self.average_size
 
 	def init_weights(self, n_layers, dim_state, dim_action, n_hidden):
@@ -199,7 +199,7 @@ class Test_agent:
 		self.lr = 0.005
 		self.discount_factor = 0.8
 
-		self.mini_batch_size = 16
+		self.mini_batch_size = 8
 		self.warm_up_duration = 250
 		self.target_update_period = 250
 		self.memory = ReplayMemory(20000, 42)
@@ -257,5 +257,5 @@ class Test_agent:
 
 
 def make_test_agent(observation_space, action_space, lr):
-	agent = Test_agent(4, observation_space, action_space, 8, lr)
+	agent = Test_agent(4, observation_space, action_space, 4, lr)
 	return agent
