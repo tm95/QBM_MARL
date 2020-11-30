@@ -234,7 +234,7 @@ class Test_agent:
 		self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
 
 		self.training_count += 1
-		if self.training_count % self.target_update_period is 0:
+		if self.training_count % self.target_update_period == 0:
 			self.target_net.Q_hh = self.policy_net.Q_hh
 			self.target_net.Q_vh = self.policy_net.Q_vh
 
