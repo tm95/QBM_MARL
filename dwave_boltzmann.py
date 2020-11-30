@@ -41,8 +41,8 @@ def run(env, agents, logger):
                 agents[i].qlearn(available_actions_list)
 
             #if training_episode > 5:
-            #    agents[1].policy_net.Q_hh = agents[0].policy_net.Q_hh
-            #    agents[1].policy_net.Q_vh = agents[0].policy_net.Q_vh
+             #   agents[1].policy_net.Q_hh = agents[0].policy_net.Q_hh
+              #  agents[1].policy_net.Q_vh = agents[0].policy_net.Q_vh
 
             step_count += 1
             state = next_state
