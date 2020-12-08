@@ -1,7 +1,7 @@
 {
   "nb_agents": 1,
   "env_height": 3,
-  "env_width": 3,
+  "env_width": 5,
   "lr": 0.005,
   "n_layers": 4,
   "n_hidden": 4,
