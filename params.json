@@ -1,6 +1,12 @@
 {
+  "nb_agents": 1,
+  "env_height": 3,
+  "env_width": 3,
+  "lr": 0.005,
+  "n_layers": 4,
+  "n_hidden": 4,
   "mini_batch_size": 128,
-  "nb_episodes": 3000,
+  "nb_episodes": 500,
   "nb_evaluation_episodes": 50,
   "nb_steps": 250,
   "warm_up_duration": 1000,

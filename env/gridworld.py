@@ -2,12 +2,12 @@ import numpy as np
 
 class Env():
 
-	def __init__(self, nb_agents):
+	def __init__(self, nb_agents, height, width):
 		super(Env, self).__init__()
 
 		self.nb_agents = nb_agents
-		self.height = 3
-		self.width = 3
+		self.height = height
+		self.width = width
 		self.goals = []
 
 		self.available_states = self.get_available_states()
@@ -137,10 +137,13 @@ class Env():
 
 	def reset(self):
 		obs = []
-		decimal = [(2,0), (0,2)]
 		self.goals = [[(0,0)], [(2,2)]]
+
+		if self.nb_agents == 1:
+			decimal = [(np.random.randint(self.height), np.random.randint(self.width))]
+		else:
+			decimal = [(2,0), (0,2)]
 		for i in range(self.nb_agents):
-			#decimal = (np.random.randint(self.height), np.random.randint(self.width))
 			binary = -np.ones((self.height, self.width), dtype=int)
 			binary[decimal[i][0]][decimal[i][1]] = 1
 			for goal in self.goals[i]:
@@ -160,6 +163,6 @@ class Env():
 	def action_space(self):
 		return len(self.get_available_actions_list()[0])
 
-def make_env(nb_agents):
-	env = Env(nb_agents)
+def make_env(nb_agents, height, width):
+	env = Env(nb_agents, height, width)
 	return env

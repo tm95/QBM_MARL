@@ -1,53 +1,46 @@
 from datetime import datetime
 import numpy as np
 
-def train(env, agent, nb_episodes, nb_steps, logger):
-    exp_time = datetime.now().strftime('%Y%m%d-%H-%M-%S')
 
+def train(env, agents, nb_episodes, nb_steps, logger):
+
+    exp_time = datetime.now().strftime('%Y%m%d-%H-%M-%S')
     print("training started at {}".format(exp_time))
 
     for training_episode in range(nb_episodes):
-        steps = 0
-        env.seed(seed=1234)  # Uncomment to randomize grid
-        state = env.reset()
+
+        episode_rewards = np.zeros(env.nb_agents)
+        state, available_actions_list = env.reset()
+        step_count = 1
         all_done = False
-        rewards = []
-        beta = 1
-        end_beta = 10
 
+        while step_count < nb_steps and not all_done:
+            #env.render(state[0][0])
+            actions_list = []
 
-        # reinforcement learning loop
-        while not all_done and steps < nb_steps:
-            #env.render(mode='human', highlight=True)
+            for i in range(env.nb_agents):
+                action_index = agents[i].policy(state[i], available_actions_list)
+                actions_list.append(action_index)
 
-            steps += 1
-            action_list = []
+            next_state, reward, done = env.step(actions_list, state)
 
-            if (beta + 0.001) <= end_beta:
-                beta += 0.001
-            else:
-                beta = end_beta
+            for i in range(env.nb_agents):
+                agents[i].save(state[i][1], available_actions_list[actions_list[i]], next_state[i], reward[i])
+                episode_rewards[i] += reward[i]
 
-            action, q, hh = agent.policy(state[0], beta)
-            action_list.append(action)
+            for i in range(env.nb_agents):
+                agents[i].qlearn(available_actions_list)
 
-            next_state, reward, done, info = env.step(action_list)
-
-            if reward == 0:
-                reward = -1.0
-
-            agent.qlearn(state[0], action, reward, next_state[0], 0.0001, q, hh)
-            rewards.append(reward)
+            step_count += 1
             state = next_state
-            all_done = done
+            all_done = all(done is True for done in done)
+
+        print("episode {} finished at step {} with and reward: {} at timestamp {}".format(
+            training_episode, step_count, np.sum(episode_rewards), datetime.now().strftime('%Y%m%d-%H-%M-%S')))
 
         if logger is not None:
-            logger.log_metric('episode_return', training_episode, np.sum(rewards))
-            logger.log_metric('episode_steps', training_episode, steps)
+            logger.log_metric('episode_rewards', training_episode, np.sum(episode_rewards))
+            logger.log_metric('episode_steps', training_episode, step_count)
 
-        for i in range(len(env.agents)):
-            if logger is not None:
-                logger.log_metric('episode_return_agent-{}'.format(i), training_episode, np.sum(rewards))
-
-        print("episode {} finished at step {} with reward: {} at timestamp {}".format(
-            training_episode, steps, np.sum(rewards), datetime.now().strftime('%Y%m%d-%H-%M-%S')))
+            for i in range(env.nb_agents):
+                logger.log_metric('episode_return_agent-{}'.format(i), training_episode, episode_rewards[i])
