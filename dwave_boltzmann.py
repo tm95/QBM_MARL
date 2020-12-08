@@ -40,13 +40,9 @@ def run(env, agents, logger):
             for i in range(env.nb_agents):
                 agents[i].qlearn(available_actions_list)
 
-            #if training_episode > 5:
-             #   agents[1].policy_net.Q_hh = agents[0].policy_net.Q_hh
-              #  agents[1].policy_net.Q_vh = agents[0].policy_net.Q_vh
-
             step_count += 1
             state = next_state
-            all_done = any(done is True for done in done)
+            all_done = all(done is True for done in done)
 
         print("episode {} finished at step {} with and reward: {} at timestamp {}".format(
             training_episode, step_count, np.sum(episode_rewards), datetime.now().strftime('%Y%m%d-%H-%M-%S')))
