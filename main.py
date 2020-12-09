@@ -25,7 +25,7 @@ def train():
         neptune.append_tag('agents-{}'.format(params.nb_agents),
                            'height-{}'.format(params.env_height),
                            'width-{}'.format(params.env_width),
-                           'erb-{}'.format(1))
+                           'erb-{}'.format(0))
         run_experiment(logger, params)
 
 
