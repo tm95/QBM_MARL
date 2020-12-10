@@ -205,40 +205,38 @@ class QBM_agent:
 		self.memory = ReplayMemory(20000, 42)
 		self.training_count = 1
 
-	def qlearn(self, state, available_actions_list, next_state, reward):
+	def qlearn(self, available_actions_list):
 		if len(self.memory) < self.warm_up_duration:
 			return
 
-		#transitions = self.memory.sample(self.mini_batch_size)
-		#batch = Transition(*zip(*transitions))
-
-		batch = [state, available_actions_list, [next_state[0], next_state[1]], reward]
+		transitions = self.memory.sample(self.mini_batch_size)
+		batch = Transition(*zip(*transitions))
 
 		for i in range(self.mini_batch_size):
-			vis_iterable = batch[0] + batch[1]
+			vis_iterable = batch[0][i] + batch[1][i]
 			current_F, samples, visible_iterable = self.policy_net.calculate_q(vis_iterable)
 			prob_dict = self.policy_net.get_average_configuration(samples)
 
 			future_F = -100000
 
 			for action_index in range(self.action_size):
-				vis_iterable = batch[2][1] + available_actions_list
+				vis_iterable = batch[2][i][1] + available_actions_list[action_index]
 				F, samples, vis_iterable = self.policy_net.calculate_q(vis_iterable)
 				if F > future_F:
 					future_F = F
 
 			for k_pair in self.policy_net.Q_hh.keys():
-				self.policy_net.Q_hh[k_pair] = self.policy_net.Q_hh[k_pair] - self.lr * (batch[3] + self.discount_factor * future_F - current_F) * prob_dict[k_pair] / len(samples)
+				self.policy_net.Q_hh[k_pair] = self.policy_net.Q_hh[k_pair] - self.lr * (batch[3][i] + self.discount_factor * future_F - current_F) * prob_dict[k_pair] / len(samples)
 
 			for k_pair in self.policy_net.Q_vh.keys():
-				self.policy_net.Q_vh[k_pair] = self.policy_net.Q_vh[k_pair] - self.lr * (batch[3] + self.discount_factor * future_F - current_F) * visible_iterable[k_pair[0]] * prob_dict[k_pair[1]] / len(samples)
+				self.policy_net.Q_vh[k_pair] = self.policy_net.Q_vh[k_pair] - self.lr * (batch[3][i] + self.discount_factor * future_F - current_F) * visible_iterable[k_pair[0]] * prob_dict[k_pair[1]] / len(samples)
 
 		self.epsilon = max(self.epsilon - self.epsilon_decay, self.epsilon_min)
 
-		#self.training_count += 1
-		#if self.training_count % self.target_update_period == 0:
-	#		self.target_net.Q_hh = self.policy_net.Q_hh
-	#		self.target_net.Q_vh = self.policy_net.Q_vh
+		self.training_count += 1
+		if self.training_count % self.target_update_period == 0:
+			self.target_net.Q_hh = self.policy_net.Q_hh
+			self.target_net.Q_vh = self.policy_net.Q_vh
 
 	def save(self, state, action, next_state, reward):
 		self.memory.push(state, action, next_state, reward)
