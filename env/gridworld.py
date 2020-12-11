@@ -129,20 +129,26 @@ class Env():
 				reward = -10
 			for j in range(self.nb_agents):
 				if i != j:
-					if agent_state_tuple[i][0] in list(self.goals[j]):
+					if agent_state_tuple[i][0] in list(self.goals[j]) and len(self.goals[i]) != 0:
 						reward = -210
+
 			rewards.append(reward)
 
 		return rewards
 
 	def reset(self):
 		obs = []
+		states = []
+		decimal = []
 		self.goals = [[(0,0)], [(2,2)]]
+		for i in range(self.height):
+			for j in range(self.width):
+				if (i,j) not in self.goals[0] and (i,j) not in self.goals[1]:
+					states.append((i,j))
 
-		if self.nb_agents == 1:
-			decimal = [(np.random.randint(self.height), np.random.randint(self.width))]
-		else:
-			decimal = [(2,0), (0,2)]
+		for i in range(self.nb_agents):
+			decimal.append(states[np.random.randint(len(states))])
+
 		for i in range(self.nb_agents):
 			binary = -np.ones((self.height, self.width), dtype=int)
 			binary[decimal[i][0]][decimal[i][1]] = 1
