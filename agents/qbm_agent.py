@@ -215,13 +215,13 @@ class QBM_agent:
 		for i in range(self.mini_batch_size):
 			vis_iterable = batch[0][i] + batch[1][i]
 			current_F, samples, visible_iterable = self.policy_net.calculate_q(vis_iterable)
-			prob_dict = self.target_net.get_average_configuration(samples)
+			prob_dict = self.policy_net.get_average_configuration(samples)
 
 			future_F = -100000
 
 			for action_index in range(self.action_size):
 				vis_iterable = batch[2][i][1] + available_actions_list[action_index]
-				F, samples, vis_iterable = self.policy_net.calculate_q(vis_iterable)
+				F, samples, vis_iterable = self.target_net.calculate_q(vis_iterable)
 				if F > future_F:
 					future_F = F
 
