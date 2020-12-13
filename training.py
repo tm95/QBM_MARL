@@ -25,11 +25,14 @@ def train(env, agents, nb_episodes, nb_steps, logger):
             next_state, reward, done = env.step(actions_list, state)
 
             for i in range(env.nb_agents):
-                agents[i].save(state[i][1], available_actions_list[actions_list[i]], next_state[i], reward[i])
+                agents[0].save(state[i][1], available_actions_list[actions_list[i]], next_state[i], reward[i])
                 episode_rewards[i] += reward[i]
 
             for i in range(env.nb_agents):
-                agents[i].qlearn(available_actions_list)
+                agents[0].qlearn(available_actions_list)
+
+            agents[1].policy_net.Q_hh = agents[0].policy_net.Q_hh
+            agents[1].policy_net.Q_vh = agents[0].policy_net.Q_vh
 
             step_count += 1
             state = next_state

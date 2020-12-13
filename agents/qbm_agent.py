@@ -199,7 +199,7 @@ class QBM_agent:
 		self.lr = 0.005
 		self.discount_factor = 0.8
 
-		self.mini_batch_size = 8
+		self.mini_batch_size = 16
 		self.warm_up_duration = 250
 		self.target_update_period = 250
 		self.memory = ReplayMemory(20000, 42)

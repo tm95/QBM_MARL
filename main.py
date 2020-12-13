@@ -26,7 +26,8 @@ def train():
                            'height-{}'.format(params.env_height),
                            'width-{}'.format(params.env_width),
                            'erb-{}'.format(1),
-                           'target-{}'.format(1))
+                           'target-{}'.format(1),
+                           'parameter-sharing-{}'.format(1))
         run_experiment(logger, params)
 
 
