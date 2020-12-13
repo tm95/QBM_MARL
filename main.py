@@ -47,5 +47,5 @@ def run_experiment(logger, params):
 if __name__ == '__main__':
     args = sys.argv
     seed = 1589174148213878
-    for run in range(5):
+    for run in range(2):
         train()
