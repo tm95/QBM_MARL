@@ -37,7 +37,7 @@ class DBM:
 		self.gamma = 0.5
 
 		self.replica_count = 1
-		self.average_size = 10
+		self.average_size = 50
 		self.sample_count = self.replica_count * self.average_size
 
 	def init_weights(self, n_layers, dim_state, dim_action, n_hidden):
@@ -199,7 +199,7 @@ class QBM_agent:
 		self.lr = 0.005
 		self.discount_factor = 0.8
 
-		self.mini_batch_size = 16
+		self.mini_batch_size = 8
 		self.warm_up_duration = 250
 		self.target_update_period = 250
 		self.memory = ReplayMemory(20000, 42)
