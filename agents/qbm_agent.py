@@ -37,7 +37,7 @@ class DBM:
 		self.gamma = 0.5
 
 		self.replica_count = 1
-		self.average_size = 50
+		self.average_size = 10
 		self.sample_count = self.replica_count * self.average_size
 
 	def init_weights(self, n_layers, dim_state, dim_action, n_hidden):
