@@ -28,7 +28,7 @@ def train():
                            'erb-{}'.format(1),
                            'target-{}'.format(1),
                            'cooperative-{}'.format(1),
-                           'parameter-sharing-{}'.format(0))
+                           'parameter-sharing-{}'.format(1))
         run_experiment(logger, params)
 
 
