@@ -27,7 +27,6 @@ def train():
                            'width-{}'.format(params.env_width),
                            'erb-{}'.format(1),
                            'target-{}'.format(1),
-                           'cooperative-{}'.format(1),
                            'parameter-sharing-{}'.format(1))
         run_experiment(logger, params)
 
@@ -48,5 +47,5 @@ def run_experiment(logger, params):
 if __name__ == '__main__':
     args = sys.argv
     seed = 1589174148213878
-    for run in range(5):
+    for run in range(10):
         train()
