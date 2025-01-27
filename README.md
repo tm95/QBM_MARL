@@ -2,7 +2,7 @@
 This is the code for the experiments of our paper [Towards Multi-agent Reinforcement Learning using Quantum Boltzmann Machines](https://arxiv.org/pdf/2109.10900).
 
 ## Setup
-1. Set up a virtualenv with 
+1. Set up a virtualenv with python 3.10 (or higher)
 2. Run ```pip3 install -r requirements.txt``` to get requirements
 3. We used neptune.ai for experiment tracking. In [neptune.ai](neptune.ai), create a Neptune project following the [documentation](https://docs.neptune.ai/setup/creating_project/). Add you project name and api_token in [main.py](main.py). Note, that the code includes the experience replay buffer and separation of policy and target network. 
 
@@ -12,7 +12,7 @@ This is the code for the experiments of our paper [Towards Multi-agent Reinforce
 3. The code for the environment can be found in [env](env) folder
 4. The code for the QBM and RBM agent can be found in the [agents](agents) folder
 
-# Citation
+## Citation
 If you use this code in your own work, please cite our paper:
 ```
 @article{mueller2022qmarl,
@@ -23,5 +23,5 @@ If you use this code in your own work, please cite our paper:
 }
 ```
 
-# Acknowledgments
+## Acknowledgments
 Some of this code was based on an implementation of ["Free energy-based reinforcement learning using quantum processor"](https://github.com/Mircea-Marian/attract_grid_data_flow_optimization/tree/master)
