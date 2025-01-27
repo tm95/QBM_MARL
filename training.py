@@ -39,8 +39,9 @@ def train(env, agents, nb_episodes, nb_steps, logger):
             training_episode, step_count, np.sum(episode_rewards), datetime.now().strftime('%Y%m%d-%H-%M-%S')))
 
         if logger is not None:
-            logger.log_metric('episode_rewards', training_episode, np.sum(episode_rewards))
-            logger.log_metric('episode_steps', training_episode, step_count)
+            logger["train/rewards/0"].append(np.sum(episode_rewards))
+            logger["train/steps/0"].append(step_count)
 
-            for i in range(env.nb_agents):
-                logger.log_metric('episode_return_agent-{}'.format(i), training_episode, episode_rewards[i])
+            if env.nb_agents > 1:
+                for i in range(env.nb_agents):
+                    logger["train/rewards/agent-{}".format(i)].append(episode_rewards[i])

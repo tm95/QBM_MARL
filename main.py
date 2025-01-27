@@ -16,19 +16,10 @@ def train():
         params_json = json.load(f)
     params = DotMap(params_json)
 
-    neptune.init('tobiasmueller/qmarl',
-                 api_token='eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vdWkubmVwdHVuZS5tbCIsImFwa'
-                           'V91cmwiOiJodHRwczovL3VpLm5lcHR1bmUuYWkiLCJhcGlfa2V5IjoiNz'
-                           'E4NDgxMmQtYTMzMC00ZTUzLTlkNDAtYWNkZTUzODExZmM4In0=')
-    logger = neptune
-    with neptune.create_experiment(name='qmarl', params=params_json):
-        neptune.append_tag('agents-{}'.format(params.nb_agents),
-                           'height-{}'.format(params.env_height),
-                           'width-{}'.format(params.env_width),
-                           'erb-{}'.format(1),
-                           'target-{}'.format(1),
-                           'parameter-sharing-{}'.format(1))
-        run_experiment(logger, params)
+    logger = neptune.init_run( monitoring_namespace = "monitoring")
+    logger["parameters"] = params_json
+
+    run_experiment(logger, params)
 
 
 def run_experiment(logger, params):

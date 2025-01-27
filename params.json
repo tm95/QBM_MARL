@@ -1,5 +1,5 @@
 {
-  "nb_agents": 2,
+  "nb_agents": 1,
   "env_height": 3,
   "env_width": 3,
   "lr": 0.005,
@@ -16,5 +16,7 @@
   "epsilon_decay": 0.00008,
   "epsilon_min": 0.01,
   "nb_max_episode_steps": 1000,
-  "logging": 1
+  "logging": 1,
+  "target": 1,
+  "parameter-sharing": 0
 }
