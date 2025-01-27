@@ -3,7 +3,7 @@ This is the code for the experiments of our paper [Towards Multi-agent Reinforce
 
 ## Setup
 1. Set up a virtualenv with 
-2. Run ```pip install -r requirements.txt``` to get requirements
+2. Run ```pip3 install -r requirements.txt``` to get requirements
 3. We used neptune.ai for experiment tracking. In [neptune.ai](neptune.ai), create a Neptune project following the [documentation](https://docs.neptune.ai/setup/creating_project/). Add you project name and api_token in [main.py](main.py). Note, that the code includes the experience replay buffer and separation of policy and target network. 
 
 ## Remarks
